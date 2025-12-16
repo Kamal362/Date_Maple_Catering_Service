@@ -1,0 +1,99 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  :root {
+    /* Tea & Brown Color Palette */
+    --primary-tea: #8B4513;
+    --secondary-tea: #D2B48C;
+    --accent-tea: #F4A460;
+    --light-tea: #F5DEB3;
+    --dark-tea: #5D4037;
+    --cream: #FFF8E1;
+    --gold: #D4AF37;
+    
+    /* Fonts */
+    --heading-font: 'Playfair Display', serif;
+    --body-font: 'Poppins', sans-serif;
+  }
+
+  body {
+    margin: 0;
+    font-family: var(--body-font);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background-color: var(--cream);
+    color: var(--dark-tea);
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--heading-font);
+    color: var(--primary-tea);
+  }
+
+  code {
+    font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-primary-tea text-white border-none px-6 py-3 rounded font-semibold transition-all duration-300 ease-in-out;
+  }
+
+  .btn-primary:hover {
+    @apply bg-dark-tea -translate-y-0.5 shadow-lg;
+  }
+
+  .btn-secondary {
+    @apply bg-secondary-tea text-dark-tea border-none px-6 py-3 rounded font-semibold transition-all duration-300 ease-in-out;
+  }
+
+  .btn-secondary:hover {
+    @apply bg-accent-tea -translate-y-0.5 shadow-lg;
+  }
+
+  .card {
+    @apply bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 ease-in-out;
+  }
+
+  .card:hover {
+    @apply -translate-y-1 shadow-xl;
+  }
+
+  .section-padding {
+    @apply py-20;
+  }
+
+  .container {
+    @apply max-w-7xl mx-auto px-5;
+  }
+}
+
+@layer utilities {
+  .bg-primary-tea { background-color: var(--primary-tea); }
+  .bg-secondary-tea { background-color: var(--secondary-tea); }
+  .bg-accent-tea { background-color: var(--accent-tea); }
+  .bg-light-tea { background-color: var(--light-tea); }
+  .bg-dark-tea { background-color: var(--dark-tea); }
+  .bg-cream { background-color: var(--cream); }
+
+  .text-primary-tea { color: var(--primary-tea); }
+  .text-secondary-tea { color: var(--secondary-tea); }
+  .text-accent-tea { color: var(--accent-tea); }
+  .text-light-tea { color: var(--light-tea); }
+  .text-dark-tea { color: var(--dark-tea); }
+  .text-cream { color: var(--cream); }
+  .text-gold { color: var(--gold); }
+
+  .border-primary-tea { border-color: var(--primary-tea); }
+  .border-secondary-tea { border-color: var(--secondary-tea); }
+  .border-accent-tea { border-color: var(--accent-tea); }
+}

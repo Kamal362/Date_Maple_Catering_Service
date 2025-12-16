@@ -1,0 +1,819 @@
+{
+  "drinks": {
+    "standardCoffee": [
+      {
+        "name": "Espresso",
+        "category": "Standard Coffee",
+        "description": "Rich and bold espresso shot",
+        "sizes": [
+          {
+            "size": "Single",
+            "price": 3.00
+          },
+          {
+            "size": "Double",
+            "price": 4.50
+          }
+        ],
+        "available": true,
+        "dietary": ["vegan-friendly"],
+        "image": "/images/drinks/espresso.jpg"
+      },
+      {
+        "name": "Americano",
+        "category": "Standard Coffee",
+        "description": "Espresso with hot water",
+        "sizes": [
+          {
+            "size": "Small",
+            "price": 3.50
+          },
+          {
+            "size": "Medium",
+            "price": 4.00
+          },
+          {
+            "size": "Large",
+            "price": 4.50
+          }
+        ],
+        "available": true,
+        "dietary": ["vegan-friendly"],
+        "image": "/images/drinks/americano.jpg"
+      },
+      {
+        "name": "Latte",
+        "category": "Standard Coffee",
+        "description": "Espresso with steamed milk",
+        "sizes": [
+          {
+            "size": "Small",
+            "price": 4.50
+          },
+          {
+            "size": "Medium",
+            "price": 5.00
+          },
+          {
+            "size": "Large",
+            "price": 5.50
+          }
+        ],
+        "available": true,
+        "dietary": ["vegetarian"],
+        "altMilkOptions": ["oat", "almond"],
+        "coldFoamAvailable": true,
+        "image": "/images/drinks/latte.jpg"
+      },
+      {
+        "name": "Cappuccino",
+        "category": "Standard Coffee",
+        "description": "Espresso with steamed milk and foam",
+        "sizes": [
+          {
+            "size": "Small",
+            "price": 4.50
+          },
+          {
+            "size": "Medium",
+            "price": 5.00
+          },
+          {
+            "size": "Large",
+            "price": 5.50
+          }
+        ],
+        "available": true,
+        "dietary": ["vegetarian"],
+        "altMilkOptions": ["oat", "almond"],
+        "image": "/images/drinks/cappuccino.jpg"
+      }
+    ],
+    "specialtyLattes": [
+      {
+        "name": "Salted Date Caramel Latte",
+        "category": "Specialty Lattes",
+        "description": "Signature latte with date caramel and sea salt",
+        "sizes": [
+          {
+            "size": "Small",
+            "price": 6.00
+          },
+          {
+            "size": "Medium",
+            "price": 6.50
+          },
+          {
+            "size": "Large",
+            "price": 7.00
+          }
+        ],
+        "available": true,
+        "dietary": ["vegetarian"],
+        "altMilkOptions": ["oat", "almond"],
+        "coldFoamAvailable": true,
+        "image": "/images/drinks/salted-date-caramel-latte.jpg"
+      },
+      {
+        "name": "Banana Pudding Matcha Latte",
+        "category": "Specialty Lattes",
+        "description": "Creamy matcha latte with banana pudding flavor",
+        "sizes": [
+          {
+            "size": "Small",
+            "price": 6.50
+          },
+          {
+            "size": "Medium",
+            "price": 7.00
+          },
+          {
+            "size": "Large",
+            "price": 7.50
+          }
+        ],
+        "available": true,
+        "dietary": ["vegetarian"],
+        "altMilkOptions": ["oat", "almond"],
+        "coldFoamAvailable": true,
+        "image": "/images/drinks/banana-pudding-matcha-latte.jpg"
+      }
+    ],
+    "hotDrinks": [
+      {
+        "name": "Hot Chai Latte",
+        "category": "Hot Drinks",
+        "description": "Spiced chai tea with steamed milk",
+        "sizes": [
+          {
+            "size": "Small",
+            "price": 4.50
+          },
+          {
+            "size": "Medium",
+            "price": 5.00
+          },
+          {
+            "size": "Large",
+            "price": 5.50
+          }
+        ],
+        "available": true,
+        "dietary": ["vegetarian"],
+        "altMilkOptions": ["oat", "almond"],
+        "image": "/images/drinks/chai-latte.jpg"
+      }
+    ],
+    "standardMatcha": [
+      {
+        "name": "Simply Matcha",
+        "category": "Standard Matcha",
+        "description": "Pure ceremonial grade matcha",
+        "sizes": [
+          {
+            "size": "Small",
+            "price": 5.00
+          },
+          {
+            "size": "Medium",
+            "price": 5.50
+          },
+          {
+            "size": "Large",
+            "price": 6.00
+          }
+        ],
+        "available": true,
+        "dietary": ["vegan-friendly"],
+        "altMilkOptions": ["oat", "almond"],
+        "coldFoamAvailable": true,
+        "image": "/images/drinks/simply-matcha.jpg"
+      },
+      {
+        "name": "Simple Syrup Matcha Latte",
+        "category": "Standard Matcha",
+        "description": "Matcha latte with simple syrup",
+        "sizes": [
+          {
+            "size": "Small",
+            "price": 5.50
+          },
+          {
+            "size": "Medium",
+            "price": 6.00
+          },
+          {
+            "size": "Large",
+            "price": 6.50
+          }
+        ],
+        "available": true,
+        "dietary": ["vegetarian"],
+        "altMilkOptions": ["oat", "almond"],
+        "coldFoamAvailable": true,
+        "image": "/images/drinks/simple-syrup-matcha-latte.jpg"
+      }
+    ],
+    "specialtyMatcha": [
+      {
+        "name": "Horchata Matcha",
+        "category": "Specialty Matcha",
+        "description": "Matcha with horchata flavors and cinnamon",
+        "sizes": [
+          {
+            "size": "Small",
+            "price": 6.50
+          },
+          {
+            "size": "Medium",
+            "price": 7.00
+          },
+          {
+            "size": "Large",
+            "price": 7.50
+          }
+        ],
+        "available": true,
+        "dietary": ["vegetarian"],
+        "altMilkOptions": ["oat", "almond"],
+        "coldFoamAvailable": true,
+        "image": "/images/drinks/horchata-matcha.jpg"
+      },
+      {
+        "name": "Strawberry Earl Matcha",
+        "category": "Specialty Matcha",
+        "description": "Matcha with strawberry and Earl Grey tea notes",
+        "sizes": [
+          {
+            "size": "Small",
+            "price": 6.50
+          },
+          {
+            "size": "Medium",
+            "price": 7.00
+          },
+          {
+            "size": "Large",
+            "price": 7.50
+          }
+        ],
+        "available": true,
+        "dietary": ["vegetarian"],
+        "altMilkOptions": ["oat", "almond"],
+        "coldFoamAvailable": true,
+        "image": "/images/drinks/strawberry-earl-matcha.jpg"
+      }
+    ],
+    "mocktails": [
+      {
+        "name": "Virgin Mojito",
+        "category": "Mocktails",
+        "description": "Refreshing mint and lime mocktail",
+        "sizes": [
+          {
+            "size": "Regular",
+            "price": 5.50
+          }
+        ],
+        "available": true,
+        "dietary": ["vegan-friendly"],
+        "image": "/images/drinks/virgin-mojito.jpg"
+      },
+      {
+        "name": "Sparkling Berry Fizz",
+        "category": "Mocktails",
+        "description": "Mixed berries with sparkling water",
+        "sizes": [
+          {
+            "size": "Regular",
+            "price": 5.50
+          }
+        ],
+        "available": true,
+        "dietary": ["vegan-friendly"],
+        "image": "/images/drinks/berry-fizz.jpg"
+      }
+    ]
+  },
+  "food": {
+    "pastries": [
+      {
+        "name": "Cinnamon Roll",
+        "category": "Pastries",
+        "description": "Freshly baked cinnamon roll with cream cheese frosting",
+        "price": 4.50,
+        "available": true,
+        "dietary": ["vegetarian"],
+        "image": "/images/food/cinnamon-roll.jpg"
+      }
+    ],
+    "cookies": [
+      {
+        "name": "Pumpkin Chocolate Chip Cookie",
+        "category": "Cookies",
+        "description": "Soft pumpkin cookie with chocolate chips",
+        "price": 3.50,
+        "available": true,
+        "dietary": ["vegetarian"],
+        "image": "/images/food/pumpkin-chocolate-chip-cookie.jpg"
+      },
+      {
+        "name": "Classic Chocolate Chip Cookie",
+        "category": "Cookies",
+        "description": "Traditional chocolate chip cookie",
+        "price": 3.00,
+        "available": true,
+        "dietary": ["vegetarian"],
+        "image": "/images/food/chocolate-chip-cookie.jpg"
+      }
+    ],
+    "desserts": [
+      {
+        "name": "Bread Pudding",
+        "category": "Desserts",
+        "description": "Warm bread pudding with caramel sauce",
+        "price": 5.50,
+        "available": true,
+        "dietary": ["vegetarian"],
+        "image": "/images/food/bread-pudding.jpg"
+      }
+    ],
+    "biscuits": [
+      {
+        "name": "Buttermilk Biscuit",
+        "category": "Biscuits",
+        "description": "Flaky buttermilk biscuit",
+        "price": 3.00,
+        "available": true,
+        "dietary": ["vegetarian"],
+        "image": "/images/food/buttermilk-biscuit.jpg"
+      }
+    ],
+    "bars": [
+      {
+        "name": "Pie Bar",
+        "category": "Bars",
+        "description": "Seasonal pie filling in bar form",
+        "price": 4.00,
+        "available": true,
+        "dietary": ["vegetarian"],
+        "image": "/images/food/pie-bar.jpg"
+      },
+      {
+        "name": "Shortbread Bar",
+        "category": "Bars",
+        "description": "Buttery shortbread bar",
+        "price": 3.50,
+        "available": true,
+        "dietary": ["vegetarian"],
+        "image": "/images/food/shortbread-bar.jpg"
+      }
+    ]
+  },
+  "cateringServices": {
+    "eventTypes": [
+      {
+        "value": "baby_shower",
+        "label": "Baby Shower/Aqiqah",
+        "description": "Celebration for new arrivals"
+      },
+      {
+        "value": "general_party",
+        "label": "General Party",
+        "description": "Birthday, anniversary, or celebration"
+      },
+      {
+        "value": "bridal_party",
+        "label": "Bridal Party",
+        "description": "Wedding shower or bridal event"
+      },
+      {
+        "value": "business_event",
+        "label": "Business Event",
+        "description": "Corporate meetings, conferences, or networking"
+      },
+      {
+        "value": "community_event",
+        "label": "Community Event",
+        "description": "Fundraisers, gatherings, or public events"
+      },
+      {
+        "value": "other",
+        "label": "Other",
+        "description": "Custom event type"
+      }
+    ],
+    "serviceTypes": [
+      {
+        "value": "catered",
+        "label": "Catered Event",
+        "description": "Full service with setup and staff"
+      },
+      {
+        "value": "vended",
+        "label": "Vended Event",
+        "description": "Mobile cart or booth service"
+      }
+    ],
+    "venueTypes": [
+      {
+        "value": "indoor",
+        "label": "Indoor",
+        "description": "Indoor venue with standard facilities"
+      },
+      {
+        "value": "outdoor_with_power",
+        "label": "Outdoor (With Electrical Outlets)",
+        "description": "Outdoor venue with power access"
+      },
+      {
+        "value": "outdoor_no_power",
+        "label": "Outdoor (Without Electrical Outlets)",
+        "description": "Outdoor venue requiring generator"
+      }
+    ],
+    "guestRanges": [
+      {
+        "value": "1-25",
+        "label": "1-25 guests",
+        "minGuests": 1,
+        "maxGuests": 25
+      },
+      {
+        "value": "26-50",
+        "label": "26-50 guests",
+        "minGuests": 26,
+        "maxGuests": 50
+      },
+      {
+        "value": "51-100",
+        "label": "51-100 guests",
+        "minGuests": 51,
+        "maxGuests": 100
+      },
+      {
+        "value": "101-200",
+        "label": "101-200 guests",
+        "minGuests": 101,
+        "maxGuests": 200
+      },
+      {
+        "value": "201+",
+        "label": "201+ guests",
+        "minGuests": 201,
+        "maxGuests": null
+      }
+    ],
+    "budgetRanges": [
+      {
+        "value": "under_500",
+        "label": "Under $500",
+        "min": 0,
+        "max": 500
+      },
+      {
+        "value": "500-1000",
+        "label": "$500 - $1,000",
+        "min": 500,
+        "max": 1000
+      },
+      {
+        "value": "1000-2500",
+        "label": "$1,000 - $2,500",
+        "min": 1000,
+        "max": 2500
+      },
+      {
+        "value": "2500-5000",
+        "label": "$2,500 - $5,000",
+        "min": 2500,
+        "max": 5000
+      },
+      {
+        "value": "5000+",
+        "label": "$5,000+",
+        "min": 5000,
+        "max": null
+      }
+    ],
+    "formFields": {
+      "customerInformation": [
+        {
+          "name": "firstName",
+          "label": "First Name",
+          "type": "text",
+          "required": true,
+          "placeholder": "Enter your first name"
+        },
+        {          "name": "lastName",
+          "label": "Last Name",
+          "type": "text",
+          "required": true,
+          "placeholder": "Enter your last name"
+        },
+        {
+          "name": "email",
+          "label": "Email Address",
+          "type": "email",
+          "required": true,
+          "placeholder": "your.email@example.com"
+        },
+        {
+          "name": "phone",
+          "label": "Phone Number",
+          "type": "tel",
+          "required": true,
+          "placeholder": "(555) 123-4567"
+        },
+        {
+          "name": "alternatePhone",
+          "label": "Alternate Phone (Optional)",
+          "type": "tel",
+          "required": false,
+          "placeholder": "(555) 987-6543"
+        }
+      ],
+      "eventDetails": [
+        {
+          "name": "eventDate",
+          "label": "Event Date",
+          "type": "date",
+          "required": true
+        },
+        {
+          "name": "startTime",
+          "label": "Start Time",
+          "type": "time",
+          "required": true
+        },
+        {
+          "name": "endTime",
+          "label": "End Time",
+          "type": "time",
+          "required": true
+        },
+        {
+          "name": "location",
+          "label": "Event Location",
+          "type": "textarea",
+          "required": true,
+          "placeholder": "Enter full address including city, state, and zip code"
+        },
+        {
+          "name": "venueType",
+          "label": "Venue Type",
+          "type": "select",
+          "required": true,
+          "options": "venueTypes"
+        }
+      ],
+      "eventSpecifications": [
+        {
+          "name": "eventType",
+          "label": "Event Type",
+          "type": "select",
+          "required": true,
+          "options": "eventTypes"
+        },
+        {
+          "name": "eventTypeOther",
+          "label": "Please Specify Event Type",
+          "type": "text",
+          "required": false,
+          "conditionalOn": "eventType",
+          "conditionalValue": "other",
+          "placeholder": "Describe your event type"
+        },
+        {
+          "name": "serviceType",
+          "label": "Service Type",
+          "type": "select",
+          "required": true,
+          "options": "serviceTypes"
+        },
+        {
+          "name": "guestCount",
+          "label": "Expected Number of Guests",
+          "type": "select",
+          "required": true,
+          "options": "guestRanges"
+        },
+        {
+          "name": "estimatedBudget",
+          "label": "Estimated Budget",
+          "type": "select",
+          "required": true,
+          "options": "budgetRanges"
+        }
+      ],
+      "menuPreferences": [
+        {
+          "name": "drinkSelection",
+          "label": "Drink Preferences",
+          "type": "checkbox-group",
+          "required": false,
+          "options": [
+            {
+              "value": "standard_coffee",
+              "label": "Standard Coffee (Espresso, Lattes, Americano)"
+            },
+            {
+              "value": "specialty_lattes",
+              "label": "Specialty Lattes (Salted Date Caramel, Banana Pudding Matcha)"
+            },
+            {
+              "value": "hot_drinks",
+              "label": "Hot Drinks (Chai Latte)"
+            },
+            {
+              "value": "standard_matcha",
+              "label": "Standard Matcha"
+            },
+            {
+              "value": "specialty_matcha",
+              "label": "Specialty Matcha (Horchata, Strawberry Earl)"
+            },
+            {
+              "value": "mocktails",
+              "label": "Mocktails"
+            }
+          ]
+        },
+        {
+          "name": "altMilkNeeded",
+          "label": "Alternative Milk Options Needed?",
+          "type": "checkbox-group",
+          "required": false,
+          "options": [
+            {
+              "value": "oat",
+              "label": "Oat Milk"
+            },
+            {
+              "value": "almond",
+              "label": "Almond Milk"
+            }
+          ]
+        },
+        {
+          "name": "coldFoamNeeded",
+          "label": "Cold Foam Options?",
+          "type": "radio",
+          "required": false,
+          "options": [
+            {
+              "value": "yes",
+              "label": "Yes"
+            },
+            {
+              "value": "no",
+              "label": "No"
+            }
+          ]
+        },
+        {
+          "name": "foodSelection",
+          "label": "Food Preferences",
+          "type": "checkbox-group",
+          "required": false,
+          "options": [
+            {
+              "value": "cinnamon_rolls",
+              "label": "Cinnamon Rolls"
+            },
+            {
+              "value": "cookies",
+              "label": "Cookies (Pumpkin Chocolate Chip, Classic)"
+            },
+            {
+              "value": "bread_pudding",
+              "label": "Bread Pudding"
+            },
+            {
+              "value": "biscuits",
+              "label": "Biscuits"
+            },
+            {
+              "value": "pie_bars",
+              "label": "Pie Bars"
+            },
+            {
+              "value": "shortbread_bars",
+              "label": "Shortbread Bars"
+            }
+          ]
+        },
+        {
+          "name": "dietaryRestrictions",
+          "label": "Dietary Restrictions or Allergies",
+          "type": "textarea",
+          "required": false,
+          "placeholder": "Please list any dietary restrictions, allergies, or special requirements"
+        }
+      ],
+      "additionalInformation": [
+        {
+          "name": "specialRequests",
+          "label": "Special Requests or Additional Details",
+          "type": "textarea",
+          "required": false,
+          "placeholder": "Any special requests, themes, setup requirements, or additional information we should know about your event"
+        },
+        {
+          "name": "setupRequirements",
+          "label": "Setup Requirements",
+          "type": "textarea",
+          "required": false,
+          "placeholder": "Describe any specific setup needs (tables, decorations, serving style, etc.)"
+        },
+        {
+          "name": "hearAboutUs",
+          "label": "How did you hear about us?",
+          "type": "select",
+          "required": false,
+          "options": [
+            {
+              "value": "social_media",
+              "label": "Social Media"
+            },
+            {
+              "value": "google_search",
+              "label": "Google Search"
+            },
+            {
+              "value": "referral",
+              "label": "Friend/Family Referral"
+            },
+            {
+              "value": "previous_customer",
+              "label": "Previous Customer"
+            },
+            {
+              "value": "event",
+              "label": "Saw you at an event"
+            },
+            {
+              "value": "other",
+              "label": "Other"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "addOns": {
+    "milkAlternatives": [
+      {
+        "name": "Oat Milk",
+        "value": "oat",
+        "additionalCost": 0.75,
+        "available": true
+      },
+      {
+        "name": "Almond Milk",
+        "value": "almond",
+        "additionalCost": 0.75,
+        "available": true
+      }
+    ],
+    "toppings": [
+      {
+        "name": "Cold Foam",
+        "value": "cold_foam",
+        "additionalCost": 1.00,
+        "available": true
+      },
+      {
+        "name": "Extra Shot",
+        "value": "extra_shot",
+        "additionalCost": 1.50,
+        "available": true
+      },
+      {
+        "name": "Whipped Cream",
+        "value": "whipped_cream",
+        "additionalCost": 0.50,
+        "available": true
+      }
+    ]
+  },
+  "metadata": {
+    "version": "1.0.0",
+    "lastUpdated": "2024-01-15",
+    "currency": "USD",
+    "taxRate": 0.08,
+    "minimumCateringOrder": 500,
+    "advanceBookingDays": 14,
+    "cancellationPolicy": "Cancellations must be made at least 7 days before the event for a full refund. Cancellations within 7 days will incur a 50% fee.",
+    "depositRequired": true,
+    "depositPercentage": 25,
+    "notes": [
+      "All prices are subject to change based on availability and seasonality",
+      "Catering orders require a minimum of 14 days advance notice",
+      "A 25% deposit is required to secure your event booking",
+      "Final guest count must be confirmed 72 hours before the event",
+      "Setup and breakdown time is included in service",
+      "Travel fees may apply for events outside our standard service area"
+    ]
+  }
+}
