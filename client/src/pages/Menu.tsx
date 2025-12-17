@@ -143,8 +143,9 @@ const Menu = () => {
             {filteredItems.map(item => (
               <div key={item.id} className="card overflow-hidden">
                 <div className="relative">
+                  {/* Ensure image is a string before using it as src */}
                   <img 
-                    src={item.image} 
+                    src={typeof item.image === 'string' ? item.image : 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=687&q=80'} 
                     alt={item.name} 
                     className="w-full h-48 object-cover"
                   />

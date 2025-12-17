@@ -1,7 +1,8 @@
 
 import axios from 'axios';
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+// Use window.location.origin to dynamically determine the base URL
+const API_URL = `${window.location.origin}/api`;
 
 const getAuthHeader = () => {
   const token = localStorage.getItem('token');
@@ -25,4 +26,19 @@ export const updateUser = async (id: string, updates: any) => {
 export const deleteUser = async (id: string) => {
   const response = await axios.delete(`${API_URL}/admin/users/${id}`, getAuthHeader());
   return response.data;
+};
+
+export const getAdminStats = async () => {
+  const response = await fetch(`${API_URL}/admin/stats`);
+  return response.json();
+};
+
+export const getRecentOrders = async () => {
+  const response = await fetch(`${API_URL}/admin/recent-orders`);
+  return response.json();
+};
+
+export const getRecentEvents = async () => {
+  const response = await fetch(`${API_URL}/admin/recent-events`);
+  return response.json();
 };

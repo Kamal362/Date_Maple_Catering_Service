@@ -50,13 +50,18 @@ const Hero: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
           <div className="text-center md:text-left">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-heading font-bold mb-6 leading-tight">
-              {displayContent.title.split(' ').map((word, index) => (
-                word === 'Coffees' ? (
-                  <span key={index} className="text-gold"> {word}</span>
-                ) : (
-                  ` ${word}`
-                )
-              ))}
+              {/* Check if title exists before splitting */}
+              {displayContent.title ? (
+                displayContent.title.split(' ').map((word, index) => (
+                  word === 'Coffees' ? (
+                    <span key={index} className="text-gold"> {word}</span>
+                  ) : (
+                    ` ${word}`
+                  )
+                ))
+              ) : (
+                "Experience Authentic <span className='text-gold'>Coffees</span>"
+              )}
             </h1>
             <p className="text-xl mb-8 text-light-tea max-w-lg mx-auto md:mx-0">
               {displayContent.subtitle}

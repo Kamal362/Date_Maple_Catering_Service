@@ -205,7 +205,7 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
-  const handleSaveMenuItem = async (item: MenuItemType) => {
+  const handleSaveMenuItem = async (item: Partial<MenuItemType>) => {
     try {
       let savedItem: MenuItemType;
       
@@ -214,7 +214,10 @@ const AdminDashboard: React.FC = () => {
         savedItem = await updateMenuItem(editingMenuItem.id, item);
         setMenuItems(menuItems.map(m => m.id === editingMenuItem.id ? savedItem : m));
       } else {
-        // Add new
+        // Add new - ensure required fields are present
+        if (!item.name || !item.price || !item.category) {
+          throw new Error('Required fields are missing');
+        }
         savedItem = await createMenuItem(item);
         setMenuItems([...menuItems, savedItem]);
       }

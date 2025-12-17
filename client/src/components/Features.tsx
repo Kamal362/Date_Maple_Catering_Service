@@ -1,15 +1,32 @@
 import React, { useState, useEffect } from 'react';
 import { getHomePageContentBySection, HomePageContent } from '../services/homeContentService';
 
+// Extend the HomePageContent items type to include number property
+interface FeatureItem {
+  name?: string;
+  title?: string;
+  role?: string;
+  description?: string;
+  price?: string;
+  image?: string;
+  alt?: string;
+  number?: string; // Add the number property
+}
+
+// Extend HomePageContent to include properly typed items
+interface FeaturesContent extends HomePageContent {
+  items?: FeatureItem[];
+}
+
 const Features: React.FC = () => {
-  const [content, setContent] = useState<HomePageContent | null>(null);
+  const [content, setContent] = useState<FeaturesContent | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchContent = async () => {
       try {
         const featuresContent = await getHomePageContentBySection('features');
-        setContent(featuresContent);
+        setContent(featuresContent as FeaturesContent);
       } catch (error) {
         console.error('Error fetching features content:', error);
         // Fallback to default content
@@ -34,7 +51,7 @@ const Features: React.FC = () => {
               number: "03"
             }
           ]
-        });
+        } as FeaturesContent);
       } finally {
         setLoading(false);
       }
@@ -44,7 +61,8 @@ const Features: React.FC = () => {
   }, []);
 
   // Default content while loading or if there's an error
-  const defaultContent = {
+  const defaultContent: FeaturesContent = {
+    section: 'features',
     title: 'Why Choose Date&Maple?',
     subtitle: 'We are committed to providing an exceptional dining experience with quality, freshness, and passion.',
     items: [
@@ -77,7 +95,7 @@ const Features: React.FC = () => {
         {index === 2 && <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />}
       </svg>
     )
-  })) || defaultContent.items.map((item, index) => ({
+  })) || defaultContent.items!.map((item, index) => ({
     ...item,
     icon: (
       <svg className="w-16 h-16 text-accent-tea" fill="none" stroke="currentColor" viewBox="0 0 24 24">
