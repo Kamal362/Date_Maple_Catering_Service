@@ -734,11 +734,16 @@ const AdminDashboard: React.FC = () => {
                         <tr key={order._id} className="border-b border-secondary-tea hover:bg-light-tea">
                           <td className="py-2 px-3 font-medium">{order.orderId || order._id.substring(0, 8)}</td>
                           <td className="py-2 px-3">
-                            {order.user.firstName} {order.user.lastName}
-                            <br />
-                            <span className="text-xs text-secondary-tea">{order.user.email}</span>
-                          </td>
-                          <td className="py-2 px-3">${order.totalAmount.toFixed(2)}</td>
+                            {order.user ? (
+                              <>
+                                {order.user.firstName} {order.user.lastName}
+                                <br />
+                                <span className="text-xs text-secondary-tea">{order.user.email}</span>
+                              </>
+                            ) : (
+                              <span className="text-xs text-secondary-tea">Unknown User</span>
+                            )}
+                          </td>                          <td className="py-2 px-3">${order.totalAmount.toFixed(2)}</td>
                           <td className="py-2 px-3">
                             <span className="capitalize">{order.paymentMethod.replace('_', ' ')}</span>
                           </td>
