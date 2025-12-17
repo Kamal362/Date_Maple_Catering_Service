@@ -1,25 +1,23 @@
-const jwt = require('jsonwebtoken');
 const User = require('../models/User');
-const { validateEmail, validatePassword } = require('../middleware/validation');
+const jwt = require('jsonwebtoken');
 
-// Generate JWT token
-const generateToken = (userId) => {
-  return jwt.sign({ id: userId }, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRE
+// Generate JWT Token
+const generateToken = (id) => {
+  return jwt.sign({ id }, process.env.JWT_SECRET || 'your-secret-key', {
+    expiresIn: '30d'
   });
 };
 
-// Register user
 exports.register = async (req, res) => {
   try {
     const { firstName, lastName, email, password, phone } = req.body;
 
-    // Check if user already exists
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
+    // Check if user exists
+    const userExists = await User.findOne({ email });
+    if (userExists) {
       return res.status(400).json({
         success: false,
-        message: 'User already exists with this email'
+        message: 'User already exists'
       });
     }
 
@@ -47,6 +45,7 @@ exports.register = async (req, res) => {
       }
     });
   } catch (error) {
+    console.error('Registration error:', error);
     res.status(500).json({
       success: false,
       message: 'Server error',
@@ -55,7 +54,6 @@ exports.register = async (req, res) => {
   }
 };
 
-// Login user
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -86,9 +84,12 @@ exports.login = async (req, res) => {
       });
     }
 
-    // Update last login
-    user.lastLogin = Date.now();
-    await user.save();
+    // Update last login using findByIdAndUpdate to avoid triggering pre-save hook
+    await User.findByIdAndUpdate(
+      user._id,
+      { lastLogin: Date.now() },
+      { new: false }
+    );
 
     // Generate token
     const token = generateToken(user._id);
@@ -105,6 +106,7 @@ exports.login = async (req, res) => {
       }
     });
   } catch (error) {
+    console.error('Login error:', error);
     res.status(500).json({
       success: false,
       message: 'Server error',
@@ -113,7 +115,6 @@ exports.login = async (req, res) => {
   }
 };
 
-// Get current user
 exports.getMe = async (req, res) => {
   try {
     const user = await User.findById(req.user.id);

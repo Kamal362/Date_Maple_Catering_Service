@@ -17,7 +17,10 @@ interface PaymentMethodFormProps {
 
 const PaymentMethodForm: React.FC<PaymentMethodFormProps> = ({ paymentMethod, onSave, onCancel }) => {
   const [formData, setFormData] = useState<PaymentMethod>(
-    paymentMethod || {
+    paymentMethod ? {
+      ...paymentMethod,
+      isActive: paymentMethod.isActive ?? true
+    } : {
       _id: '',
       vendor: 'Venmo',
       accountName: '',
@@ -104,7 +107,7 @@ const PaymentMethodForm: React.FC<PaymentMethodFormProps> = ({ paymentMethod, on
           <input
             type="checkbox"
             name="isActive"
-            checked={formData.isActive}
+            checked={formData.isActive ?? true}
             onChange={handleChange}
             className="mr-2 h-5 w-5 text-primary-tea rounded focus:ring-primary-tea"
           />

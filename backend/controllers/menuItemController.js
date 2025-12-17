@@ -21,6 +21,28 @@ exports.getMenuItems = async (req, res) => {
   }
 };
 
+// @desc    Get menu items by category
+// @route   GET /api/menu/category/:category
+// @access  Public
+exports.getMenuItemsByCategory = async (req, res) => {
+  try {
+    const { category } = req.params;
+    const menuItems = await MenuItem.find({ category });
+    
+    res.status(200).json({
+      success: true,
+      count: menuItems.length,
+      data: menuItems
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Server error',
+      error: error.message
+    });
+  }
+};
+
 // @desc    Get single menu item
 // @route   GET /api/menu/:id
 // @access  Public

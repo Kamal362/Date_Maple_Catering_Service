@@ -1,13 +1,52 @@
 const Cart = require('../models/Cart');
 const Order = require('../models/Order');
 const MenuItem = require('../models/MenuItem');
+const multer = require('multer');
+const path = require('path');
+
+// Configure multer for file uploads
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/');
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, 'receipt-' + uniqueSuffix + path.extname(file.originalname));
+  }
+});
+
+const upload = multer({ 
+  storage: storage,
+  limits: {
+    fileSize: 10 * 1024 * 1024 // 10MB limit
+  },
+  fileFilter: (req, file, cb) => {
+    // Allow images only
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only image files are allowed!'), false);
+    }
+  }
+}).single('paymentReceipt');
+
+// Export upload middleware for use in routes
+exports.uploadReceipt = upload;
 
 // @desc    Process checkout
 // @route   POST /api/checkout
 // @access  Private
 exports.processCheckout = async (req, res) => {
   try {
-    const { orderType, deliveryAddress, pickupTime, paymentMethod } = req.body;
+    // Parse order data from form data
+    let orderData;
+    if (req.body.orderData) {
+      orderData = JSON.parse(req.body.orderData);
+    } else {
+      orderData = req.body;
+    }
+    
+    const { orderType, deliveryAddress, pickupTime, paymentMethod } = orderData;
     
     // Get user's cart
     const cart = await Cart.findOne({ user: req.user.id }).populate('items.menuItem');
@@ -33,6 +72,14 @@ exports.processCheckout = async (req, res) => {
       specialInstructions: item.specialInstructions
     }));
     
+    // Handle payment receipt if uploaded
+    let paymentReceiptUrl = null;
+    if (req.file) {
+      // In production, you might want to use a cloud storage service
+      // For now, we'll store the relative path
+      paymentReceiptUrl = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
+    }
+
     // Create order
     const order = await Order.create({
       user: req.user.id,
@@ -42,6 +89,7 @@ exports.processCheckout = async (req, res) => {
       deliveryAddress: orderType === 'delivery' ? deliveryAddress : undefined,
       pickupTime: orderType === 'pickup' ? pickupTime : undefined,
       paymentMethod,
+      paymentReceipt: paymentReceiptUrl,
       tax
     });
     
@@ -58,6 +106,7 @@ exports.processCheckout = async (req, res) => {
       data: order
     });
   } catch (error) {
+    console.error('Checkout error:', error);
     res.status(500).json({
       success: false,
       message: 'Server error',

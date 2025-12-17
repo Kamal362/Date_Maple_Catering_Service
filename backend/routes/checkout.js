@@ -1,10 +1,10 @@
 const express = require('express');
-const { processCheckout } = require('../controllers/checkoutController');
+const { processCheckout, uploadReceipt } = require('../controllers/checkoutController');
 const { protect } = require('../middleware/auth');
 
 const router = express.Router();
 
 router.route('/')
-  .post(protect, processCheckout);
+  .post(protect, uploadReceipt, processCheckout);
 
 module.exports = router;

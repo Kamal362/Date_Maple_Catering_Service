@@ -1,9 +1,21 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useCart } from '../context/CartContext';
 
 const CartNotification: React.FC = () => {
-  const { showNotification, notificationMessage } = useCart();
+  const { cartItems, cartCount } = useCart();
+  const [showNotification, setShowNotification] = useState(false);
+  
+  // Show notification when cart count changes
+  useEffect(() => {
+    if (cartCount > 0) {
+      setShowNotification(true);
+      const timer = setTimeout(() => {
+        setShowNotification(false);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [cartCount]);
 
   if (!showNotification) return null;
 
@@ -26,7 +38,7 @@ const CartNotification: React.FC = () => {
           </svg>
         </div>
         <div className="flex-1">
-          <p className="font-medium">{notificationMessage}</p>
+          <p className="font-medium">Item added to cart!</p>
         </div>
         <div className="flex-shrink-0">
           <svg

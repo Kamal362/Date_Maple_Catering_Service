@@ -1,50 +1,38 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { getPaymentMethods, PaymentMethod } from '../services/paymentService';
+import { useNavigate, Link } from 'react-router-dom';
+import { useCart } from '../context/CartContext';
+import { createOrder } from '../services/orderService';
+import { getAllPaymentMethods, PaymentMethod } from '../services/paymentService';
 
 const Checkout: React.FC = () => {
-  const [orderType, setOrderType] = useState('delivery');
-  const [paymentMethod, setPaymentMethod] = useState('card');
+  const [orderType, setOrderType] = useState<'delivery' | 'pickup'>('delivery');
+  const [paymentMethod, setPaymentMethod] = useState<'card' | 'receipt' | 'digital'>('digital');
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('');
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [proofOfPayment, setProofOfPayment] = useState<File | null>(null);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [orderId, setOrderId] = useState<string | null>(null);
+  const { cartItems, cartTotal } = useCart();
+  const navigate = useNavigate();
 
-  const cartItems = [
-    {
-      id: 1,
-      name: 'Salted Date Caramel Latte',
-      price: 6.50,
-      quantity: 2,
-      image: 'https://images.unsplash.com/photo-1559056199-641a0ac8b55e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=774&q=80'
-    },
-    {
-      id: 2,
-      name: 'Cinnamon Roll',
-      price: 4.50,
-      quantity: 1,
-      image: 'https://images.unsplash.com/photo-1559056199-641a0ac8b55e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=774&q=80'
-    }
-  ];
-
-  const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  // Calculate subtotal, tax, and total
+  const subtotal = cartTotal || 0;
   const tax = subtotal * 0.08;
   const total = subtotal + tax;
 
-  // Fetch payment methods
   useEffect(() => {
     const fetchPaymentMethods = async () => {
       try {
-        setLoading(true);
-        const data = await getPaymentMethods();
+        const data = await getAllPaymentMethods();
         setPaymentMethods(data);
         if (data.length > 0) {
           setSelectedPaymentMethod(data[0]._id || '');
         }
-        setError(null);
       } catch (err) {
-        console.error('Error fetching payment methods:', err);
         setError('Failed to load payment methods');
+        console.error(err);
       } finally {
         setLoading(false);
       }
@@ -53,11 +41,71 @@ const Checkout: React.FC = () => {
     fetchPaymentMethods();
   }, []);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleProofOfPaymentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setProofOfPayment(e.target.files[0]);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle checkout submission
-    console.log('Checkout submitted');
-    alert('Order placed successfully! Thank you for your purchase.');
+    
+    try {
+      // Prepare order data
+      const orderData = {
+        orderType,
+        paymentMethod: paymentMethod === 'digital' ? 'receipt_upload' : paymentMethod,
+        deliveryAddress: orderType === 'delivery' ? {
+          street: (document.getElementById('street') as HTMLInputElement)?.value || '',
+          city: (document.getElementById('city') as HTMLInputElement)?.value || '',
+          state: (document.getElementById('state') as HTMLInputElement)?.value || '',
+          zipCode: (document.getElementById('zip') as HTMLInputElement)?.value || ''
+        } : undefined,
+        pickupTime: orderType === 'pickup' ? {
+          date: (document.getElementById('date') as HTMLInputElement)?.value || '',
+          time: (document.getElementById('time') as HTMLInputElement)?.value || ''
+        } : undefined
+      };
+
+      // Create FormData for file upload
+      const formData = new FormData();
+      
+      // Append order data as JSON string
+      formData.append('orderData', JSON.stringify(orderData));
+      
+      // Append payment receipt if uploaded
+      if (proofOfPayment) {
+        formData.append('paymentReceipt', proofOfPayment);
+      }
+
+      // Submit order
+      const response = await createOrder(formData);
+      
+      if (response.success) {
+        // Set order ID and show success modal
+        setOrderId(response.data?._id || null);
+        setShowSuccessModal(true);
+      } else {
+        alert('Failed to place order. Please try again.');
+      }
+    } catch (err) {
+      console.error('Error placing order:', err);
+      alert('Failed to place order. Please try again.');
+    }
+  };
+
+  const handleModalClose = () => {
+    setShowSuccessModal(false);
+    // Navigate to appropriate page based on order type
+    if (orderId) {
+      if (orderType === 'delivery') {
+        // For delivery, go to tracking page
+        navigate(`/order-tracking/${orderId}`);
+      } else {
+        // For pickup, go to waiting page
+        navigate(`/waiting/${orderId}`);
+      }
+    }
   };
 
   // Get selected payment method details
@@ -338,6 +386,42 @@ const Checkout: React.FC = () => {
                             </div>
                           )}
                           <p className="text-sm text-secondary-tea">Include your order number in the payment note.</p>
+                                              
+                          {/* Proof of Payment Upload */}
+                          <div className="mt-4 pt-4 border-t border-secondary-tea">
+                            <h4 className="font-bold mb-2">Proof of Payment</h4>
+                            <p className="text-dark-tea mb-3">Upload a screenshot of your payment as proof:</p>
+                                                
+                            <div className="border-2 border-dashed border-secondary-tea rounded-lg p-4 text-center cursor-pointer hover:border-primary-tea transition-colors duration-300">
+                              <input 
+                                type="file" 
+                                accept="image/*" 
+                                className="hidden" 
+                                id="proofOfPayment"
+                                onChange={handleProofOfPaymentChange}
+                              />
+                              <label htmlFor="proofOfPayment" className="cursor-pointer">
+                                {proofOfPayment ? (
+                                  <>
+                                    <svg className="w-12 h-12 text-green-500 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                    <p className="text-dark-tea mb-1 font-medium">{proofOfPayment.name}</p>
+                                    <p className="text-green-600 text-sm mb-2">File uploaded successfully!</p>
+                                    <p className="text-secondary-tea text-sm">Click to change file</p>
+                                  </>
+                                ) : (
+                                  <>
+                                    <svg className="w-12 h-12 text-secondary-tea mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                                    </svg>
+                                    <p className="text-dark-tea mb-1">Click to upload proof of payment</p>
+                                    <p className="text-secondary-tea text-sm">PNG, JPG, GIF up to 10MB</p>
+                                  </>
+                                )}
+                              </label>
+                            </div>
+                          </div>
                         </div>
                       )}
                     </>
@@ -390,6 +474,34 @@ const Checkout: React.FC = () => {
           </div>
         </div>
       </div>
+      
+      {/* Success Modal */}
+      {showSuccessModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-cream rounded-lg shadow-xl w-full max-w-md">
+            <div className="p-6">
+              <div className="text-center">
+                <svg className="w-16 h-16 text-green-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <h3 className="text-2xl font-heading font-bold text-primary-tea mb-2">Order Placed Successfully!</h3>
+                <p className="text-dark-tea mb-4">
+                  Your order has been placed successfully and is now waiting for admin approval.
+                </p>
+                <p className="text-secondary-tea text-sm mb-6">
+                  You will be notified once your payment has been verified.
+                </p>
+                <button
+                  onClick={handleModalClose}
+                  className="btn-primary w-full py-3"
+                >
+                  Continue
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

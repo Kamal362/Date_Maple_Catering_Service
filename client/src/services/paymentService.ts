@@ -26,7 +26,7 @@ export interface PaymentMethod {
   accountName: string;
   accountNumber: string;
   accountAlias: string;
-  isActive?: boolean;
+  isActive: boolean;
   createdAt?: string;
   updatedAt?: string;
 }

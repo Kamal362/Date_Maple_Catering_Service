@@ -1,4 +1,3 @@
-
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
 import { useCart } from '../context/CartContext';
@@ -17,11 +16,41 @@ const Navbar = () => {
 
           {/* Desktop Menu */}
           <div className="hidden md:flex items-center space-x-8">
-            <Link to="/" className="nav-link">Home</Link>
-            <Link to="/menu" className="nav-link">Menu</Link>
-            <Link to="/about" className="nav-link">About</Link>
-            <Link to="/catering" className="nav-link">Catering</Link>
-            <Link to="/contact" className="nav-link">Contact</Link>
+            <Link to="/" className="text-dark-tea hover:text-primary-tea transition-colors duration-300 font-medium relative group flex items-center">
+              <svg className="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+              </svg>
+              <span className="relative z-10">Home</span>
+              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary-tea transition-all duration-300 group-hover:w-full"></span>
+            </Link>
+            <Link to="/menu" className="text-dark-tea hover:text-primary-tea transition-colors duration-300 font-medium relative group flex items-center">
+              <svg className="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+              </svg>
+              <span className="relative z-10">Menu</span>
+              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary-tea transition-all duration-300 group-hover:w-full"></span>
+            </Link>
+            <Link to="/about" className="text-dark-tea hover:text-primary-tea transition-colors duration-300 font-medium relative group flex items-center">
+              <svg className="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              <span className="relative z-10">About</span>
+              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary-tea transition-all duration-300 group-hover:w-full"></span>
+            </Link>
+            <Link to="/catering" className="text-dark-tea hover:text-primary-tea transition-colors duration-300 font-medium relative group flex items-center">
+              <svg className="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"></path>
+              </svg>
+              <span className="relative z-10">Catering</span>
+              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary-tea transition-all duration-300 group-hover:w-full"></span>
+            </Link>
+            <Link to="/contact" className="text-dark-tea hover:text-primary-tea transition-colors duration-300 font-medium relative group flex items-center">
+              <svg className="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+              </svg>
+              <span className="relative z-10">Contact</span>
+              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary-tea transition-all duration-300 group-hover:w-full"></span>
+            </Link>
             <Link to="/cart" className="relative">
               <svg className="w-6 h-6 text-primary-tea hover:text-accent-tea transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
@@ -52,12 +81,40 @@ const Navbar = () => {
         {/* Mobile Menu */}
         {isOpen && (
           <div className="md:hidden pb-4">
-            <Link to="/" className="block py-2 nav-link" onClick={() => setIsOpen(false)}>Home</Link>
-            <Link to="/menu" className="block py-2 nav-link" onClick={() => setIsOpen(false)}>Menu</Link>
-            <Link to="/about" className="block py-2 nav-link" onClick={() => setIsOpen(false)}>About</Link>
-            <Link to="/catering" className="block py-2 nav-link" onClick={() => setIsOpen(false)}>Catering</Link>
-            <Link to="/contact" className="block py-2 nav-link" onClick={() => setIsOpen(false)}>Contact</Link>
-            <Link to="/cart" className="block py-2 nav-link" onClick={() => setIsOpen(false)}>
+            <Link to="/" className="flex items-center py-2 text-dark-tea hover:text-primary-tea transition-colors duration-300 font-medium" onClick={() => setIsOpen(false)}>
+              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+              </svg>
+              Home
+            </Link>
+            <Link to="/menu" className="flex items-center py-2 text-dark-tea hover:text-primary-tea transition-colors duration-300 font-medium" onClick={() => setIsOpen(false)}>
+              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+              </svg>
+              Menu
+            </Link>
+            <Link to="/about" className="flex items-center py-2 text-dark-tea hover:text-primary-tea transition-colors duration-300 font-medium" onClick={() => setIsOpen(false)}>
+              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              About
+            </Link>
+            <Link to="/catering" className="flex items-center py-2 text-dark-tea hover:text-primary-tea transition-colors duration-300 font-medium" onClick={() => setIsOpen(false)}>
+              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"></path>
+              </svg>
+              Catering
+            </Link>
+            <Link to="/contact" className="flex items-center py-2 text-dark-tea hover:text-primary-tea transition-colors duration-300 font-medium" onClick={() => setIsOpen(false)}>
+              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+              </svg>
+              Contact
+            </Link>
+            <Link to="/cart" className="flex items-center py-2 nav-link" onClick={() => setIsOpen(false)}>
+              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
+              </svg>
               Cart {cartCount > 0 && `(${cartCount})`}
             </Link>
           </div>

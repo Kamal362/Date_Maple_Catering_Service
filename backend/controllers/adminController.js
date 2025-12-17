@@ -125,10 +125,24 @@ exports.getUser = async (req, res) => {
 // @access  Private (Admin only)
 exports.updateUser = async (req, res) => {
   try {
-    const user = await User.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true
-    });
+    const { firstName, lastName, email, phone, role } = req.body;
+    
+    // Validate email if provided
+    if (email) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        return res.status(400).json({
+          success: false,
+          message: 'Please provide a valid email address'
+        });
+      }
+    }
+    
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
+      { firstName, lastName, email, phone, role },
+      { new: true, runValidators: true }
+    ).select('-password');
     
     if (!user) {
       return res.status(404).json({
