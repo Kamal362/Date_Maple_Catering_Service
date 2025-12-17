@@ -1,10 +1,9 @@
-
 export interface MenuItem {
   id: string;
   name: string;
   description: string;
   price: number;
-  image?: string;
+  image?: string | File;
   category: string;
   sizes?: {
     size: string;
@@ -15,6 +14,7 @@ export interface MenuItem {
   altMilkOptions?: string[];
   coldFoamAvailable?: boolean;
 }
+
 export interface MenuSubcategory {
   id: string;
   name: string;

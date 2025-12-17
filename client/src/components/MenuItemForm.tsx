@@ -20,6 +20,8 @@ const MenuItemForm: React.FC<MenuItemFormProps> = ({ menuItem, onSave, onCancel 
     coldFoamAvailable: false
   });
 
+  const [imageSource, setImageSource] = useState<'url' | 'upload'>('url');
+  const [imageFile, setImageFile] = useState<File | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
@@ -35,6 +37,11 @@ const MenuItemForm: React.FC<MenuItemFormProps> = ({ menuItem, onSave, onCancel 
         altMilkOptions: menuItem.altMilkOptions || [],
         coldFoamAvailable: menuItem.coldFoamAvailable || false
       });
+      
+      // If there's an image URL, default to URL source
+      if (menuItem.image) {
+        setImageSource('url');
+      }
     }
   }, [menuItem]);
 
@@ -79,6 +86,23 @@ const MenuItemForm: React.FC<MenuItemFormProps> = ({ menuItem, onSave, onCancel 
     });
   };
 
+  const handleImageFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setImageFile(file);
+      // Clear URL when file is selected
+      setFormData(prev => ({ ...prev, image: '' }));
+      // Clear image error
+      if (errors.image) {
+        setErrors(prev => {
+          const newErrors = { ...prev };
+          delete newErrors.image;
+          return newErrors;
+        });
+      }
+    }
+  };
+
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
 
@@ -100,17 +124,45 @@ const MenuItemForm: React.FC<MenuItemFormProps> = ({ menuItem, onSave, onCancel 
       newErrors.category = 'Category is required';
     }
 
+    // Validate image based on selected source
+    if (imageSource === 'url' && formData.image.trim() === '' && !imageFile) {
+      newErrors.image = 'Image URL is required';
+    } else if (imageSource === 'upload' && !imageFile && !menuItem?.image) {
+      newErrors.image = 'Image file is required';
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!validateForm()) {
       return;
     }
 
+    // Prepare form data for submission
+    const submitData = new FormData();
+    
+    // Add all form fields
+    submitData.append('name', formData.name);
+    submitData.append('description', formData.description);
+    submitData.append('price', formData.price);
+    submitData.append('category', formData.category);
+    submitData.append('available', formData.available.toString());
+    submitData.append('dietary', JSON.stringify(formData.dietary));
+    submitData.append('altMilkOptions', JSON.stringify(formData.altMilkOptions));
+    submitData.append('coldFoamAvailable', formData.coldFoamAvailable.toString());
+    
+    // Add image based on source
+    if (imageSource === 'url' && formData.image) {
+      submitData.append('image', formData.image);
+    } else if (imageSource === 'upload' && imageFile) {
+      submitData.append('image', imageFile);
+    }
+
+    // Convert back to object for the onSave callback
     const menuItemData: MenuItem = {
       id: menuItem?.id || Date.now().toString(),
       name: formData.name,
@@ -209,15 +261,70 @@ const MenuItemForm: React.FC<MenuItemFormProps> = ({ menuItem, onSave, onCancel 
       </div>
 
       <div>
-        <label className="block text-dark-tea mb-1">Image URL</label>
-        <input
-          type="text"
-          name="image"
-          value={formData.image}
-          onChange={handleChange}
-          className="w-full px-3 py-2 border border-secondary-tea rounded-md focus:outline-none focus:ring-2 focus:ring-primary-tea text-sm"
-          placeholder="https://example.com/image.jpg"
-        />
+        <label className="block text-dark-tea mb-1">Image *</label>
+        
+        {/* Image source tabs */}
+        <div className="flex border-b border-secondary-tea mb-2">
+          <button
+            type="button"
+            onClick={() => setImageSource('url')}
+            className={`py-2 px-4 text-sm font-medium ${
+              imageSource === 'url'
+                ? 'border-b-2 border-primary-tea text-primary-tea'
+                : 'text-dark-tea hover:text-primary-tea'
+            }`}
+          >
+            URL
+          </button>
+          <button
+            type="button"
+            onClick={() => setImageSource('upload')}
+            className={`py-2 px-4 text-sm font-medium ${
+              imageSource === 'upload'
+                ? 'border-b-2 border-primary-tea text-primary-tea'
+                : 'text-dark-tea hover:text-primary-tea'
+            }`}
+          >
+            Upload
+          </button>
+        </div>
+        
+        {/* URL input */}
+        {imageSource === 'url' && (
+          <div>
+            <input
+              type="text"
+              name="image"
+              value={formData.image}
+              onChange={handleChange}
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-tea text-sm ${
+                errors.image ? 'border-red-500' : 'border-secondary-tea'
+              }`}
+              placeholder="https://example.com/image.jpg"
+            />
+            {errors.image && <p className="text-red-500 text-xs mt-1">{errors.image}</p>}
+          </div>
+        )}
+        
+        {/* File upload */}
+        {imageSource === 'upload' && (
+          <div>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleImageFileChange}
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-tea text-sm ${
+                errors.image ? 'border-red-500' : 'border-secondary-tea'
+              }`}
+            />
+            {imageFile && (
+              <p className="text-xs text-dark-tea mt-1">
+                Selected: {imageFile.name} ({(imageFile.size / 1024).toFixed(1)} KB)
+              </p>
+            )}
+            {errors.image && <p className="text-red-500 text-xs mt-1">{errors.image}</p>}
+          </div>
+        )}
       </div>
 
       <div className="flex items-center">
