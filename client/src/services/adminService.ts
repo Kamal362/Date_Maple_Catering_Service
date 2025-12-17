@@ -28,6 +28,11 @@ export const deleteUser = async (id: string) => {
   return response.data;
 };
 
+export const createUser = async (userData: any) => {
+  const response = await axios.post(`${API_URL}/admin/users`, userData, getAuthHeader());
+  return response.data;
+};
+
 export const getAdminStats = async () => {
   const response = await fetch(`${API_URL}/admin/stats`);
   return response.json();

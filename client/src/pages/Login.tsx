@@ -37,21 +37,21 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-cream flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+        <h2 className="mt-6 text-center text-3xl font-extrabold text-dark-tea">
           Sign in to your account
         </h2>
-        <p className="mt-2 text-center text-sm text-gray-600">
+        <p className="mt-2 text-center text-sm text-secondary-tea">
           Or{' '}
-          <Link to="/register" className="font-medium text-blue-600 hover:text-blue-500">
-            create a new account
+          <Link to="/register" className="font-medium text-primary-tea hover:text-accent-tea">
+            contact administrator for account access
           </Link>
         </p>
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+        <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10 border border-secondary-tea">
           <form className="space-y-6" onSubmit={handleSubmit}>
             {error && (
               <div className="bg-red-50 border border-red-400 text-red-700 px-4 py-3 rounded relative">
@@ -60,7 +60,7 @@ const Login: React.FC = () => {
             )}
 
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="email" className="block text-sm font-medium text-dark-tea">
                 Email address
               </label>
               <div className="mt-1">
@@ -72,14 +72,14 @@ const Login: React.FC = () => {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  className="appearance-none block w-full px-3 py-2 border border-secondary-tea rounded-md shadow-sm placeholder-secondary-tea focus:outline-none focus:ring-primary-tea focus:border-primary-tea sm:text-sm"
                   placeholder="you@example.com"
                 />
               </div>
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="password" className="block text-sm font-medium text-dark-tea">
                 Password
               </label>
               <div className="mt-1">
@@ -91,7 +91,7 @@ const Login: React.FC = () => {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  className="appearance-none block w-full px-3 py-2 border border-secondary-tea rounded-md shadow-sm placeholder-secondary-tea focus:outline-none focus:ring-primary-tea focus:border-primary-tea sm:text-sm"
                   placeholder="Enter your password"
                 />
               </div>
@@ -103,15 +103,15 @@ const Login: React.FC = () => {
                   id="remember-me"
                   name="remember-me"
                   type="checkbox"
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  className="h-4 w-4 text-primary-tea focus:ring-primary-tea border-secondary-tea rounded"
                 />
-                <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
+                <label htmlFor="remember-me" className="ml-2 block text-sm text-dark-tea">
                   Remember me
                 </label>
               </div>
 
               <div className="text-sm">
-                <a href="#" className="font-medium text-blue-600 hover:text-blue-500">
+                <a href="#" className="font-medium text-primary-tea hover:text-accent-tea">
                   Forgot your password?
                 </a>
               </div>
@@ -121,10 +121,10 @@ const Login: React.FC = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ${
+                className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-cream ${
                   loading
-                    ? 'bg-blue-400 cursor-not-allowed'
-                    : 'bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500'
+                    ? 'bg-primary-tea opacity-75 cursor-not-allowed'
+                    : 'bg-primary-tea hover:bg-accent-tea focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-tea'
                 }`}
               >
                 {loading ? 'Signing in...' : 'Sign in'}
@@ -135,17 +135,17 @@ const Login: React.FC = () => {
           <div className="mt-6">
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300" />
+                <div className="w-full border-t border-secondary-tea" />
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">Test Credentials</span>
+                <span className="px-2 bg-white text-secondary-tea">Test Credentials</span>
               </div>
             </div>
 
-            <div className="mt-4 bg-blue-50 border border-blue-200 rounded-md p-4">
-              <p className="text-sm font-medium text-blue-900 mb-2">Admin Account:</p>
-              <p className="text-xs text-blue-700">Email: admin@datemaple.com</p>
-              <p className="text-xs text-blue-700">Password: admin123</p>
+            <div className="mt-4 bg-light-tea border border-secondary-tea rounded-md p-4">
+              <p className="text-sm font-medium text-dark-tea mb-2">Admin Account:</p>
+              <p className="text-xs text-secondary-tea">Email: admin@datemaple.com</p>
+              <p className="text-xs text-secondary-tea">Password: admin123</p>
             </div>
           </div>
         </div>

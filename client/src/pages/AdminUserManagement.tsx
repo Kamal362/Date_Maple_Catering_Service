@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect } from 'react';
-import { getAllUsers, updateUser, deleteUser } from '../services/adminService';
+import { getAllUsers, updateUser, deleteUser, createUser } from '../services/adminService';
 
 interface User {
   _id: string;
@@ -18,6 +17,7 @@ const AdminUserManagement: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showCreateModal, setShowCreateModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterRole, setFilterRole] = useState('all');
 
@@ -36,6 +36,31 @@ const AdminUserManagement: React.FC = () => {
       setError(err.response?.data?.message || 'Failed to load users');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleCreateUser = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const formData = new FormData(form);
+    
+    try {
+      const newUser = {
+        firstName: formData.get('firstName') as string,
+        lastName: formData.get('lastName') as string,
+        email: formData.get('email') as string,
+        password: formData.get('password') as string,
+        phone: formData.get('phone') as string,
+        role: formData.get('role') as string,
+      };
+
+      const response = await createUser(newUser);
+      setUsers([...users, response.data]);
+      setShowCreateModal(false);
+      form.reset();
+    } catch (err: any) {
+      console.error('Error creating user:', err);
+      alert(err.response?.data?.message || 'Failed to create user');
     }
   };
 
@@ -106,15 +131,26 @@ const AdminUserManagement: React.FC = () => {
       <div className="container mx-auto px-4">
         <div className="flex flex-wrap justify-between items-center mb-8">
           <h1 className="text-4xl font-heading font-bold text-primary-tea">User Management</h1>
-          <button
-            onClick={fetchUsers}
-            className="btn-secondary"
-          >
-            <svg className="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-            </svg>
-            Refresh
-          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setShowCreateModal(true)}
+              className="btn-primary"
+            >
+              <svg className="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+              </svg>
+              Create User
+            </button>
+            <button
+              onClick={fetchUsers}
+              className="btn-secondary"
+            >
+              <svg className="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+              Refresh
+            </button>
+          </div>
         </div>
 
         {error && (
@@ -218,6 +254,124 @@ const AdminUserManagement: React.FC = () => {
           )}
         </div>
       </div>
+
+      {/* Create User Modal */}
+      {showCreateModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-cream rounded-lg shadow-xl w-full max-w-md">
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-2xl font-heading font-semibold text-primary-tea">
+                  Create New User
+                </h3>
+                <button
+                  onClick={() => {
+                    setShowCreateModal(false);
+                  }}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+                  </svg>
+                </button>
+              </div>
+
+              <form onSubmit={handleCreateUser} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-dark-tea mb-2">
+                    First Name *
+                  </label>
+                  <input
+                    type="text"
+                    name="firstName"
+                    required
+                    className="w-full px-4 py-2 border border-secondary-tea rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-tea"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-dark-tea mb-2">
+                    Last Name *
+                  </label>
+                  <input
+                    type="text"
+                    name="lastName"
+                    required
+                    className="w-full px-4 py-2 border border-secondary-tea rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-tea"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-dark-tea mb-2">
+                    Email *
+                  </label>
+                  <input
+                    type="email"
+                    name="email"
+                    required
+                    className="w-full px-4 py-2 border border-secondary-tea rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-tea"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-dark-tea mb-2">
+                    Password *
+                  </label>
+                  <input
+                    type="password"
+                    name="password"
+                    required
+                    minLength={6}
+                    className="w-full px-4 py-2 border border-secondary-tea rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-tea"
+                  />
+                  <p className="mt-1 text-xs text-secondary-tea">Must be at least 6 characters</p>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-dark-tea mb-2">
+                    Phone
+                  </label>
+                  <input
+                    type="tel"
+                    name="phone"
+                    className="w-full px-4 py-2 border border-secondary-tea rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-tea"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-dark-tea mb-2">
+                    Role
+                  </label>
+                  <select
+                    name="role"
+                    defaultValue="customer"
+                    required
+                    className="w-full px-4 py-2 border border-secondary-tea rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-tea"
+                  >
+                    <option value="customer">Customer</option>
+                    <option value="admin">Admin</option>
+                  </select>
+                </div>
+
+                <div className="flex justify-end space-x-4 mt-6">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowCreateModal(false);
+                    }}
+                    className="btn-secondary"
+                  >
+                    Cancel
+                  </button>
+                  <button type="submit" className="btn-primary">
+                    Create User
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Edit User Modal */}
       {showEditModal && editingUser && (
