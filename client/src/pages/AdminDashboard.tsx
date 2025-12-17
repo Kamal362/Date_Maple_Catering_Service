@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import PaymentMethodForm from '../components/PaymentMethodForm';
 import MenuItemForm from '../components/MenuItemForm';
+import HomePageContentEditor from '../components/HomePageContentEditor';
 import { 
   getAllPaymentMethods, 
   createPaymentMethod, 
@@ -21,16 +22,24 @@ import {
   Order
 } from '../services/orderService';
 import { MenuItem as MenuItemType } from '../types/menu';
+import {
+  getAllHomePageContent,
+  createOrUpdateHomePageContent,
+  HomePageContent
+} from '../services/homeContentService';
 
 const AdminDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [showMenuItemModal, setShowMenuItemModal] = useState(false);
+  const [showHomePageEditor, setShowHomePageEditor] = useState(false);
+  const [editingHomePageSection, setEditingHomePageSection] = useState<string | null>(null);
   const [editingPaymentMethod, setEditingPaymentMethod] = useState<PaymentMethod | null>(null);
   const [editingMenuItem, setEditingMenuItem] = useState<MenuItemType | null>(null);
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
   const [menuItems, setMenuItems] = useState<MenuItemType[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
+  const [homePageContent, setHomePageContent] = useState<HomePageContent[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
@@ -104,6 +113,9 @@ const AdminDashboard: React.FC = () => {
         } else if (activeTab === 'paymentProofs') {
           const orderData = await getOrders();
           setOrders(orderData);
+        } else if (activeTab === 'homepage') {
+          const homeContent = await getAllHomePageContent();
+          setHomePageContent(homeContent);
         }
       } catch (err) {
         console.error(`Error fetching ${activeTab}:`, err);
@@ -366,6 +378,15 @@ const AdminDashboard: React.FC = () => {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
             </svg>
             Payment Proofs
+          </button>
+          <button 
+            onClick={() => setActiveTab('homepage')}
+            className={`py-2 px-3 font-medium flex items-center ${activeTab === 'homepage' ? 'text-primary-tea border-b-2 border-primary-tea' : 'text-dark-tea'}`}
+          >
+            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+            </svg>
+            Homepage
           </button>
         </div>
         
@@ -823,6 +844,153 @@ const AdminDashboard: React.FC = () => {
             )}
           </div>
         )}
+
+        {activeTab === 'homepage' && (
+          <div className="card p-4">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg font-heading font-semibold">Homepage Content Management</h2>
+              <p className="text-sm text-secondary-tea">Manage content displayed on the homepage</p>
+            </div>
+            
+            {loading ? (
+              <div className="text-center py-6">
+                <p>Loading homepage content...</p>
+              </div>
+            ) : error ? (
+              <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                <p>{error}</p>
+              </div>
+            ) : (
+              <div className="space-y-6">
+                <div className="border border-secondary-tea rounded-lg">
+                  <div className="bg-light-tea p-3 rounded-t-lg">
+                    <h3 className="text-lg font-heading font-semibold">Hero Section</h3>
+                  </div>
+                  <div className="p-4">
+                    <p className="text-dark-tea mb-4">Manage the main hero section content on the homepage</p>
+                    <button 
+                      onClick={() => {
+                        setEditingHomePageSection('hero');
+                        setShowHomePageEditor(true);
+                      }}
+                      className="btn-primary text-sm py-2 px-3"
+                    >
+                      Edit Hero Content
+                    </button>
+                  </div>
+                </div>
+                
+                <div className="border border-secondary-tea rounded-lg">
+                  <div className="bg-light-tea p-3 rounded-t-lg">
+                    <h3 className="text-lg font-heading font-semibold">Features Section</h3>
+                  </div>
+                  <div className="p-4">
+                    <p className="text-dark-tea mb-4">Manage the features/services section content</p>
+                    <button 
+                      onClick={() => {
+                        setEditingHomePageSection('features');
+                        setShowHomePageEditor(true);
+                      }}
+                      className="btn-primary text-sm py-2 px-3"
+                    >
+                      Edit Features Content
+                    </button>
+                  </div>
+                </div>
+                
+                <div className="border border-secondary-tea rounded-lg">
+                  <div className="bg-light-tea p-3 rounded-t-lg">
+                    <h3 className="text-lg font-heading font-semibold">Menu Highlights</h3>
+                  </div>
+                  <div className="p-4">
+                    <p className="text-dark-tea mb-4">Manage the featured menu items section</p>
+                    <button 
+                      onClick={() => {
+                        setEditingHomePageSection('menuHighlights');
+                        setShowHomePageEditor(true);
+                      }}
+                      className="btn-primary text-sm py-2 px-3"
+                    >
+                      Edit Menu Highlights
+                    </button>
+                  </div>
+                </div>
+                
+                <div className="border border-secondary-tea rounded-lg">
+                  <div className="bg-light-tea p-3 rounded-t-lg">
+                    <h3 className="text-lg font-heading font-semibold">Gallery Section</h3>
+                  </div>
+                  <div className="p-4">
+                    <p className="text-dark-tea mb-4">Manage the gallery/images section</p>
+                    <button 
+                      onClick={() => {
+                        setEditingHomePageSection('gallery');
+                        setShowHomePageEditor(true);
+                      }}
+                      className="btn-primary text-sm py-2 px-3"
+                    >
+                      Edit Gallery Content
+                    </button>
+                  </div>
+                </div>
+                
+                <div className="border border-secondary-tea rounded-lg">
+                  <div className="bg-light-tea p-3 rounded-t-lg">
+                    <h3 className="text-lg font-heading font-semibold">Catering Section</h3>
+                  </div>
+                  <div className="p-4">
+                    <p className="text-dark-tea mb-4">Manage catering services section</p>
+                    <button 
+                      onClick={() => {
+                        setEditingHomePageSection('catering');
+                        setShowHomePageEditor(true);
+                      }}
+                      className="btn-primary text-sm py-2 px-3"
+                    >
+                      Edit Catering Content
+                    </button>
+                  </div>
+                </div>
+                
+                <div className="border border-secondary-tea rounded-lg">
+                  <div className="bg-light-tea p-3 rounded-t-lg">
+                    <h3 className="text-lg font-heading font-semibold">Testimonials</h3>
+                  </div>
+                  <div className="p-4">
+                    <p className="text-dark-tea mb-4">Manage customer testimonials section</p>
+                    <button 
+                      onClick={() => {
+                        setEditingHomePageSection('testimonials');
+                        setShowHomePageEditor(true);
+                      }}
+                      className="btn-primary text-sm py-2 px-3"
+                    >
+                      Edit Testimonials
+                    </button>
+                  </div>
+                </div>
+                
+                <div className="border border-secondary-tea rounded-lg">
+                  <div className="bg-light-tea p-3 rounded-t-lg">
+                    <h3 className="text-lg font-heading font-semibold">Newsletter</h3>
+                  </div>
+                  <div className="p-4">
+                    <p className="text-dark-tea mb-4">Manage newsletter subscription section</p>
+                    <button 
+                      onClick={() => {
+                        setEditingHomePageSection('newsletter');
+                        setShowHomePageEditor(true);
+                      }}
+                      className="btn-primary text-sm py-2 px-3"
+                    >
+                      Edit Newsletter Content
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
       </div>
       
       {/* Payment Method Modal */}
@@ -893,6 +1061,35 @@ const AdminDashboard: React.FC = () => {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Homepage Content Editor Modal */}
+      {showHomePageEditor && editingHomePageSection && (
+        <HomePageContentEditor
+          section={editingHomePageSection}
+          onClose={() => {
+            setShowHomePageEditor(false);
+            setEditingHomePageSection(null);
+          }}
+          onSave={() => {
+            // Refresh homepage content after saving
+            if (activeTab === 'homepage') {
+              const fetchData = async () => {
+                try {
+                  setLoading(true);
+                  const homeContent = await getAllHomePageContent();
+                  setHomePageContent(homeContent);
+                } catch (err) {
+                  console.error('Error refreshing homepage content:', err);
+                  setError('Failed to refresh homepage content');
+                } finally {
+                  setLoading(false);
+                }
+              };
+              fetchData();
+            }
+          }}
+        />
       )}
     </div>
   );

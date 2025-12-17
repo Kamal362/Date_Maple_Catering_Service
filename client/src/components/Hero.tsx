@@ -1,7 +1,42 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { getHomePageContentBySection, HomePageContent } from '../services/homeContentService';
 
 const Hero: React.FC = () => {
+  const [content, setContent] = useState<HomePageContent | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchContent = async () => {
+      try {
+        const heroContent = await getHomePageContentBySection('hero');
+        setContent(heroContent);
+      } catch (error) {
+        console.error('Error fetching hero content:', error);
+        // Fallback to default content
+        setContent({
+          section: 'hero',
+          title: 'Experience Authentic Coffees',
+          subtitle: 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat,',
+          buttonText: 'Learn More'
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchContent();
+  }, []);
+
+  // Default content while loading or if there's an error
+  const defaultContent = {
+    title: 'Experience Authentic Coffees',
+    subtitle: 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat,',
+    buttonText: 'Learn More'
+  };
+
+  const displayContent = content || defaultContent;
+
   return (
     <section className="relative bg-primary-tea text-cream overflow-hidden">
       <div className="absolute inset-0 bg-black opacity-30"></div>
@@ -15,14 +50,20 @@ const Hero: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
           <div className="text-center md:text-left">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-heading font-bold mb-6 leading-tight">
-              Experience Authentic <span className="text-gold">Coffees</span>
+              {displayContent.title.split(' ').map((word, index) => (
+                word === 'Coffees' ? (
+                  <span key={index} className="text-gold"> {word}</span>
+                ) : (
+                  ` ${word}`
+                )
+              ))}
             </h1>
             <p className="text-xl mb-8 text-light-tea max-w-lg mx-auto md:mx-0">
-              Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat,
+              {displayContent.subtitle}
             </p>
             <div className="flex flex-col sm:flex-row justify-center md:justify-start space-y-4 sm:space-y-0 sm:space-x-4">
               <Link to="/menu" className="btn-primary inline-block text-center px-8 py-4 text-lg font-semibold rounded-none hover:bg-dark-tea transition duration-300">
-                Learn More
+                {displayContent.buttonText}
               </Link>
             </div>
           </div>

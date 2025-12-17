@@ -1,6 +1,39 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { getHomePageContentBySection, HomePageContent } from '../services/homeContentService';
 
 const Testimonials: React.FC = () => {
+  const [content, setContent] = useState<HomePageContent | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchContent = async () => {
+      try {
+        const testimonialsContent = await getHomePageContentBySection('testimonials');
+        setContent(testimonialsContent);
+      } catch (error) {
+        console.error('Error fetching testimonials content:', error);
+        // Fallback to default content
+        setContent({
+          section: 'testimonials',
+          title: 'Customers Feedback',
+          subtitle: 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat,'
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchContent();
+  }, []);
+
+  // Default content while loading or if there's an error
+  const defaultContent = {
+    title: 'Customers Feedback',
+    subtitle: 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat,'
+  };
+
+  const displayContent = content || defaultContent;
+
   const testimonials = [
     {
       name: "Justyna Helen",
@@ -26,10 +59,10 @@ const Testimonials: React.FC = () => {
     <section className="section-padding bg-cream py-20">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-heading font-bold mb-4 text-primary-tea">Customers Feedback</h2>
+          <h2 className="text-3xl md:text-4xl font-heading font-bold mb-4 text-primary-tea">{displayContent.title}</h2>
           <div className="w-20 h-1 bg-accent-tea mx-auto mb-6"></div>
           <p className="text-lg text-dark-tea max-w-2xl mx-auto">
-            Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat,
+            {displayContent.subtitle}
           </p>
         </div>
         

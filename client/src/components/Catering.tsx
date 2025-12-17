@@ -1,7 +1,42 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { getHomePageContentBySection, HomePageContent } from '../services/homeContentService';
 
 const Catering: React.FC = () => {
+  const [content, setContent] = useState<HomePageContent | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchContent = async () => {
+      try {
+        const cateringContent = await getHomePageContentBySection('catering');
+        setContent(cateringContent);
+      } catch (error) {
+        console.error('Error fetching catering content:', error);
+        // Fallback to default content
+        setContent({
+          section: 'catering',
+          title: 'Catering Services',
+          subtitle: 'Elevate your next event with our exceptional catering services. From intimate gatherings to large corporate events, we provide delicious food and professional service that will impress your guests.',
+          buttonText: 'Book an Event'
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchContent();
+  }, []);
+
+  // Default content while loading or if there's an error
+  const defaultContent = {
+    title: 'Catering Services',
+    subtitle: 'Elevate your next event with our exceptional catering services. From intimate gatherings to large corporate events, we provide delicious food and professional service that will impress your guests.',
+    buttonText: 'Book an Event'
+  };
+
+  const displayContent = content || defaultContent;
+
   const eventTypes = [
     {
       name: "Corporate Events",
@@ -37,10 +72,9 @@ const Catering: React.FC = () => {
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           <div>
-            <h2 className="text-3xl md:text-4xl font-heading font-bold mb-6">Catering Services</h2>
+            <h2 className="text-3xl md:text-4xl font-heading font-bold mb-6">{displayContent.title}</h2>
             <p className="text-lg text-dark-tea mb-8">
-              Elevate your next event with our exceptional catering services. From intimate gatherings to large corporate events, 
-              we provide delicious food and professional service that will impress your guests.
+              {displayContent.subtitle}
             </p>
             
             <div className="space-y-6 mb-8">
@@ -58,7 +92,7 @@ const Catering: React.FC = () => {
             </div>
             
             <Link to="/events" className="btn-primary inline-block">
-              Book an Event
+              {displayContent.buttonText}
             </Link>
           </div>
           
