@@ -1,0 +1,26 @@
+#GET ALL ITEMS 
+GET http://localhost:5001/api/menu
+
+#GET ITEM BY ID
+GET http://localhost:5001/api/menu/{id}
+
+#CREATE NEW ITEM
+POST http://localhost:5001/api/menu
+Content-Type: application/json
+{
+    "name": "New Item",
+    "price": 9.99,
+    "description": "This is a new item."
+}
+
+#UPDATE EXISTING ITEM
+PUT http://localhost:5001/api/menu/{id}
+Content-Type: application/json
+{
+    "name": "Updated Item",
+    "price": 19.99,
+    "description": "This is an updated item."
+}
+
+#DELETE ITEM
+DELETE http://localhost:5001/api/menu/{id}
