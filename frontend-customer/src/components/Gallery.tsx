@@ -8,6 +8,7 @@ const Gallery: React.FC = () => {
   useEffect(() => {
     const fetchContent = async () => {
       try {
+        setLoading(true);
         const galleryContent = await getHomePageContentBySection('gallery');
         setContent(galleryContent);
       } catch (error) {
@@ -24,6 +25,19 @@ const Gallery: React.FC = () => {
     };
 
     fetchContent();
+
+    // Re-fetch when window regains focus (in case content was updated)
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        fetchContent();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, []);
 
   // Default content while loading or if there's an error

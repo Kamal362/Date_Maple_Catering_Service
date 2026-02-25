@@ -128,3 +128,21 @@ export const changePassword = async (passwordData: PasswordChangeData): Promise<
     throw error;
   }
 };
+
+// Forgot password interface
+interface ForgotPasswordData {
+  email: string;
+  newPassword: string;
+  secretKey: string;
+}
+
+// Forgot password - reset password with secret key
+export const forgotPassword = async (data: ForgotPasswordData): Promise<any> => {
+  try {
+    const response = await api.post('/auth/forgot-password', data);
+    return response.data;
+  } catch (error: any) {
+    console.error('Forgot password error:', error);
+    throw error;
+  }
+};

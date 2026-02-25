@@ -93,6 +93,12 @@ const AdminLogin: React.FC = () => {
           >
             {loading ? 'Signing in...' : 'Sign In'}
           </button>
+
+          <div className="flex justify-between items-center text-sm">
+            <Link to="/forgot-password" className="text-primary-tea hover:underline">
+              Forgot password?
+            </Link>
+          </div>
         </form>
 
         <div className="mt-6 text-center">

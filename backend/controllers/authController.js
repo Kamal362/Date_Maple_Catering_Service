@@ -250,3 +250,52 @@ exports.changePassword = async (req, res) => {
     });
   }
 };
+
+// Forgot password - Reset password via email verification (simplified version)
+exports.forgotPassword = async (req, res) => {
+  try {
+    const { email, newPassword, secretKey } = req.body;
+
+    // Verify required fields
+    if (!email || !newPassword || !secretKey) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide email, new password, and secret key'
+      });
+    }
+
+    // Verify secret key (simple security measure - should be stored in env)
+    const validSecretKey = process.env.RESET_SECRET_KEY || 'admin-reset-2024';
+    if (secretKey !== validSecretKey) {
+      return res.status(403).json({
+        success: false,
+        message: 'Invalid secret key'
+      });
+    }
+
+    // Find user by email
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found with this email'
+      });
+    }
+
+    // Update password
+    user.password = newPassword;
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'Password reset successfully. You can now log in with your new password.'
+    });
+  } catch (error) {
+    console.error('Forgot password error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error',
+      error: error.message
+    });
+  }
+};

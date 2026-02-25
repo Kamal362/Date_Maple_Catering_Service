@@ -7,6 +7,11 @@ exports.getAllContent = async (req, res) => {
   try {
     const content = await HomePageContent.find();
     
+    // Set cache-control headers to prevent caching
+    res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.set('Pragma', 'no-cache');
+    res.set('Expires', '0');
+    
     res.status(200).json({
       success: true,
       count: content.length,
@@ -35,6 +40,11 @@ exports.getContentBySection = async (req, res) => {
         message: 'Content not found'
       });
     }
+    
+    // Set cache-control headers to prevent caching
+    res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.set('Pragma', 'no-cache');
+    res.set('Expires', '0');
     
     res.status(200).json({
       success: true,

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { getCurrentUser, updateProfile, changePassword } from '../services/authService';
 import { getMyOrders } from '../services/orderService';
 import { getMyEvents } from '../services/eventService';
@@ -372,7 +373,18 @@ const Profile: React.FC = () => {
             
             {activeTab === 'orders' && (
               <div>
-                <h2 className="text-2xl font-heading font-semibold mb-6">Order History</h2>
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
+                  <h2 className="text-2xl font-heading font-semibold">Order History</h2>
+                  <Link 
+                    to="/order-tracking" 
+                    className="btn-primary inline-flex items-center justify-center text-sm sm:text-base px-4 py-2 sm:px-6 sm:py-3"
+                  >
+                    <svg className="w-4 h-4 sm:w-5 sm:h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                    </svg>
+                    Track Order
+                  </Link>
+                </div>
                 <OrderHistory />
               </div>
             )}

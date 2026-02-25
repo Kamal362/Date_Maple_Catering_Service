@@ -23,7 +23,7 @@ const EventFlyers: React.FC = () => {
   useEffect(() => {
     const fetchFlyers = async () => {
       try {
-        const response = await api.get('/api/events/flyers');
+        const response = await api.get('/events/flyers');
         setFlyers(response.data.data);
       } catch (err: any) {
         console.error('Error fetching event flyers:', err);

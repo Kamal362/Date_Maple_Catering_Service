@@ -12,6 +12,7 @@ const MenuHighlights: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        setLoading(true);
         // Fetch homepage content
         const menuHighlightsContent = await getHomePageContentBySection('menuHighlights');
         setContent(menuHighlightsContent);
@@ -37,6 +38,19 @@ const MenuHighlights: React.FC = () => {
     };
 
     fetchData();
+
+    // Re-fetch when window regains focus (in case content was updated)
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        fetchData();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, []);
 
   // Default content while loading or if there's an error

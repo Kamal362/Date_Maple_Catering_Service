@@ -83,13 +83,6 @@ const Navbar = () => {
               <span className="relative z-10">My Account</span>
               <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary-tea transition-all duration-300 group-hover:w-full"></span>
             </Link>
-            <Link to="/order-tracking" className="text-dark-tea hover:text-primary-tea transition-colors duration-300 font-medium relative group flex items-center">
-              <svg className="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
-              </svg>
-              <span className="relative z-10">Track Order</span>
-              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary-tea transition-all duration-300 group-hover:w-full"></span>
-            </Link>
             <ThemeToggle />
             <Link to="/cart" className="relative">
               <svg className="w-6 h-6 text-primary-tea hover:text-accent-tea transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -162,12 +155,6 @@ const Navbar = () => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
               </svg>
               My Account
-            </Link>
-            <Link to="/order-tracking" className="flex items-center py-2 text-dark-tea hover:text-primary-tea transition-colors duration-300 font-medium" onClick={() => setIsOpen(false)}>
-              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
-              </svg>
-              Track Order
             </Link>
             <Link to="/cart" className="flex items-center py-2 nav-link" onClick={() => setIsOpen(false)}>
               <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">

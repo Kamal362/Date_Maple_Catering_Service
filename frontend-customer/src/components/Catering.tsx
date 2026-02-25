@@ -9,6 +9,7 @@ const Catering: React.FC = () => {
   useEffect(() => {
     const fetchContent = async () => {
       try {
+        setLoading(true);
         const cateringContent = await getHomePageContentBySection('catering');
         setContent(cateringContent);
       } catch (error) {
@@ -26,6 +27,19 @@ const Catering: React.FC = () => {
     };
 
     fetchContent();
+
+    // Re-fetch when window regains focus (in case content was updated)
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        fetchContent();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, []);
 
   // Default content while loading or if there's an error

@@ -21,6 +21,7 @@ import AdminPaymentProofs from './pages/AdminPaymentProofs';
 import AdminHomeContent from './pages/AdminHomeContent';
 import AdminLogin from './pages/AdminLogin';
 import AdminRegister from './pages/AdminRegister';
+import ForgotPassword from './pages/ForgotPassword';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import './App.css';
 
@@ -43,6 +44,7 @@ function App() {
               <Route path="/home-content" element={<ProtectedRoute adminOnly><AdminHomeContent /></ProtectedRoute>} />
               <Route path="/admin-login" element={<AdminLogin />} />
               <Route path="/admin-register" element={<AdminRegister />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
               <Route path="*" element={<ProtectedRoute adminOnly><AdminDashboard /></ProtectedRoute>} />
             </Routes>
           </main>
