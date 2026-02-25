@@ -183,3 +183,50 @@ exports.deleteOrder = async (req, res) => {
     });
   }
 };
+
+// @desc    Cancel order
+// @route   PUT /api/orders/:id/cancel
+// @access  Private
+exports.cancelOrder = async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.id);
+    
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: 'Order not found'
+      });
+    }
+    
+    // Make sure user is order owner or admin
+    if (order.user.toString() !== req.user.id && req.user.role !== 'admin') {
+      return res.status(401).json({
+        success: false,
+        message: 'Not authorized to cancel this order'
+      });
+    }
+    
+    // Only allow cancellation if order is still pending
+    if (order.status !== 'pending') {
+      return res.status(400).json({
+        success: false,
+        message: 'Cannot cancel order that is already in progress'
+      });
+    }
+    
+    // Update status to cancelled
+    order.status = 'cancelled';
+    await order.save();
+    
+    res.status(200).json({
+      success: true,
+      data: order
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Server error',
+      error: error.message
+    });
+  }
+};

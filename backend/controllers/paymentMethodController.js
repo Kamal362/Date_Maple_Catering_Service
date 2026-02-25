@@ -13,14 +13,17 @@ const getPaymentMethods = async (req, res) => {
 };
 
 // @desc    Get all payment methods (admin)
-// @route   GET /api/admin/payment-methods
+// @route   GET /api/payment-methods/admin
 // @access  Private/Admin
 const getAllPaymentMethods = async (req, res) => {
   try {
-    const paymentMethods = await PaymentMethod.find({});
+    console.log('Fetching all payment methods for admin:', req.user?.email);
+    const paymentMethods = await PaymentMethod.find({}).lean();
+    console.log('Found payment methods:', paymentMethods.length);
     res.json(paymentMethods);
   } catch (error) {
-    res.status(500).json({ message: 'Server error' });
+    console.error('Error fetching payment methods:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
 

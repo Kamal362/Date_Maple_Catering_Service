@@ -1,5 +1,5 @@
 const express = require('express');
-const { getOrders, getMyOrders, getOrder, updateOrderStatus, updatePaymentStatus, deleteOrder } = require('../controllers/orderController');
+const { getOrders, getMyOrders, getOrder, updateOrderStatus, updatePaymentStatus, deleteOrder, cancelOrder } = require('../controllers/orderController');
 const { protect, authorize } = require('../middleware/auth');
 
 const router = express.Router();
@@ -19,5 +19,8 @@ router.route('/:id/status')
 
 router.route('/:id/payment')
   .put(protect, authorize('admin'), updatePaymentStatus);
+
+router.route('/:id/cancel')
+  .put(protect, cancelOrder);
 
 module.exports = router;

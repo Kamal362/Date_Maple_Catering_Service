@@ -1,0 +1,158 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom styles for admin application */
+:root {
+  --primary-tea: #8B4513;
+  --accent-tea: #D2691E;
+  --dark-tea: #5D4037;
+  --light-tea: #F5DEB3;
+  --cream: #FFF8E1;
+  --secondary-tea: #D2B48C;
+}
+
+/* Dark mode variables */
+.dark {
+  --primary-tea: #4ade80;
+  --accent-tea: #86efac;
+  --dark-tea: #e5e7eb;
+  --light-tea: #374151;
+  --cream: #1a1a1a;
+  --secondary-tea: #9ca3af;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: var(--cream);
+  color: var(--dark-tea);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Dark mode body styles */
+.dark body {
+  background-color: #1a1a1a;
+  color: #e0eee4;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+/* Button Styles */
+.btn-primary {
+  @apply bg-primary-tea text-white px-4 py-2 rounded-md hover:bg-accent-tea transition-colors;
+}
+
+.dark .btn-primary {
+  @apply bg-primary-tea text-white hover:bg-accent-tea;
+}
+
+.btn-secondary {
+  @apply bg-gray-200 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-300 transition-colors;
+}
+
+.dark .btn-secondary {
+  @apply bg-gray-700 text-gray-200 hover:bg-gray-600;
+}
+
+/* Card Styles */
+.card {
+  @apply rounded-lg shadow-md p-6;
+  background-color: var(--cream);
+}
+
+.dark .card {
+  @apply text-gray-100;
+  background-color: #1f2937;
+}
+
+/* Typography */
+.font-heading {
+  font-weight: 600;
+}
+
+/* Dark mode text colors */
+.dark .text-gray-900 {
+  @apply text-gray-100;
+}
+
+.dark .text-gray-800 {
+  @apply text-gray-200;
+}
+
+.dark .text-gray-700 {
+  @apply text-gray-300;
+}
+
+.dark .text-gray-600 {
+  @apply text-gray-400;
+}
+
+/* Dark mode backgrounds */
+.dark .bg-white {
+  @apply bg-gray-800;
+}
+
+.dark .bg-gray-50 {
+  @apply bg-gray-900;
+}
+
+.dark .bg-gray-100 {
+  @apply bg-gray-700;
+}
+
+.dark .bg-gray-200 {
+  @apply bg-gray-600;
+}
+
+/* Dark mode borders */
+.dark .border-gray-200 {
+  @apply border-gray-700;
+}
+
+.dark .border-gray-100 {
+  @apply border-gray-800;
+}
+
+/* Dark mode form inputs */
+.dark input,
+.dark select,
+.dark textarea {
+  @apply bg-gray-700 text-gray-100 border-gray-600;
+}
+
+.dark input::placeholder,
+.dark textarea::placeholder {
+  @apply text-gray-400;
+}
+
+/* Dark mode tables */
+.dark table {
+  @apply text-gray-300;
+}
+
+.dark thead {
+  @apply bg-gray-700 text-gray-200;
+}
+
+.dark tbody tr {
+  @apply border-gray-700;
+}
+
+.dark tbody tr:hover {
+  @apply bg-gray-700;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .container {
+    @apply px-4;
+  }
+}

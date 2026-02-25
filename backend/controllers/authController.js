@@ -75,8 +75,9 @@ exports.login = async (req, res) => {
       });
     }
 
-    // Check for user
-    const user = await User.findOne({ email }).select('+password');
+    // Check for user by email
+    let user = await User.findOne({ email }).select('+password');
+    
     if (!user) {
       return res.status(401).json({
         success: false,
@@ -111,6 +112,7 @@ exports.login = async (req, res) => {
         firstName: user.firstName,
         lastName: user.lastName,
         email: user.email,
+        phone: user.phone,
         role: user.role
       }
     });
@@ -135,6 +137,7 @@ exports.getMe = async (req, res) => {
         firstName: user.firstName,
         lastName: user.lastName,
         email: user.email,
+        phone: user.phone,
         role: user.role
       }
     });

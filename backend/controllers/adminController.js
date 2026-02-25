@@ -48,6 +48,61 @@ exports.getDashboardStats = async (req, res) => {
       }
     ]);
     
+    // Get revenue trend (monthly for last 12 months)
+    const twelveMonthsAgo = new Date();
+    twelveMonthsAgo.setMonth(twelveMonthsAgo.getMonth() - 12);
+    twelveMonthsAgo.setDate(1);
+    twelveMonthsAgo.setHours(0, 0, 0, 0);
+    
+    const revenueTrend = await Order.aggregate([
+      {
+        $match: {
+          createdAt: { $gte: twelveMonthsAgo }
+        }
+      },
+      {
+        $group: {
+          _id: { 
+            year: { $year: '$createdAt' },
+            month: { $month: '$createdAt' }
+          },
+          amount: { $sum: '$totalAmount' },
+          orderCount: { $sum: 1 }
+        }
+      },
+      {
+        $sort: { '_id.year': 1, '_id.month': 1 }
+      }
+    ]);
+    
+    // Format monthly revenue data
+    const monthlyRevenue = revenueTrend.map(item => ({
+      date: `${item._id.year}-${String(item._id.month).padStart(2, '0')}-01`,
+      amount: item.amount,
+      orderCount: item.orderCount
+    }));
+    
+    // Get sales by category
+    const salesByCategory = await Order.aggregate([
+      { $unwind: '$items' },
+      {
+        $lookup: {
+          from: 'menuitems',
+          localField: 'items.menuItem',
+          foreignField: '_id',
+          as: 'menuItemData'
+        }
+      },
+      { $unwind: '$menuItemData' },
+      {
+        $group: {
+          _id: '$menuItemData.category',
+          sales: { $sum: '$items.quantity' },
+          revenue: { $sum: { $multiply: ['$items.price', '$items.quantity'] } }
+        }
+      }
+    ]);
+    
     res.status(200).json({
       success: true,
       data: {
@@ -60,7 +115,9 @@ exports.getDashboardStats = async (req, res) => {
         recentOrders,
         recentEvents,
         orderStatusDistribution,
-        eventStatusDistribution
+        eventStatusDistribution,
+        revenueTrend: monthlyRevenue,
+        salesByCategory: salesByCategory.map(item => ({ category: item._id || 'Other', sales: item.sales, revenue: item.revenue }))
       }
     });
   } catch (error) {

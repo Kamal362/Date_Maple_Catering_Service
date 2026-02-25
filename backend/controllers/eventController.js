@@ -5,7 +5,9 @@ const Event = require('../models/Event');
 // @access  Private (Admin only)
 exports.getEvents = async (req, res) => {
   try {
-    const events = await Event.find().populate('customer', 'firstName lastName email');
+    console.log('Fetching all events for admin:', req.user?.email);
+    const events = await Event.find().lean();
+    console.log('Found events:', events.length);
     
     res.status(200).json({
       success: true,
@@ -13,6 +15,7 @@ exports.getEvents = async (req, res) => {
       data: events
     });
   } catch (error) {
+    console.error('Error fetching events:', error);
     res.status(500).json({
       success: false,
       message: 'Server error',
@@ -47,7 +50,7 @@ exports.getMyEvents = async (req, res) => {
 // @access  Private
 exports.getEvent = async (req, res) => {
   try {
-    const event = await Event.findById(req.params.id).populate('customer', 'firstName lastName email');
+    const event = await Event.findById(req.params.id);
     
     if (!event) {
       return res.status(404).json({
@@ -57,7 +60,9 @@ exports.getEvent = async (req, res) => {
     }
     
     // Make sure user is event owner or admin
-    if (event.customer._id.toString() !== req.user.id && req.user.role !== 'admin') {
+    // Since customer is embedded object, we can't compare IDs directly
+    // We'll check if the requesting user is an admin
+    if (req.user.role !== 'admin') {
       return res.status(401).json({
         success: false,
         message: 'Not authorized to view this event'
@@ -136,8 +141,8 @@ exports.updateEvent = async (req, res) => {
       });
     }
     
-    // Make sure user is event owner
-    if (event.customer.toString() !== req.user.id) {
+    // Make sure user is admin (since customer is embedded object, we can't check ownership)
+    if (req.user.role !== 'admin') {
       return res.status(401).json({
         success: false,
         message: 'Not authorized to update this event'
@@ -167,9 +172,15 @@ exports.updateEvent = async (req, res) => {
 // @access  Private (Admin only)
 exports.updateEventStatus = async (req, res) => {
   try {
+    console.log('Update event status called:', req.params.id, req.body);
     const { status } = req.body;
     
-    const event = await Event.findById(req.params.id);
+    // Use findByIdAndUpdate to only update the status field without validating entire document
+    const event = await Event.findByIdAndUpdate(
+      req.params.id,
+      { $set: { status: status } },
+      { new: true, runValidators: false }
+    );
     
     if (!event) {
       return res.status(404).json({
@@ -178,18 +189,15 @@ exports.updateEventStatus = async (req, res) => {
       });
     }
     
-    // Update status
-    event.status = status;
-    await event.save();
-    
     res.status(200).json({
       success: true,
       data: event
     });
   } catch (error) {
+    console.error('Error updating event status:', error);
     res.status(500).json({
       success: false,
-      message: 'Server error',
+      message: 'Server error: ' + error.message,
       error: error.message
     });
   }
@@ -209,8 +217,8 @@ exports.deleteEvent = async (req, res) => {
       });
     }
     
-    // Make sure user is event owner
-    if (event.customer.toString() !== req.user.id) {
+    // Make sure user is admin (since customer is embedded object, we can't check ownership)
+    if (req.user.role !== 'admin') {
       return res.status(401).json({
         success: false,
         message: 'Not authorized to delete this event'
@@ -224,6 +232,34 @@ exports.deleteEvent = async (req, res) => {
       data: {}
     });
   } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Server error',
+      error: error.message
+    });
+  }
+};
+
+// @desc    Get public events (for client store - no auth required)
+// @route   GET /api/events/public
+// @access  Public
+exports.getPublicEvents = async (req, res) => {
+  try {
+    // Get confirmed and completed events to display on the store
+    const events = await Event.find({ 
+      status: { $in: ['confirmed', 'completed'] }
+    })
+    .select('eventType eventDate location guestCount status createdAt customer')
+    .sort({ eventDate: -1 })
+    .lean();
+    
+    res.status(200).json({
+      success: true,
+      count: events.length,
+      data: events
+    });
+  } catch (error) {
+    console.error('Error fetching public events:', error);
     res.status(500).json({
       success: false,
       message: 'Server error',

@@ -1,8 +1,11 @@
 const express = require('express');
-const { getEvents, getMyEvents, getEvent, createEvent, updateEvent, updateEventStatus, deleteEvent } = require('../controllers/eventController');
+const { getEvents, getMyEvents, getEvent, createEvent, updateEvent, updateEventStatus, deleteEvent, getPublicEvents } = require('../controllers/eventController');
 const { protect, authorize } = require('../middleware/auth');
 
 const router = express.Router();
+
+// Public endpoint - get all confirmed events (no auth required)
+router.get('/public', getPublicEvents);
 
 router.route('/')
   .get(protect, authorize('admin'), getEvents)

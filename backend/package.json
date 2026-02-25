@@ -5,6 +5,11 @@
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js",
+    "prod": "NODE_ENV=production node server.js",
+    "build:admin": "cd ../frontend-admin && npm run build",
+    "build:customer": "cd ../frontend-customer && npm run build",
+    "build:all": "npm run build:admin && npm run build:customer",
+    "deploy": "npm run build:all && NODE_ENV=production node server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Kamal",

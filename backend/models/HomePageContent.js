@@ -37,8 +37,8 @@ const homePageContentSchema = new mongoose.Schema({
     alt: String
   }],
   settings: {
-    type: Map,
-    of: String
+    type: mongoose.Schema.Types.Mixed,
+    default: {}
   }
 }, {
   timestamps: true
