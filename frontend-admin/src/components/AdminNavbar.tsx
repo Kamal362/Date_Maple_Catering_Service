@@ -146,7 +146,7 @@ const AdminNavbar: React.FC = () => {
             {/* Theme Toggle Button */}
             <button
               onClick={toggleTheme}
-              className="p-2 rounded-full text-gray-700 dark:text-gray-300 hover:text-primary-tea hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none transition-colors"
+              className="p-2 rounded-full text-gray-700 dark:text-yellow-400 hover:text-primary-tea dark:hover:text-yellow-300 hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none transition-colors border border-gray-300 dark:border-yellow-400"
               title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
             >
               {theme === 'light' ? (

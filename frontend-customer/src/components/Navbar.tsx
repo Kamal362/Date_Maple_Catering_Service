@@ -162,6 +162,10 @@ const Navbar = () => {
               </svg>
               Cart {cartCount > 0 && `(${cartCount})`}
             </Link>
+            <div className="flex items-center py-2">
+              <span className="mr-2 text-dark-tea">Theme:</span>
+              <ThemeToggle />
+            </div>
           </div>
         )}
       </div>
