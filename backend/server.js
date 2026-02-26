@@ -149,19 +149,19 @@ app.get('/api/health', (req, res) => {
 
 // Production static file serving
 if (process.env.NODE_ENV === 'production') {
-  // Serve admin static files (but not index.html - let the route handle that)
-  app.use('/admin', express.static('../frontend-admin/dist', { index: false }));
+  // Serve admin static assets (JS, CSS, images) from /admin/assets
+  app.use('/admin/assets', express.static('../frontend-admin/dist/assets'));
   
-  // Serve customer static files (but not index.html - let the route handle that)
-  app.use('/', express.static('../frontend-customer/dist', { index: false }));
+  // Serve customer static assets (JS, CSS, images) from /assets
+  app.use('/assets', express.static('../frontend-customer/dist/assets'));
   
   // Handle client-side routing for admin - match any path starting with /admin/
   app.get(/^\/admin(\/.*)?$/, (req, res) => {
     res.sendFile(path.resolve(__dirname, '../frontend-admin/dist/index.html'));
   });
   
-  // Handle client-side routing for customer
-  app.get(/^(?!\/admin).*$/, (req, res) => {
+  // Handle client-side routing for customer (all other routes)
+  app.get('*', (req, res) => {
     res.sendFile(path.resolve(__dirname, '../frontend-customer/dist/index.html'));
   });
 }
