@@ -1483,6 +1483,7 @@ const AdminDashboard: React.FC = () => {
       {/* Homepage Content Editor Modal */}
       {showHomePageEditor && editingHomePageSection && (
         <HomePageContentEditor
+          key={editingHomePageSection}
           section={editingHomePageSection}
           onClose={() => {
             setShowHomePageEditor(false);

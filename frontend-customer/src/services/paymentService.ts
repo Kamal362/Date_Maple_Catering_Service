@@ -5,6 +5,7 @@ const apiClient = axiosInstance;
 // Payment method interface
 export interface PaymentMethod {
   _id?: string;
+  type: string;
   vendor: string;
   accountName: string;
   accountNumber: string;

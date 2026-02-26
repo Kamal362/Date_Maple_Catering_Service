@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-// Contact page component
+import React, { useState, useEffect } from 'react';
 import { useToast } from '../context/ToastContext';
 import { submitContactForm } from '../services/contactService';
+import { getHomePageContentBySection, HomePageContent } from '../services/homeContentService';
 
 const Contact: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -12,7 +12,35 @@ const Contact: React.FC = () => {
   });
   
   const [loading, setLoading] = useState(false);
+  const [content, setContent] = useState<HomePageContent | null>(null);
   const toast = useToast();
+
+  // Fetch contact content from database
+  useEffect(() => {
+    const fetchContent = async () => {
+      try {
+        const contactContent = await getHomePageContentBySection('contact');
+        setContent(contactContent);
+      } catch (error) {
+        console.error('Error fetching contact content:', error);
+      }
+    };
+
+    fetchContent();
+
+    // Re-fetch when window regains focus
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        fetchContent();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -45,14 +73,36 @@ const Contact: React.FC = () => {
     }
   };
 
+  // Default content fallback
+  const defaultContent = {
+    title: 'Get In Touch',
+    subtitle: 'We would love to hear from you. Reach out to us for any inquiries, feedback, or just to say hello!',
+    settings: {
+      address: '123 Coffee Street, Tea City',
+      phone: '(123) 456-7890',
+      email: 'info@datemaple.com',
+      mapUrl: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3022.184133404672!2d-73.987574724525!3d40.758028871388!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c25855c6480299%3A0x55194ec5a1ae072e!2sTimes%20Square!5e0!3m2!1sen!2sus!4v1690000000000!5m2!1sen!2sus',
+      mondayFriday: '08.00 A.M - 10.00 P.M',
+      saturday: '08.00 A.M - 02.00 P.M',
+      sunday: 'Closed',
+      halfHolidays: '08.00 A.M - 02.00 P.M'
+    }
+  };
+
+  const displayContent = content || defaultContent;
+  const settings = displayContent.settings || defaultContent.settings;
+  
+  // Type assertion for settings
+  const mapUrl = String(settings.mapUrl || defaultContent.settings.mapUrl);
+
   return (
     <div className="section-padding bg-cream">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
-          <h1 className="text-4xl md:text-5xl font-heading font-bold mb-4 text-primary-tea">Get In Touch</h1>
+          <h1 className="text-4xl md:text-5xl font-heading font-bold mb-4 text-primary-tea">{displayContent.title}</h1>
           <div className="w-20 h-1 bg-accent-tea mx-auto mb-6"></div>
           <p className="text-xl text-dark-tea max-w-3xl mx-auto">
-            Lorem ipsum dolor sit amdi scing elitr, sed diam nonumy eirmo tem invidunt ut labore etdolo magna aliquyam erat.
+            {displayContent.subtitle}
           </p>
         </div>
         
@@ -71,7 +121,7 @@ const Contact: React.FC = () => {
                   </div>
                   <div>
                     <h3 className="text-xl font-heading font-semibold mb-2">Address</h3>
-                    <p className="text-dark-tea">123 Coffee Street, Tea City</p>
+                    <p className="text-dark-tea">{settings.address}</p>
                   </div>
                 </div>
                 
@@ -83,7 +133,7 @@ const Contact: React.FC = () => {
                   </div>
                   <div>
                     <h3 className="text-xl font-heading font-semibold mb-2">Phone</h3>
-                    <p className="text-dark-tea">(123) 456-7890</p>
+                    <p className="text-dark-tea">{settings.phone}</p>
                   </div>
                 </div>
                 
@@ -95,7 +145,7 @@ const Contact: React.FC = () => {
                   </div>
                   <div>
                     <h3 className="text-xl font-heading font-semibold mb-2">Email</h3>
-                    <p className="text-dark-tea">info@datemaple.com</p>
+                    <p className="text-dark-tea">{settings.email}</p>
                   </div>
                 </div>
                 
@@ -108,10 +158,10 @@ const Contact: React.FC = () => {
                   <div>
                     <h3 className="text-xl font-heading font-semibold mb-2">Opening Hours</h3>
                     <div className="space-y-1">
-                      <p className="text-dark-tea flex justify-between"><span>Mon-Fri:</span> <span>08.00 A.M - 10.00 P.M</span></p>
-                      <p className="text-dark-tea flex justify-between"><span>Saturday:</span> <span>08.00 A.M - 02.00 P.M</span></p>
-                      <p className="text-dark-tea flex justify-between"><span>Sunday:</span> <span>Closed</span></p>
-                      <p className="text-dark-tea flex justify-between"><span>Half-Holidays:</span> <span>08.00 A.M - 02.00 P.M</span></p>
+                      <p className="text-dark-tea flex justify-between"><span>Mon-Fri:</span> <span>{settings.mondayFriday}</span></p>
+                      <p className="text-dark-tea flex justify-between"><span>Saturday:</span> <span>{settings.saturday}</span></p>
+                      <p className="text-dark-tea flex justify-between"><span>Sunday:</span> <span>{settings.sunday}</span></p>
+                      <p className="text-dark-tea flex justify-between"><span>Half-Holidays:</span> <span>{settings.halfHolidays}</span></p>
                     </div>
                   </div>
                 </div>
@@ -120,7 +170,7 @@ const Contact: React.FC = () => {
             
             <div className="rounded-lg overflow-hidden shadow-xl h-80">
               <iframe 
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3022.184133404672!2d-73.987574724525!3d40.758028871388!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c25855c6480299%3A0x55194ec5a1ae072e!2sTimes%20Square!5e0!3m2!1sen!2sus!4v1690000000000!5m2!1sen!2sus" 
+                src={mapUrl}
                 width="100%" 
                 height="100%" 
                 style={{ border: 0 }} 

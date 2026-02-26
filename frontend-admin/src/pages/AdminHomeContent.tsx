@@ -75,6 +75,7 @@ const AdminHomeContent: React.FC = () => {
     { key: 'catering', label: 'Catering Services', description: 'Catering information and services' },
     { key: 'testimonials', label: 'Testimonials', description: 'Customer reviews and testimonials' },
     { key: 'newsletter', label: 'Newsletter', description: 'Newsletter signup section' },
+    { key: 'contact', label: 'Contact Page', description: 'Contact information and map' },
     { key: 'footer', label: 'Footer', description: 'Footer content and links' },
   ];
 
@@ -190,9 +191,31 @@ const AdminHomeContent: React.FC = () => {
                 </div>
                 
                 {sectionContent && (
-                  <div className="mb-4 text-sm text-gray-600">
-                    <p className="truncate">{sectionContent.title || sectionContent.subtitle || 'No title'}</p>
-                    <p className="text-xs text-gray-400 mt-1">
+                  <div className="mb-4 text-sm text-gray-600 space-y-2">
+                    {sectionContent.title && (
+                      <p className="font-medium text-gray-800">Title: {sectionContent.title}</p>
+                    )}
+                    {sectionContent.subtitle && (
+                      <p className="text-gray-600 line-clamp-2">Subtitle: {sectionContent.subtitle}</p>
+                    )}
+                    {sectionContent.description && (
+                      <p className="text-gray-600 line-clamp-2">Description: {sectionContent.description}</p>
+                    )}
+                    {sectionContent.items && sectionContent.items.length > 0 && (
+                      <p className="text-xs text-gray-500">
+                        Items: {sectionContent.items.length} {sectionContent.items.length === 1 ? 'item' : 'items'}
+                        <span className="ml-2 text-gray-400">
+                          ({sectionContent.items.slice(0, 3).map((item: any) => item.title || item.name || 'Untitled').join(', ')}
+                          {sectionContent.items.length > 3 ? '...' : ''})
+                        </span>
+                      </p>
+                    )}
+                    {sectionContent.settings && Object.keys(sectionContent.settings).length > 0 && (
+                      <p className="text-xs text-gray-500">
+                        Settings: {Object.keys(sectionContent.settings).length} configured
+                      </p>
+                    )}
+                    <p className="text-xs text-gray-400 mt-2 pt-2 border-t border-gray-100">
                       Last updated: {sectionContent.updatedAt ? new Date(sectionContent.updatedAt).toLocaleDateString() : 'Never'}
                     </p>
                   </div>
@@ -228,6 +251,7 @@ const AdminHomeContent: React.FC = () => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
             <HomePageContentEditor
+              key={editingSection}
               section={editingSection}
               onSave={handleSave}
               onClose={() => {

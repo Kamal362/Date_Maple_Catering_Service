@@ -36,6 +36,7 @@ const homeContentRoutes = require('./routes/homeContent');
 const reviewsRoutes = require('./routes/reviews');
 const couponsRoutes = require('./routes/coupons');
 const uploadRoutes = require('./routes/upload');
+const contactRoutes = require('./routes/contact');
 
 // Initialize app
 const app = express();
@@ -134,6 +135,7 @@ app.use('/api/home-content', homeContentRoutes);
 app.use('/api/reviews', reviewsRoutes);
 app.use('/api/coupons', couponsRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/api/contact', contactRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

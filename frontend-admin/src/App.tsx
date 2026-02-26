@@ -19,6 +19,7 @@ import AdminMenuManagement from './pages/AdminMenuManagement';
 import AdminPaymentMethods from './pages/AdminPaymentMethods';
 import AdminPaymentProofs from './pages/AdminPaymentProofs';
 import AdminHomeContent from './pages/AdminHomeContent';
+import AdminInquiries from './pages/AdminInquiries';
 import AdminLogin from './pages/AdminLogin';
 import AdminRegister from './pages/AdminRegister';
 import ForgotPassword from './pages/ForgotPassword';
@@ -42,6 +43,7 @@ function App() {
               <Route path="/payment-methods" element={<ProtectedRoute adminOnly><AdminPaymentMethods /></ProtectedRoute>} />
               <Route path="/payment-proofs" element={<ProtectedRoute adminOnly><AdminPaymentProofs /></ProtectedRoute>} />
               <Route path="/home-content" element={<ProtectedRoute adminOnly><AdminHomeContent /></ProtectedRoute>} />
+              <Route path="/inquiries" element={<ProtectedRoute adminOnly><AdminInquiries /></ProtectedRoute>} />
               <Route path="/admin-login" element={<AdminLogin />} />
               <Route path="/admin-register" element={<AdminRegister />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
