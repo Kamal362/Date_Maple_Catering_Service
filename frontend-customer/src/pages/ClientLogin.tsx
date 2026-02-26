@@ -160,7 +160,7 @@ const ClientLogin: React.FC = () => {
 
           <button
             onClick={handleGuestCheckout}
-            className="w-full mt-4 bg-secondary-maple text-white py-3 px-4 rounded-lg font-medium hover:bg-opacity-90 transition"
+            className="w-full mt-4 bg-primary-tea text-white py-3 px-4 rounded-lg font-medium hover:bg-opacity-90 transition"
           >
             Continue as Guest
           </button>

@@ -1,6 +1,6 @@
 const express = require('express');
-const { getOrders, getMyOrders, getOrder, updateOrderStatus, updatePaymentStatus, deleteOrder, cancelOrder } = require('../controllers/orderController');
-const { protect, authorize } = require('../middleware/auth');
+const { getOrders, getMyOrders, getOrder, trackOrder, updateOrderStatus, updatePaymentStatus, deleteOrder, cancelOrder } = require('../controllers/orderController');
+const { protect, authorize, optionalAuth } = require('../middleware/auth');
 
 const router = express.Router();
 
@@ -9,6 +9,10 @@ router.route('/')
 
 router.route('/myorders')
   .get(protect, getMyOrders);
+
+// Public order tracking endpoint
+router.route('/track/:id')
+  .get(optionalAuth, trackOrder);
 
 router.route('/:id')
   .get(protect, getOrder)

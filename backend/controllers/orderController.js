@@ -73,6 +73,73 @@ exports.getOrder = async (req, res) => {
       success: false,
       message: 'Server error',
       error: error.message
+    })
+  }
+};
+
+// @desc    Track order (Public - for guests and logged-in users)
+// @route   GET /api/orders/track/:id
+// @access  Public
+exports.trackOrder = async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.id).populate('items.menuItem');
+    
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: 'Order not found'
+      });
+    }
+    
+    // If user is logged in, verify they own the order (unless admin)
+    if (req.user) {
+      const isOwner = order.user && order.user.toString() === req.user.id;
+      const isAdmin = req.user.role === 'admin';
+      
+      if (!isOwner && !isAdmin) {
+        return res.status(401).json({
+          success: false,
+          message: 'Not authorized to view this order'
+        });
+      }
+    }
+    // For guests, they can only view guest orders
+    else if (!order.isGuestOrder) {
+      return res.status(401).json({
+        success: false,
+        message: 'Please log in to view this order'
+      });
+    }
+    
+    // Return order with limited info for privacy
+    const orderData = {
+      _id: order._id,
+      orderId: order.orderId || order._id.toString().slice(-6).toUpperCase(),
+      status: order.status,
+      orderType: order.orderType,
+      totalAmount: order.totalAmount,
+      tax: order.tax,
+      paymentMethod: order.paymentMethod,
+      paymentStatus: order.paymentStatus,
+      items: order.items,
+      createdAt: order.createdAt,
+      updatedAt: order.updatedAt,
+      deliveryAddress: order.deliveryAddress,
+      pickupTime: order.pickupTime,
+      isGuestOrder: order.isGuestOrder,
+      // Only show guest info if it's a guest order
+      guestInfo: order.isGuestOrder ? order.guestInfo : undefined
+    };
+    
+    res.status(200).json({
+      success: true,
+      data: orderData
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Server error',
+      error: error.message
     });
   }
 };

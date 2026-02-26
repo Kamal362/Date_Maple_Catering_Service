@@ -11,6 +11,7 @@ const ClientRegister: React.FC = () => {
     password: '',
     confirmPassword: ''
   });
+  const [acceptTerms, setAcceptTerms] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   
@@ -58,6 +59,10 @@ const ClientRegister: React.FC = () => {
     
     if (formData.password !== formData.confirmPassword) {
       newErrors.confirmPassword = 'Passwords do not match';
+    }
+    
+    if (!acceptTerms) {
+      newErrors.terms = 'You must accept the Terms of Service and Privacy Policy';
     }
     
     setErrors(newErrors);
@@ -210,9 +215,39 @@ const ClientRegister: React.FC = () => {
             )}
           </div>
 
+          {/* Terms and Privacy Policy Checkbox */}
+          <div className="bg-gray-50 rounded-lg p-4">
+            <label className="flex items-start gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={acceptTerms}
+                onChange={(e) => {
+                  setAcceptTerms(e.target.checked);
+                  if (errors.terms) {
+                    setErrors(prev => ({ ...prev, terms: '' }));
+                  }
+                }}
+                className="mt-1 h-4 w-4 text-primary-tea rounded border-gray-300 focus:ring-primary-tea"
+              />
+              <span className="text-sm text-gray-600">
+                I have read and agree to the{' '}
+                <Link to="/terms" className="text-primary-tea hover:underline font-medium" target="_blank">
+                  Terms of Service
+                </Link>
+                {' '}and{' '}
+                <Link to="/privacy" className="text-primary-tea hover:underline font-medium" target="_blank">
+                  Privacy Policy
+                </Link>
+              </span>
+            </label>
+            {errors.terms && (
+              <p className="mt-2 text-sm text-red-600">{errors.terms}</p>
+            )}
+          </div>
+
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || !acceptTerms}
             className="w-full bg-primary-tea text-white py-3 px-4 rounded-lg font-medium hover:bg-opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? 'Creating Account...' : 'Create Account'}
@@ -228,10 +263,6 @@ const ClientRegister: React.FC = () => {
             >
               Sign in
             </Link>
-          </p>
-          
-          <p className="mt-4 text-sm text-gray-500">
-            By creating an account, you agree to our Terms of Service and Privacy Policy
           </p>
         </div>
       </div>

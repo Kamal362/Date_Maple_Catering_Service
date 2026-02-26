@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getMyOrders, Order as OrderType } from '../services/orderService';
+import { getMyOrders, trackOrder, Order as OrderType } from '../services/orderService';
 import { format } from 'date-fns';
 
 interface ExtendedOrder extends OrderType {
@@ -48,18 +48,37 @@ const OrderTracking: React.FC = () => {
     }
   };
 
-  const handleTrackSpecificOrder = (e: React.FormEvent) => {
+  const handleTrackSpecificOrder = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!orderId.trim()) return;
     
-    const foundOrder = orders.find(order => 
-      order._id.includes(orderId) || order._id.slice(-6).toUpperCase().includes(orderId.toUpperCase())
-    );
+    setLoading(true);
+    setError('');
     
-    if (foundOrder) {
-      setSelectedOrder(foundOrder);
-    } else {
-      setError('Order not found.');
+    try {
+      // First check in user's orders (if logged in)
+      const foundOrder = orders.find(order => 
+        order._id.includes(orderId) || order._id.slice(-6).toUpperCase().includes(orderId.toUpperCase())
+      );
+      
+      if (foundOrder) {
+        setSelectedOrder(foundOrder);
+      } else {
+        // Try to track order via public API (works for guests)
+        const trackedOrder = await trackOrder(orderId);
+        setSelectedOrder(trackedOrder as ExtendedOrder);
+      }
+    } catch (err: any) {
+      console.error('Error tracking order:', err);
+      if (err.response?.status === 404) {
+        setError('Order not found. Please check your order ID.');
+      } else if (err.response?.status === 401) {
+        setError('Please log in to view this order.');
+      } else {
+        setError('Failed to track order. Please try again.');
+      }
+    } finally {
+      setLoading(false);
     }
   };
 

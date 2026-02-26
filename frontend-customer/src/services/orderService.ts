@@ -45,6 +45,21 @@ export const createOrder = async (formData: FormData): Promise<{success: boolean
   }
 };
 
+// Create a guest order
+export const createGuestOrder = async (formData: FormData): Promise<{success: boolean, data?: Order, message?: string}> => {
+  try {
+    const response = await axiosInstance.post('/checkout/guest', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error creating guest order:', error);
+    throw error;
+  }
+};
+
 // Get all orders (Admin only)
 export const getOrders = async (): Promise<Order[]> => {
   try {
@@ -74,6 +89,17 @@ export const getOrder = async (id: string): Promise<Order> => {
     return response.data.data;
   } catch (error) {
     console.error('Error fetching order:', error);
+    throw error;
+  }
+};
+
+// Track order (public - works for guests and logged-in users)
+export const trackOrder = async (id: string): Promise<Order> => {
+  try {
+    const response = await apiClient.get(`/orders/track/${id}`);
+    return response.data.data;
+  } catch (error) {
+    console.error('Error tracking order:', error);
     throw error;
   }
 };

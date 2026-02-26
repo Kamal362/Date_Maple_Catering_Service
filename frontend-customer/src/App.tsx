@@ -26,6 +26,8 @@ import OrderTracking from './pages/OrderTracking';
 import EventBooking from './pages/EventBooking';
 import Events from './pages/Events';
 import WaitingPage from './pages/WaitingPage';
+import Terms from './pages/Terms';
+import Privacy from './pages/Privacy';
 
 // ThemeDemo removed
 import { isAuthenticated, getCurrentUser } from './services/authService';
@@ -91,8 +93,10 @@ const App: React.FC = () => {
                 <Route path="/order-tracking/:orderId" element={<OrderTracking />} />
                 <Route path="/waiting/:orderId" element={<WaitingPage />} />
                 <Route path="/events" element={<Events />} />
-                              <Route path="/event-booking" element={<EventBooking />} />
+                <Route path="/event-booking" element={<EventBooking />} />
                 <Route path="/catering" element={<EventBooking />} />
+                <Route path="/terms" element={<Terms />} />
+                <Route path="/privacy" element={<Privacy />} />
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
             </main>

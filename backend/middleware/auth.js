@@ -59,3 +59,21 @@ exports.authorize = (...roles) => {
     next();
   };
 };
+
+// Optional auth - sets req.user if token exists, but doesn't require it
+exports.optionalAuth = async (req, res, next) => {
+  let token;
+
+  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+    try {
+      token = req.headers.authorization.split(' ')[1];
+      const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key');
+      req.user = await User.findById(decoded.id).select('-password');
+    } catch (error) {
+      // Token invalid but we don't block the request
+      console.log('Optional auth - Invalid token, continuing as guest');
+    }
+  }
+  
+  next();
+};

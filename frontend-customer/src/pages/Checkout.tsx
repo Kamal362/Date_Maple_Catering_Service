@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
-import { createOrder } from '../services/orderService';
+import { createOrder, createGuestOrder } from '../services/orderService';
 import { getPaymentMethods, PaymentMethod } from '../services/paymentService';
 import { syncCartWithBackend, getCart } from '../services/cartService';
+import { isAuthenticated } from '../services/authService';
 
 const Checkout: React.FC = () => {
   const [orderType, setOrderType] = useState<'delivery' | 'pickup'>('delivery');
@@ -17,6 +18,13 @@ const Checkout: React.FC = () => {
   const [showValidationErrorModal, setShowValidationErrorModal] = useState(false);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [orderId, setOrderId] = useState<string | null>(null);
+  const [isGuest, setIsGuest] = useState(!isAuthenticated());
+  const [guestInfo, setGuestInfo] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: ''
+  });
   const { cartItems, cartTotal } = useCart();
   const navigate = useNavigate();
 
@@ -61,6 +69,14 @@ const Checkout: React.FC = () => {
     
     // Validate required fields
     const validationErrors = [];
+    
+    // Validate guest info if guest checkout
+    if (isGuest) {
+      if (!guestInfo.firstName.trim()) validationErrors.push('First name is required');
+      if (!guestInfo.lastName.trim()) validationErrors.push('Last name is required');
+      if (!guestInfo.email.trim()) validationErrors.push('Email is required');
+      if (!guestInfo.phone.trim()) validationErrors.push('Phone is required');
+    }
     
     // Validate delivery address if delivery selected
     if (orderType === 'delivery') {
@@ -158,7 +174,7 @@ const Checkout: React.FC = () => {
       console.log('Cart synced successfully with items, proceeding with order');
       
       // Prepare order data
-      const orderData = {
+      const orderData: any = {
         orderType,
         paymentMethod: paymentMethod === 'digital' ? 'receipt_upload' : paymentMethod,
         deliveryAddress: orderType === 'delivery' ? {
@@ -172,6 +188,16 @@ const Checkout: React.FC = () => {
           time: (document.getElementById('time') as HTMLInputElement)?.value
         } : undefined
       };
+
+      // Add guest info or cart items for guest checkout
+      if (isGuest) {
+        orderData.guestInfo = guestInfo;
+        orderData.items = cartItems.map(item => ({
+          menuItemId: item.id,
+          quantity: item.quantity,
+          specialInstructions: (item as any).specialInstructions || ''
+        }));
+      }
 
       // Create FormData for file upload
       const formData = new FormData();
@@ -187,8 +213,8 @@ const Checkout: React.FC = () => {
       console.log('Submitting order with data:', orderData);
       console.log('FormData entries:', [...formData.entries()]);
       
-      // Submit order
-      const response = await createOrder(formData);
+      // Submit order - use guest checkout if not authenticated
+      const response = isGuest ? await createGuestOrder(formData) : await createOrder(formData);
       console.log('Order response:', response);
       
       if (response.success) {
@@ -284,6 +310,68 @@ const Checkout: React.FC = () => {
                 </button>
               </div>
               
+              {/* Guest Info Section */}
+              {isGuest && (
+                <div className="mb-6 bg-cream border border-secondary-tea rounded-lg p-6">
+                  <h3 className="text-xl font-heading font-semibold mb-4 flex items-center gap-2">
+                    <svg className="w-5 h-5 text-primary-tea" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                    </svg>
+                    Guest Information
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label htmlFor="guestFirstName" className="block text-dark-tea mb-2">First Name *</label>
+                      <input
+                        type="text"
+                        id="guestFirstName"
+                        value={guestInfo.firstName}
+                        onChange={(e) => setGuestInfo({...guestInfo, firstName: e.target.value})}
+                        className="w-full px-4 py-3 border border-secondary-tea rounded-md focus:outline-none focus:ring-2 focus:ring-primary-tea"
+                        placeholder="John"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="guestLastName" className="block text-dark-tea mb-2">Last Name *</label>
+                      <input
+                        type="text"
+                        id="guestLastName"
+                        value={guestInfo.lastName}
+                        onChange={(e) => setGuestInfo({...guestInfo, lastName: e.target.value})}
+                        className="w-full px-4 py-3 border border-secondary-tea rounded-md focus:outline-none focus:ring-2 focus:ring-primary-tea"
+                        placeholder="Doe"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="guestEmail" className="block text-dark-tea mb-2">Email *</label>
+                      <input
+                        type="email"
+                        id="guestEmail"
+                        value={guestInfo.email}
+                        onChange={(e) => setGuestInfo({...guestInfo, email: e.target.value})}
+                        className="w-full px-4 py-3 border border-secondary-tea rounded-md focus:outline-none focus:ring-2 focus:ring-primary-tea"
+                        placeholder="john@example.com"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="guestPhone" className="block text-dark-tea mb-2">Phone *</label>
+                      <input
+                        type="tel"
+                        id="guestPhone"
+                        value={guestInfo.phone}
+                        onChange={(e) => setGuestInfo({...guestInfo, phone: e.target.value})}
+                        className="w-full px-4 py-3 border border-secondary-tea rounded-md focus:outline-none focus:ring-2 focus:ring-primary-tea"
+                        placeholder="(123) 456-7890"
+                        required
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {orderType === 'delivery' ? (
                 <div className="mb-6">
                   <h3 className="text-xl font-heading font-semibold mb-4">Delivery Address</h3>
@@ -508,25 +596,64 @@ const Checkout: React.FC = () => {
                       </div>
                       
                       {selectedPaymentMethod && (
-                        <div className="bg-cream border border-secondary-tea rounded-lg p-4">
-                          <h4 className="font-bold mb-2">Payment Instructions</h4>
-                          <p className="text-dark-tea mb-2">
-                            Please send <span className="font-bold text-primary-tea">${total.toFixed(2)}</span> to:
-                          </p>
+                        <div className="bg-white border border-secondary-tea rounded-lg p-6 shadow-sm">
+                          {/* Payment Instructions Header */}
+                          <div className="flex items-center gap-2 mb-4 pb-3 border-b border-secondary-tea">
+                            <svg className="w-5 h-5 text-primary-tea" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <h4 className="font-bold text-lg text-dark-tea">Payment Instructions</h4>
+                          </div>
+                          
+                          {/* Amount to Send */}
+                          <div className="bg-cream rounded-lg p-4 mb-4">
+                            <p className="text-sm text-secondary-tea mb-1">Amount to send:</p>
+                            <p className="text-3xl font-bold text-primary-tea">${total.toFixed(2)}</p>
+                          </div>
+                          
+                          {/* Payment Details */}
                           {getSelectedPaymentDetails() && (
-                            <div className="mb-3">
-                              <p className="font-medium">{getSelectedPaymentDetails()?.vendor}: <span className="text-primary-tea">{getSelectedPaymentDetails()?.accountAlias || getSelectedPaymentDetails()?.accountNumber}</span></p>
-                              <p className="text-sm text-secondary-tea">Account Name: {getSelectedPaymentDetails()?.accountName}</p>
+                            <div className="mb-4">
+                              <div className="bg-gray-50 rounded-lg p-4 space-y-3">
+                                <div className="flex justify-between items-center">
+                                  <span className="text-secondary-tea">Payment Method:</span>
+                                  <span className="font-semibold text-dark-tea">{getSelectedPaymentDetails()?.vendor}</span>
+                                </div>
+                                <div className="flex justify-between items-center">
+                                  <span className="text-secondary-tea">Send to:</span>
+                                  <span className="font-mono font-semibold text-primary-tea bg-white px-3 py-1 rounded border">
+                                    {getSelectedPaymentDetails()?.accountAlias || getSelectedPaymentDetails()?.accountNumber}
+                                  </span>
+                                </div>
+                                <div className="flex justify-between items-center">
+                                  <span className="text-secondary-tea">Account Name:</span>
+                                  <span className="font-semibold text-dark-tea">{getSelectedPaymentDetails()?.accountName}</span>
+                                </div>
+                              </div>
                             </div>
                           )}
-                          <p className="text-sm text-secondary-tea">Include your order number in the payment note.</p>
+                          
+                          {/* Note */}
+                          <div className="flex items-start gap-2 bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-6">
+                            <svg className="w-5 h-5 text-yellow-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                            </svg>
+                            <p className="text-sm text-yellow-800">
+                              <span className="font-semibold">Important:</span> Include your order number in the payment note for faster processing.
+                            </p>
+                          </div>
                                               
                           {/* Proof of Payment Upload */}
-                          <div className="mt-4 pt-4 border-t border-secondary-tea">
-                            <h4 className="font-bold mb-2">Proof of Payment</h4>
-                            <p className="text-dark-tea mb-3">Upload a screenshot of your payment as proof:</p>
+                          <div className="border-t border-secondary-tea pt-6">
+                            <div className="flex items-center gap-2 mb-3">
+                              <svg className="w-5 h-5 text-primary-tea" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                              </svg>
+                              <h4 className="font-bold text-dark-tea">Proof of Payment</h4>
+                            </div>
+                            <p className="text-secondary-tea mb-4">Upload a screenshot of your completed payment:</p>
                                                 
-                            <div className="border-2 border-dashed border-secondary-tea rounded-lg p-4 text-center cursor-pointer hover:border-primary-tea transition-colors duration-300">
+                            <div className="border-2 border-dashed border-secondary-tea rounded-lg p-6 text-center cursor-pointer hover:border-primary-tea hover:bg-cream transition-all duration-300">
                               <input 
                                 type="file" 
                                 accept="image/*" 
@@ -534,23 +661,23 @@ const Checkout: React.FC = () => {
                                 id="proofOfPayment"
                                 onChange={handleProofOfPaymentChange}
                               />
-                              <label htmlFor="proofOfPayment" className="cursor-pointer">
+                              <label htmlFor="proofOfPayment" className="cursor-pointer block">
                                 {proofOfPayment ? (
                                   <>
-                                    <svg className="w-12 h-12 text-primary-tea mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg className="w-12 h-12 text-green-500 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                     </svg>
-                                    <p className="text-dark-tea mb-1 font-medium">{proofOfPayment.name}</p>
-                                    <p className="text-primary-tea text-sm mb-2">File uploaded successfully!</p>
-                                    <p className="text-secondary-tea text-sm">Click to change file</p>
+                                    <p className="text-dark-tea font-medium">{proofOfPayment.name}</p>
+                                    <p className="text-green-600 text-sm mt-1">✓ File uploaded successfully</p>
+                                    <p className="text-secondary-tea text-sm mt-2">Click to change file</p>
                                   </>
                                 ) : (
                                   <>
                                     <svg className="w-12 h-12 text-secondary-tea mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
                                     </svg>
-                                    <p className="text-dark-tea mb-1">Click to upload proof of payment</p>
-                                    <p className="text-secondary-tea text-sm">PNG, JPG, GIF up to 10MB</p>
+                                    <p className="text-dark-tea font-medium mb-1">Click to upload screenshot</p>
+                                    <p className="text-secondary-tea text-sm">PNG, JPG, or GIF up to 10MB</p>
                                   </>
                                 )}
                               </label>
