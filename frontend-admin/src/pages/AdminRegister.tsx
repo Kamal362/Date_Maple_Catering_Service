@@ -39,13 +39,12 @@ const AdminRegister: React.FC = () => {
     }
 
     try {
-      // Register as admin using the client auth endpoint with admin role
-      const response = await api.post('/client/auth/register', {
+      // Register as admin using the public admin creation endpoint
+      const response = await api.post('/auth/admin/create', {
         firstName: formData.firstName,
         lastName: formData.lastName,
         email: formData.email,
-        password: formData.password,
-        role: 'admin'
+        password: formData.password
       });
 
       if (response.data.success) {
