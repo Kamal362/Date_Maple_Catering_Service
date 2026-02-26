@@ -156,7 +156,7 @@ if (process.env.NODE_ENV === 'production') {
   app.use('/', express.static('../frontend-customer/dist'));
   
   // Handle client-side routing for admin - match any path starting with /admin/
-  app.get('/admin/:path(*)', (req, res) => {
+  app.get(/^\/admin(\/.*)?$/, (req, res) => {
     res.sendFile(path.resolve(__dirname, '../frontend-admin/dist/index.html'));
   });
   
