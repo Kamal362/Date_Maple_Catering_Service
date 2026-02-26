@@ -11,14 +11,19 @@ const AdminNavbar: React.FC = () => {
   const { theme, toggleTheme } = useTheme();
   const [profileOpen, setProfileOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [paymentDropdownOpen, setPaymentDropdownOpen] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
+  const paymentRef = useRef<HTMLDivElement>(null);
   const user = getCurrentUser();
 
-  // Close profile dropdown when clicking outside
+  // Close dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (profileRef.current && !profileRef.current.contains(event.target as Node)) {
         setProfileOpen(false);
+      }
+      if (paymentRef.current && !paymentRef.current.contains(event.target as Node)) {
+        setPaymentDropdownOpen(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -37,13 +42,16 @@ const AdminNavbar: React.FC = () => {
 
   const navLinks = [
     { to: '/', label: 'Overview', icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' },
-    { to: '/menu', label: 'Menu Management', icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2' },
-    { to: '/users', label: 'User Management', icon: 'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z' },
+    { to: '/menu', label: 'Menu', icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2' },
+    { to: '/users', label: 'Users', icon: 'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z' },
     { to: '/events', label: 'Events', icon: 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z' },
-    { to: '/payment-methods', label: 'Payment Methods', icon: 'M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z' },
-    { to: '/payment-proofs', label: 'Payment Proofs', icon: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z' },
     { to: '/home-content', label: 'Homepage', icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' },
     { to: '/inquiries', label: 'Messages', icon: 'M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z' },
+  ];
+
+  const paymentLinks = [
+    { to: '/payment-methods', label: 'Payment Methods' },
+    { to: '/payment-proofs', label: 'Payment Proofs' },
   ];
 
   return (
@@ -55,11 +63,20 @@ const AdminNavbar: React.FC = () => {
             <Link to="/" className="flex items-center">
               <img 
                 src="/logo.png" 
-                alt="Date & Maple" 
+                alt="Date & Maple Logo" 
                 className="h-10 w-auto"
                 onError={(e) => {
                   const target = e.target as HTMLImageElement;
+                  target.onerror = null;
                   target.style.display = 'none';
+                  // Fallback to text if image fails to load
+                  const span = document.createElement('span');
+                  span.className = 'text-2xl font-heading font-bold text-primary-tea';
+                  span.textContent = 'Date & Maple';
+                  const parent = target.parentElement;
+                  if (parent) {
+                    parent.appendChild(span);
+                  }
                 }}
               />
             </Link>
@@ -83,6 +100,45 @@ const AdminNavbar: React.FC = () => {
                 {link.label}
               </Link>
             ))}
+
+            {/* Payment Dropdown */}
+            <div className="relative" ref={paymentRef}>
+              <button
+                onClick={() => setPaymentDropdownOpen(!paymentDropdownOpen)}
+                className={`flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${
+                  isActive('/payment-methods') || isActive('/payment-proofs')
+                    ? 'bg-primary-tea text-white'
+                    : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-primary-tea dark:hover:text-primary-tea'
+                }`}
+              >
+                <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                </svg>
+                Payment
+                <svg className={`w-4 h-4 ml-1 transition-transform ${paymentDropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+
+              {paymentDropdownOpen && (
+                <div className="absolute left-0 mt-2 w-48 bg-cream dark:bg-gray-800 rounded-md shadow-lg py-1 z-50 border border-gray-200 dark:border-gray-700">
+                  {paymentLinks.map((link) => (
+                    <Link
+                      key={link.to}
+                      to={link.to}
+                      onClick={() => setPaymentDropdownOpen(false)}
+                      className={`block px-4 py-2 text-sm ${
+                        isActive(link.to)
+                          ? 'bg-primary-tea text-white'
+                          : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-primary-tea'
+                      }`}
+                    >
+                      {link.label}
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Theme Toggle & Profile Dropdown */}
@@ -195,6 +251,29 @@ const AdminNavbar: React.FC = () => {
                 {link.label}
               </Link>
             ))}
+            {/* Payment Section in Mobile */}
+            <div className="border-t border-gray-200 dark:border-gray-700 mt-2 pt-2">
+              <div className="px-4 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                Payment
+              </div>
+              {paymentLinks.map((link) => (
+                <Link
+                  key={link.to}
+                  to={link.to}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={`flex items-center px-4 py-2 text-sm font-medium ${
+                    isActive(link.to)
+                      ? 'bg-primary-tea text-white'
+                      : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-primary-tea'
+                  }`}
+                >
+                  <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                  </svg>
+                  {link.label}
+                </Link>
+              ))}
+            </div>
           </div>
         )}
       </div>
