@@ -149,18 +149,20 @@ app.get('/api/health', (req, res) => {
 
 // Production static file serving
 if (process.env.NODE_ENV === 'production') {
-  // Serve admin app - all /admin/* routes serve from frontend-admin/dist
-  app.use('/admin', express.static(path.join(__dirname, '../frontend-admin/dist')));
+  // Admin app: serve static files first
+  app.use('/admin/assets', express.static(path.join(__dirname, '../frontend-admin/dist/assets')));
+  app.use('/admin', express.static(path.join(__dirname, '../frontend-admin/dist'), { index: false }));
   
-  // Serve customer app - all other routes serve from frontend-customer/dist
-  app.use('/', express.static(path.join(__dirname, '../frontend-customer/dist')));
+  // Customer app: serve static files first  
+  app.use('/assets', express.static(path.join(__dirname, '../frontend-customer/dist/assets')));
+  app.use(express.static(path.join(__dirname, '../frontend-customer/dist'), { index: false }));
   
-  // Handle client-side routing for admin (SPA fallback)
+  // Admin SPA fallback - must be after static files
   app.get('/admin/*', (req, res) => {
     res.sendFile(path.join(__dirname, '../frontend-admin/dist/index.html'));
   });
   
-  // Handle client-side routing for customer (SPA fallback)
+  // Customer SPA fallback - must be last
   app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, '../frontend-customer/dist/index.html'));
   });
