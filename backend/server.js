@@ -149,11 +149,11 @@ app.get('/api/health', (req, res) => {
 
 // Production static file serving
 if (process.env.NODE_ENV === 'production') {
-  // Serve admin build
-  app.use('/admin', express.static('../frontend-admin/dist'));
+  // Serve admin static files (but not index.html - let the route handle that)
+  app.use('/admin', express.static('../frontend-admin/dist', { index: false }));
   
-  // Serve customer build
-  app.use('/', express.static('../frontend-customer/dist'));
+  // Serve customer static files (but not index.html - let the route handle that)
+  app.use('/', express.static('../frontend-customer/dist', { index: false }));
   
   // Handle client-side routing for admin - match any path starting with /admin/
   app.get(/^\/admin(\/.*)?$/, (req, res) => {
