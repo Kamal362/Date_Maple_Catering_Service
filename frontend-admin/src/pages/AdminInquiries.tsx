@@ -39,7 +39,7 @@ const AdminInquiries: React.FC = () => {
     }
   };
 
-  const handleStatusChange = async (id: string, status: string) => {
+  const handleStatusChange = async (id: string, status: Inquiry['status']) => {
     try {
       await updateInquiry(id, { status });
       setInquiries(prev => prev.map(inq => 
@@ -268,7 +268,7 @@ const AdminInquiries: React.FC = () => {
 
               <div className="flex flex-wrap gap-2">
                 <span className="text-sm text-gray-500 mr-2">Change Status:</span>
-                {['pending', 'read', 'replied', 'archived'].map((status) => (
+                {(['pending', 'read', 'replied', 'archived'] as Inquiry['status'][]).map((status) => (
                   <button
                     key={status}
                     onClick={() => handleStatusChange(selectedInquiry._id!, status)}
