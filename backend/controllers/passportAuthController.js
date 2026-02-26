@@ -127,6 +127,8 @@ exports.passportRegister = async (req, res) => {
 // Admin account creation endpoint using Passport
 exports.createAdminAccount = async (req, res) => {
   try {
+    console.log('=== DEBUG: createAdminAccount called ===');
+    console.log('Request body:', req.body);
     const { firstName, lastName, email, password, phone } = req.body;
 
     // Check if user exists
