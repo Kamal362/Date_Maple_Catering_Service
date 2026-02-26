@@ -155,7 +155,10 @@ exports.getUsers = async (req, res) => {
 // @access  Private (Admin only)
 exports.createUser = async (req, res) => {
   try {
+    console.log('=== DEBUG: Create User Request ===');
+    console.log('Request body:', req.body);
     const { firstName, lastName, email, password, phone, role = 'customer' } = req.body;
+    console.log('Extracted role:', role);
 
     // Check if user exists
     const userExists = await User.findOne({ email });
