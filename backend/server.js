@@ -161,7 +161,7 @@ if (process.env.NODE_ENV === 'production') {
   });
   
   // Handle client-side routing for customer
-  app.get('*', (req, res) => {
+  app.get(/^(?!\/admin).*$/, (req, res) => {
     res.sendFile(path.resolve(__dirname, '../frontend-customer/dist/index.html'));
   });
 }
