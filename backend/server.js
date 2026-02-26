@@ -42,81 +42,79 @@ const contactRoutes = require('./routes/contact');
 const app = express();
 const PORT = process.env.PORT || 5001;
 
-// Create HTTP server and Socket.IO instance
+const isProduction = process.env.NODE_ENV === 'production';
+
+// ─── Allowed origins ──────────────────────────────────────────────────────────
+const allowedOrigins = isProduction
+  ? [process.env.ADMIN_URL, process.env.CUSTOMER_URL].filter(Boolean)
+  : ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:3000', 'http://localhost:3001'];
+
+// ─── HTTP Server + Socket.IO ──────────────────────────────────────────────────
 const server = createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: process.env.CLIENT_URL || 'http://localhost:3000',
-    methods: ['GET', 'POST']
+    // FIX: allow ALL known origins for socket connections, not just one
+    origin: allowedOrigins,
+    methods: ['GET', 'POST'],
+    credentials: true
   }
 });
 
 // Store connected users
 const connectedUsers = new Map();
 
-// Rate limiting for protected routes only
+// ─── Rate limiting ────────────────────────────────────────────────────────────
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
+  windowMs: 15 * 60 * 1000,
+  max: 100,
   message: 'Too many requests from this IP, please try again later.',
   skip: (req) => {
-    // Skip rate limiting for public endpoints
     const publicEndpoints = ['/api/menu', '/api/auth/login', '/api/auth/register', '/api/health', '/api/events/flyers'];
     return publicEndpoints.some(endpoint => req.path.startsWith(endpoint));
   }
 });
 app.use('/api/', limiter);
 
-// Middleware
+// ─── Security headers ─────────────────────────────────────────────────────────
 app.use(helmet({
-  crossOriginResourcePolicy: { policy: "cross-origin" }
-})); // Security headers with CORS support
+  crossOriginResourcePolicy: { policy: 'cross-origin' }
+}));
 
-// CORS middleware - must be before other middleware
-app.use((req, res, next) => {
-  const allowedOrigins = process.env.NODE_ENV === 'production' 
-    ? [process.env.ADMIN_URL, process.env.CUSTOMER_URL].filter(Boolean)
-    : ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:3000', 'http://localhost:3001'];
-  const origin = req.headers.origin;
-  
-  if (allowedOrigins.includes(origin) || process.env.NODE_ENV === 'development') {
-    res.header('Access-Control-Allow-Origin', origin);
-  }
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
-  res.header('Access-Control-Allow-Credentials', 'true');
-  
-  // Handle preflight requests
-  if (req.method === 'OPTIONS') {
-    return res.sendStatus(200);
-  }
-  next();
-});
-
+// ─── CORS ─────────────────────────────────────────────────────────────────────
+// FIX: Single unified CORS setup — removed the duplicate manual header middleware
+// which conflicted with the cors() package and caused mismatches in production.
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:3000', 'http://localhost:3001'],
+  origin: (origin, callback) => {
+    // Allow requests with no origin (e.g. mobile apps, curl, server-to-server)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    return callback(new Error(`CORS blocked for origin: ${origin}`));
+  },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization', 'Origin', 'X-Requested-With', 'Accept'],
   credentials: true
-})); // Enable CORS with specific origins
-app.use(morgan('combined')); // Logging
-app.use(express.json({ limit: '10mb' })); // Parse JSON bodies
-app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies
-// Serve uploaded files with CORS headers
+}));
+
+// ─── General middleware ───────────────────────────────────────────────────────
+app.use(morgan('combined'));
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true }));
+
+// FIX: Use absolute path for uploads static serving
 app.use('/uploads', (req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*');
   res.header('Access-Control-Allow-Methods', 'GET, OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Content-Type');
-  if (req.method === 'OPTIONS') {
-    return res.sendStatus(200);
-  }
+  if (req.method === 'OPTIONS') return res.sendStatus(200);
   next();
-}, express.static('uploads'));
+}, express.static(path.join(__dirname, 'uploads')));
 
-// Passport middleware
+// ─── Passport ─────────────────────────────────────────────────────────────────
 app.use(passport.initialize());
 
-// Routes
+// ─── API Routes ───────────────────────────────────────────────────────────────
 app.use('/api/auth', authRoutes);
 app.use('/api/auth', passportAuthRoutes);
 app.use('/api/client/auth', clientAuthRoutes);
@@ -137,56 +135,62 @@ app.use('/api/coupons', couponsRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/contact', contactRoutes);
 
-// Health check endpoint
+// ─── Health check ─────────────────────────────────────────────────────────────
 app.get('/api/health', (req, res) => {
-  res.status(200).json({ 
-    status: 'OK', 
+  res.status(200).json({
+    status: 'OK',
     message: 'Date&Maple API is running',
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV || 'development'
   });
 });
 
-// Production static file serving
-if (process.env.NODE_ENV === 'production') {
-  // Admin app: serve static files first
+// ─── Production static file serving ──────────────────────────────────────────
+if (isProduction) {
+  // ── ADMIN APP ──
+  // FIX: Admin assets served under /admin/assets to avoid colliding with
+  // the customer app's /assets path. Your Vite admin build MUST set:
+  //   base: '/admin/'   in vite.config.ts
   app.use('/admin/assets', express.static(path.join(__dirname, '../frontend-admin/dist/assets')));
+  app.use('/admin/favicon.ico', express.static(path.join(__dirname, '../frontend-admin/dist/favicon.ico')));
+  // Serve other static files under /admin (e.g. fonts, images placed in /public)
   app.use('/admin', express.static(path.join(__dirname, '../frontend-admin/dist'), { index: false }));
-  
-  // Customer app: serve static files first  
+
+  // ── CUSTOMER APP ──
   app.use('/assets', express.static(path.join(__dirname, '../frontend-customer/dist/assets')));
   app.use(express.static(path.join(__dirname, '../frontend-customer/dist'), { index: false }));
-  
-  // Admin SPA fallback - must be after static files
-  app.get('/admin/*', (req, res) => {
+
+  // ── SPA Fallbacks ──
+  // FIX: Admin fallback MUST come before the customer catch-all '*'
+  // Use a regex so that /admin and /admin/anything both resolve correctly
+  app.get(/^\/admin(\/.*)?$/, (req, res) => {
     res.sendFile(path.join(__dirname, '../frontend-admin/dist/index.html'));
   });
-  
-  // Customer SPA fallback - must be last
+
+  // Customer SPA catch-all — must be last
   app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, '../frontend-customer/dist/index.html'));
   });
 }
 
-// Error handling middleware
+// ─── Error handling ───────────────────────────────────────────────────────────
 app.use((err, req, res, next) => {
   console.error(err.stack);
-  res.status(500).json({ 
-    success: false, 
-    message: 'Something went wrong!',
-    error: process.env.NODE_ENV === 'development' ? err.message : {}
-  });
-});
-
-// 404 handler
-app.use((req, res) => {
-  res.status(404).json({
+  res.status(500).json({
     success: false,
-    message: 'Route not found'
+    message: 'Something went wrong!',
+    error: isProduction ? {} : err.message
   });
 });
 
-// Connect to MongoDB and start server
+// ─── 404 handler ──────────────────────────────────────────────────────────────
+// Note: in production this is only reached for non-API, non-static paths
+// because the SPA catch-alls above handle everything else.
+app.use((req, res) => {
+  res.status(404).json({ success: false, message: 'Route not found' });
+});
+
+// ─── Start server ─────────────────────────────────────────────────────────────
 connectDB().then(() => {
   server.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
@@ -196,35 +200,28 @@ connectDB().then(() => {
   process.exit(1);
 });
 
-// Socket.IO connection handling
+// ─── Socket.IO ────────────────────────────────────────────────────────────────
 io.on('connection', (socket) => {
   console.log('User connected:', socket.id);
-  
-  // Handle user joining
+
   socket.on('join', (userId) => {
     connectedUsers.set(userId, socket.id);
     console.log(`User ${userId} joined with socket ${socket.id}`);
   });
-  
-  // Handle order status updates
+
   socket.on('orderStatusUpdate', (data) => {
-    // Emit to specific user if connected
     const userSocketId = connectedUsers.get(data.userId);
     if (userSocketId) {
       io.to(userSocketId).emit('orderStatusUpdated', data);
     }
   });
-  
-  // Handle admin notifications
+
   socket.on('adminNotification', (data) => {
-    // Emit to all connected admins
     socket.broadcast.emit('newAdminNotification', data);
   });
-  
-  // Handle disconnect
+
   socket.on('disconnect', () => {
     console.log('User disconnected:', socket.id);
-    // Remove user from connected users
     for (let [userId, socketId] of connectedUsers.entries()) {
       if (socketId === socket.id) {
         connectedUsers.delete(userId);
