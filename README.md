@@ -89,50 +89,6 @@ npm run dev
 
 Add to `src/index.css`:
 
-```css
-@keyframes slide-in {
-  from {
-    transform: translateX(100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
-}
-
-@keyframes slide-out {
-  from {
-    transform: translateX(0);
-    opacity: 1;
-  }
-  to {
-    transform: translateX(100%);
-    opacity: 0;
-  }
-}
-
-.animate-slide-in {
-  animation: slide-in 0.3s ease-out forwards;
-}
-
-.animate-slide-out {
-  animation: slide-out 0.3s ease-in forwards;
-}
-
-@keyframes shimmer {
-  0% {
-    background-position: -200% 0;
-  }
-  100% {
-    background-position: 200% 0;
-  }
-}
-
-.animate-pulse {
-  animation: shimmer 2s infinite linear;
-}
-```
 
 ### 5. **Test It!**
 
@@ -154,47 +110,7 @@ cd frontend && npm run dev
 3. ✅ **Role-Based Access Control** - Secure admin/customer separation
 4. ✅ **Independent Deployments** - Scale apps separately
 
-### Usage Examples
 
-**Starting the Applications:**
-```typescript
-import { useToast } from './context/ToastContext';
-
-const MyComponent = () => {
-  const toast = useToast();
-  
-  toast.success('Order placed successfully!');
-  toast.error('Payment failed. Please try again.');
-  toast.warning('Low stock alert!');
-  toast.info('New feature available!');
-};
-```
-
-**Loading Skeletons:**
-```typescript
-import { MenuItemSkeleton, OrderSkeleton } from './components/Skeletons';
-
-{loading ? (
-  <MenuItemSkeleton />
-) : (
-  <MenuItem data={item} />
-)}
-```
-
-**Form Validation:**
-```typescript
-import useFormValidation from './hooks/useFormValidation';
-
-const { values, errors, handleChange, handleBlur, handleSubmit } = useFormValidation(
-  { email: '', password: '' },
-  {
-    email: { required: true, email: true },
-    password: { required: true, minLength: 8 }
-  }
-);
-```
-
----
 
 ## 📋 Complete Feature List
 
@@ -267,34 +183,6 @@ const { values, errors, handleChange, handleBlur, handleSubmit } = useFormValida
 
 ---
 
-## 🔧 Customization
-
-### Colors
-All components use your existing color scheme:
-```typescript
-const colors = {
-  primaryTea: '#8B4513',
-  secondaryTea: '#D2B48C',
-  accentTea: '#F4A460',
-  lightTea: '#F5DEB3',
-  darkTea: '#5D4037',
-  cream: '#FFF8E1',
-  gold: '#D4AF37'
-};
-```
-
-### Toast Duration
-```typescript
-toast.success('Message', 3000); // 3 seconds
-toast.error('Error', 0); // Won't auto-dismiss
-```
-
-### Skeleton Customization
-```typescript
-<Skeleton className="w-full h-48 rounded-lg" />
-```
-
----
 
 ## 🐛 Troubleshooting
 
@@ -413,12 +301,29 @@ The application now follows a **micro-frontend architecture**:
 
 Each frontend is a complete, independent React application with its own build pipeline, dependencies, and deployment.
 
----
+## New Deployments 03/03/2026
+# Pull latest changes
+cd ~/Date_Maple_Catering_Service
+git pull origin main
 
-**Happy Coding! ☕️🍁**
+# Install dependencies and build admin
+cd frontend-admin
+npm install
+npm run build
 
-Questions? Check the documentation files included in this package.
+# Install dependencies and build customer
+cd ../frontend-customer
+npm install
+npm run build
 
+# Deploy to web server
+sudo rm -rf /var/www/date-maple/frontend-admin/*
+sudo cp -r ../frontend-admin/dist/* /var/www/date-maple/frontend-admin/
+sudo rm -rf /var/www/date-maple/frontend-customer/*
+sudo cp -r dist/* /var/www/date-maple/frontend-customer/
+sudo chown -R www-data:www-data /var/www/date-maple/
 
-=======================================
+# Restart backend if needed
+cd ../backend
+pm2 restart date-maple-backend
 

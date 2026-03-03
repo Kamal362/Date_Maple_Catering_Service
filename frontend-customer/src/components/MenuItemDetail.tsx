@@ -16,17 +16,58 @@ const MenuItemDetail: React.FC<MenuItemDetailProps> = ({
   onAddToCart 
 }) => {
   const [quantity, setQuantity] = useState(1);
-  const [selectedSize, setSelectedSize] = useState('regular');
+  const [selectedSize, setSelectedSize] = useState<string>('');
   const [selectedMilk, setSelectedMilk] = useState('regular');
+  const [selectedExtras, setSelectedExtras] = useState<string[]>([]);
 
   if (!isOpen) return null;
 
+  // Calculate total price based on size and extras
+  const calculateTotalPrice = () => {
+    let total = item.price;
+    
+    // Add size price if a size is selected
+    if (selectedSize && item.sizes) {
+      const sizeOption = item.sizes.find(s => s.size === selectedSize);
+      if (sizeOption) {
+        total = sizeOption.price;
+      }
+    }
+    
+    // Add extras prices
+    if (selectedExtras.length > 0 && item.extras) {
+      selectedExtras.forEach(extraName => {
+        const extra = item.extras?.find(e => e.name === extraName);
+        if (extra) {
+          total += extra.price;
+        }
+      });
+    }
+    
+    return total * quantity;
+  };
+
+  const handleSizeChange = (size: string) => {
+    setSelectedSize(size);
+  };
+
+  const handleExtraToggle = (extraName: string) => {
+    setSelectedExtras(prev => 
+      prev.includes(extraName) 
+        ? prev.filter(e => e !== extraName)
+        : [...prev, extraName]
+    );
+  };
+
   const handleAddToCart = () => {
+    const totalPrice = calculateTotalPrice() / quantity;
     const itemWithCustomization = {
       ...item,
+      price: totalPrice, // Set the calculated price
       customization: {
         size: selectedSize,
         milk: selectedMilk,
+        extras: selectedExtras,
         quantity
       }
     };
@@ -71,39 +112,40 @@ const MenuItemDetail: React.FC<MenuItemDetailProps> = ({
                   {/* Price */}
                   <div className="mt-4">
                     <span className="text-3xl font-bold text-primary-tea">
-                      ${(item.price * quantity).toFixed(2)}
+                      ${calculateTotalPrice().toFixed(2)}
                     </span>
                     {quantity > 1 && (
                       <span className="text-secondary-tea ml-2">
-                        (${item.price.toFixed(2)} each)
+                        (${(calculateTotalPrice() / quantity).toFixed(2)} each)
                       </span>
                     )}
                   </div>
 
                   {/* Customization Options */}
-                  {item.category === 'drinks' && (
-                    <div className="mt-6 space-y-4">
-                      {/* Size Selection */}
+                  <div className="mt-6 space-y-4">
+                    {/* Size Selection */}
+                    {item.sizes && item.sizes.length > 0 && (
                       <div>
                         <label className="block text-sm font-medium text-dark-tea mb-2">
                           Size
                         </label>
-                        <div className="flex gap-2">
-                          {['small', 'regular', 'large'].map((size) => (
+                        <div className="flex flex-wrap gap-2">
+                          {item.sizes.map((sizeOption) => (
                             <button
-                              key={size}
-                              onClick={() => setSelectedSize(size)}
+                              key={sizeOption.size}
+                              onClick={() => handleSizeChange(sizeOption.size)}
                               className={`px-4 py-2 rounded-lg border transition-colors ${
-                                selectedSize === size
+                                selectedSize === sizeOption.size
                                   ? 'bg-primary-tea text-cream border-primary-tea'
                                   : 'border-secondary-tea text-dark-tea hover:border-primary-tea'
                               }`}
                             >
-                              {size.charAt(0).toUpperCase() + size.slice(1)}
+                              {sizeOption.size} (${sizeOption.price.toFixed(2)})
                             </button>
                           ))}
                         </div>
                       </div>
+                    )}
 
                       {/* Milk Selection */}
                       {item.altMilkOptions && item.altMilkOptions.length > 0 && (
@@ -128,8 +170,31 @@ const MenuItemDetail: React.FC<MenuItemDetailProps> = ({
                           </div>
                         </div>
                       )}
-                    </div>
-                  )}
+
+                    {/* Extras Selection */}
+                    {item.extras && item.extras.length > 0 && (
+                      <div>
+                        <label className="block text-sm font-medium text-dark-tea mb-2">
+                          Extras
+                        </label>
+                        <div className="flex flex-wrap gap-2">
+                          {item.extras.map((extra) => (
+                            <button
+                              key={extra.name}
+                              onClick={() => handleExtraToggle(extra.name)}
+                              className={`px-3 py-1 rounded-full border text-sm transition-colors ${
+                                selectedExtras.includes(extra.name)
+                                  ? 'bg-primary-tea text-cream border-primary-tea'
+                                  : 'border-secondary-tea text-dark-tea hover:border-primary-tea'
+                              }`}
+                            >
+                              {extra.name} (+${extra.price.toFixed(2)})
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
 
                   {/* Quantity Selector */}
                   <div className="mt-6">
@@ -185,7 +250,7 @@ const MenuItemDetail: React.FC<MenuItemDetailProps> = ({
               onClick={handleAddToCart}
               className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-primary-tea text-base font-medium text-white hover:bg-dark-tea focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-tea sm:ml-3 sm:w-auto sm:text-sm transition-colors"
             >
-              Add to Cart • ${item.price.toFixed(2)} × {quantity}
+              Add to Cart • ${calculateTotalPrice().toFixed(2)}
             </button>
             <button
               type="button"

@@ -52,6 +52,7 @@ const AdminNavbar: React.FC = () => {
   const paymentLinks = [
     { to: '/payment-methods', label: 'Payment Methods' },
     { to: '/payment-proofs', label: 'Payment Proofs' },
+    { to: '/tax-settings', label: 'Tax Settings' },
   ];
 
   return (
@@ -106,7 +107,7 @@ const AdminNavbar: React.FC = () => {
               <button
                 onClick={() => setPaymentDropdownOpen(!paymentDropdownOpen)}
                 className={`flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${
-                  isActive('/payment-methods') || isActive('/payment-proofs')
+                  isActive('/payment-methods') || isActive('/payment-proofs') || isActive('/tax-settings')
                     ? 'bg-primary-tea text-white'
                     : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-primary-tea dark:hover:text-primary-tea'
                 }`}

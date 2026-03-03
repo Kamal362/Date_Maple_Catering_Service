@@ -5,6 +5,7 @@ import { createOrder, createGuestOrder } from '../services/orderService';
 import { getPaymentMethods, PaymentMethod } from '../services/paymentService';
 import { syncCartWithBackend, getCart } from '../services/cartService';
 import { isAuthenticated } from '../services/authService';
+import { getTaxSettings, TaxSettings } from '../services/taxService';
 
 const Checkout: React.FC = () => {
   const [orderType, setOrderType] = useState<'delivery' | 'pickup'>('delivery');
@@ -25,19 +26,25 @@ const Checkout: React.FC = () => {
     email: '',
     phone: ''
   });
+  const [taxSettings, setTaxSettings] = useState<TaxSettings>({ taxEnabled: true, taxRate: 8, taxLabel: 'Tax' });
   const { cartItems, cartTotal } = useCart();
   const navigate = useNavigate();
 
-  // Calculate subtotal, tax, and total
   const subtotal = cartTotal || 0;
-  const tax = subtotal * 0.08;
-  const total = subtotal + tax;
+  const taxRate = taxSettings.taxEnabled ? taxSettings.taxRate / 100 : 0;
+  const tax = subtotal * taxRate;
+  const deliveryFee = orderType === 'delivery' ? 2.99 : 0;
+  const total = subtotal + tax + deliveryFee;
   
   console.log('Cart items:', cartItems);
   console.log('Cart total:', cartTotal);
   console.log('Subtotal:', subtotal);
   console.log('Tax:', tax);
   console.log('Total:', total);
+
+  useEffect(() => {
+    getTaxSettings().then(setTaxSettings);
+  }, []);
 
   useEffect(() => {
     const fetchPaymentMethods = async () => {
@@ -697,13 +704,26 @@ const Checkout: React.FC = () => {
               <h2 className="text-2xl font-heading font-semibold mb-6">Order Summary</h2>
               
               <div className="space-y-4 mb-6">
-                {cartItems.map((item) => (
-                  <div key={item.id} className="flex justify-between">
+                {cartItems.map((item, index) => (
+                  <div key={`${item.id}-${index}`} className="flex justify-between">
                     <div>
                       <p className="font-medium">{item.name}</p>
+                      {item.customization && (
+                        <div className="text-secondary-tea text-xs mt-0.5 space-y-0.5">
+                          {item.customization.size && (
+                            <p>Size: <strong>{item.customization.size}</strong></p>
+                          )}
+                          {item.customization.milk && item.customization.milk !== 'regular' && (
+                            <p>Milk: <strong>{item.customization.milk}</strong></p>
+                          )}
+                          {item.customization.extras && item.customization.extras.length > 0 && (
+                            <p>Extras: <strong>{item.customization.extras.join(', ')}</strong></p>
+                          )}
+                        </div>
+                      )}
                       <p className="text-secondary-tea text-sm">Qty: {item.quantity}</p>
                     </div>
-                    <p>${(item.price * item.quantity).toFixed(2)}</p>
+                    <p className="font-medium">${(item.price * item.quantity).toFixed(2)}</p>
                   </div>
                 ))}
                 
@@ -711,10 +731,18 @@ const Checkout: React.FC = () => {
                   <span>Subtotal</span>
                   <span>${subtotal.toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span>Tax</span>
-                  <span>${tax.toFixed(2)}</span>
-                </div>
+                {taxSettings.taxEnabled && (
+                  <div className="flex justify-between">
+                    <span>{taxSettings.taxLabel} ({taxSettings.taxRate}%)</span>
+                    <span>${tax.toFixed(2)}</span>
+                  </div>
+                )}
+                {orderType === 'delivery' && (
+                  <div className="flex justify-between">
+                    <span>Delivery Fee</span>
+                    <span>$2.99</span>
+                  </div>
+                )}
                 <div className="flex justify-between font-bold text-lg pt-4 border-t border-secondary-tea">
                   <span>Total</span>
                   <span>${total.toFixed(2)}</span>

@@ -7,8 +7,13 @@ interface MenuItemFormProps {
   onCancel: () => void;
 }
 
+interface FormData extends Partial<MenuItem> {
+  sizes?: { size: string; price: number }[];
+  extras?: { name: string; price: number }[];
+}
+
 const MenuItemForm: React.FC<MenuItemFormProps> = ({ menuItem, onSave, onCancel }) => {
-  const [formData, setFormData] = useState<Partial<MenuItem>>({
+  const [formData, setFormData] = useState<FormData>({
     name: '',
     description: '',
     price: 0,
@@ -17,6 +22,8 @@ const MenuItemForm: React.FC<MenuItemFormProps> = ({ menuItem, onSave, onCancel 
     dietary: [],
     altMilkOptions: [],
     coldFoamAvailable: false,
+    sizes: [],
+    extras: [],
     // Initialize image as empty string instead of undefined
     image: ''
   });
@@ -104,6 +111,50 @@ const MenuItemForm: React.FC<MenuItemFormProps> = ({ menuItem, onSave, onCancel 
     });
   };
 
+  // Size management
+  const addSize = () => {
+    setFormData(prev => ({
+      ...prev,
+      sizes: [...(prev.sizes || []), { size: '', price: 0 }]
+    }));
+  };
+
+  const updateSize = (index: number, field: 'size' | 'price', value: string | number) => {
+    setFormData(prev => ({
+      ...prev,
+      sizes: prev.sizes?.map((s, i) => i === index ? { ...s, [field]: value } : s) || []
+    }));
+  };
+
+  const removeSize = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      sizes: prev.sizes?.filter((_, i) => i !== index) || []
+    }));
+  };
+
+  // Extras management
+  const addExtra = () => {
+    setFormData(prev => ({
+      ...prev,
+      extras: [...(prev.extras || []), { name: '', price: 0 }]
+    }));
+  };
+
+  const updateExtra = (index: number, field: 'name' | 'price', value: string | number) => {
+    setFormData(prev => ({
+      ...prev,
+      extras: prev.extras?.map((e, i) => i === index ? { ...e, [field]: value } : e) || []
+    }));
+  };
+
+  const removeExtra = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      extras: prev.extras?.filter((_, i) => i !== index) || []
+    }));
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSave(formData);
@@ -162,7 +213,7 @@ const MenuItemForm: React.FC<MenuItemFormProps> = ({ menuItem, onSave, onCancel 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <div>
           <label className="block text-dark-tea text-sm font-medium mb-2">
-            Price ($) *
+            Base Price ($) *
           </label>
           <input
             type="number"
@@ -176,7 +227,7 @@ const MenuItemForm: React.FC<MenuItemFormProps> = ({ menuItem, onSave, onCancel 
             required
           />
           <div className="text-xs text-secondary-tea mt-1">
-            Enter price in USD ($)
+            Base price before size/extra selections
           </div>
         </div>
 
@@ -197,6 +248,106 @@ const MenuItemForm: React.FC<MenuItemFormProps> = ({ menuItem, onSave, onCancel 
             <option value="catering">Catering</option>
           </select>
         </div>
+      </div>
+
+      {/* Sizes Section */}
+      <div className="border border-secondary-tea rounded-lg p-4 bg-light-tea/30">
+        <div className="flex justify-between items-center mb-3">
+          <label className="block text-dark-tea text-sm font-medium">
+            Size Options with Prices
+          </label>
+          <button
+            type="button"
+            onClick={addSize}
+            className="px-3 py-1 bg-primary-tea text-cream text-sm rounded hover:bg-dark-tea transition-colors"
+          >
+            + Add Size
+          </button>
+        </div>
+        <div className="space-y-2">
+          {formData.sizes?.map((size, index) => (
+            <div key={index} className="flex gap-2 items-center">
+              <input
+                type="text"
+                value={size.size}
+                onChange={(e) => updateSize(index, 'size', e.target.value)}
+                placeholder="Size name (e.g., Small, Large)"
+                className="flex-1 px-3 py-2 border border-secondary-tea rounded-md text-sm"
+              />
+              <input
+                type="number"
+                value={size.price}
+                onChange={(e) => updateSize(index, 'price', parseFloat(e.target.value) || 0)}
+                placeholder="Price"
+                min="0"
+                step="0.01"
+                className="w-24 px-3 py-2 border border-secondary-tea rounded-md text-sm"
+              />
+              <button
+                type="button"
+                onClick={() => removeSize(index)}
+                className="p-2 text-red-500 hover:bg-red-50 rounded"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+              </button>
+            </div>
+          ))}
+        </div>
+        {formData.sizes?.length === 0 && (
+          <p className="text-sm text-secondary-tea italic">No sizes added. Click "Add Size" to create size options.</p>
+        )}
+      </div>
+
+      {/* Extras Section */}
+      <div className="border border-secondary-tea rounded-lg p-4 bg-light-tea/30">
+        <div className="flex justify-between items-center mb-3">
+          <label className="block text-dark-tea text-sm font-medium">
+            Extra Options with Prices
+          </label>
+          <button
+            type="button"
+            onClick={addExtra}
+            className="px-3 py-1 bg-primary-tea text-cream text-sm rounded hover:bg-dark-tea transition-colors"
+          >
+            + Add Extra
+          </button>
+        </div>
+        <div className="space-y-2">
+          {formData.extras?.map((extra, index) => (
+            <div key={index} className="flex gap-2 items-center">
+              <input
+                type="text"
+                value={extra.name}
+                onChange={(e) => updateExtra(index, 'name', e.target.value)}
+                placeholder="Extra name (e.g., Extra Shot, Whipped Cream)"
+                className="flex-1 px-3 py-2 border border-secondary-tea rounded-md text-sm"
+              />
+              <input
+                type="number"
+                value={extra.price}
+                onChange={(e) => updateExtra(index, 'price', parseFloat(e.target.value) || 0)}
+                placeholder="Price"
+                min="0"
+                step="0.01"
+                className="w-24 px-3 py-2 border border-secondary-tea rounded-md text-sm"
+              />
+              <button
+                type="button"
+                onClick={() => removeExtra(index)}
+                className="p-2 text-red-500 hover:bg-red-50 rounded"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+              </button>
+            </div>
+          ))}
+        </div>
+        {formData.extras?.length === 0 && (
+          <p className="text-sm text-secondary-tea italic">No extras added. Click "Add Extra" to create extra options.</p>
+        )}
       </div>
 
       {/* Dual Image Input */}

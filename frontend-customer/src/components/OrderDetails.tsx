@@ -117,9 +117,15 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ order, onClose }) => {
               <h3 className="font-heading font-semibold mb-4">Order Items</h3>
               <div className="space-y-3">
                 {localOrder.items.map((item: any, index: number) => (
-                  <div key={index} className="flex justify-between items-center py-3 border-b border-secondary-tea">
+                  <div key={index} className="flex justify-between items-start py-3 border-b border-secondary-tea">
                     <div className="flex-1">
                       <h4 className="font-medium">{item.menuItem?.name}</h4>
+                      {/* Show customization details */}
+                      {item.specialInstructions && (
+                        <p className="text-sm text-secondary-tea mt-1">
+                          {item.specialInstructions}
+                        </p>
+                      )}
                       <p className="text-sm text-secondary-tea">Quantity: {item.quantity}</p>
                     </div>
                     <div className="text-right">

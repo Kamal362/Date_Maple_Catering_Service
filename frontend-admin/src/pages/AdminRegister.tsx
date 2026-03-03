@@ -40,12 +40,18 @@ const AdminRegister: React.FC = () => {
 
     try {
       // Register as admin using the public admin creation endpoint
+      console.log('=== Admin Registration Debug ===');
+      console.log('Form data:', formData);
+      console.log('API endpoint:', '/auth/admin/create');
+      
       const response = await api.post('/auth/admin/create', {
         firstName: formData.firstName,
         lastName: formData.lastName,
         email: formData.email,
         password: formData.password
       });
+      
+      console.log('Registration response:', response.data);
 
       if (response.data.success) {
         // Store token and user data
@@ -56,6 +62,8 @@ const AdminRegister: React.FC = () => {
         setError(response.data.message || 'Registration failed');
       }
     } catch (err: any) {
+      console.error('Registration error:', err);
+      console.error('Error response:', err.response?.data);
       setError(err.response?.data?.message || 'Registration failed. Please try again.');
     } finally {
       setLoading(false);

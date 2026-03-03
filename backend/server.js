@@ -37,6 +37,7 @@ const reviewsRoutes = require('./routes/reviews');
 const couponsRoutes = require('./routes/coupons');
 const uploadRoutes = require('./routes/upload');
 const contactRoutes = require('./routes/contact');
+const taxRoutes = require('./routes/tax');
 
 // Initialize app
 const app = express();
@@ -134,6 +135,7 @@ app.use('/api/reviews', reviewsRoutes);
 app.use('/api/coupons', couponsRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/contact', contactRoutes);
+app.use('/api/tax', taxRoutes);
 
 // ─── Health check ─────────────────────────────────────────────────────────────
 app.get('/api/health', (req, res) => {
@@ -168,7 +170,7 @@ if (isProduction) {
   });
 
   // Customer SPA catch-all — must be last
-  app.get('*', (req, res) => {
+  app.get(/.*/, (req, res) => {
     res.sendFile(path.join(__dirname, '../frontend-customer/dist/index.html'));
   });
 }
