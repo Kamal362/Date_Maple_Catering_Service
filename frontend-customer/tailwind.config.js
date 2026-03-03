@@ -12,6 +12,7 @@ export default {
         'light-tea': '#F5DEB3',
         'cream': '#FFF8E1',
         'secondary-tea': '#D2B48C',
+        'gold': '#F59E0B',
       }
     },
   },

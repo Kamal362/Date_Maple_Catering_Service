@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { getMyOrders, trackOrder, Order as OrderType } from '../services/orderService';
+import { getMyReviews } from '../services/reviewService';
 import { format } from 'date-fns';
+import ReviewForm from '../components/ReviewForm';
 
 interface ExtendedOrder extends OrderType {
   updatedAt: string;
@@ -17,10 +19,34 @@ const OrderTracking: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [selectedOrder, setSelectedOrder] = useState<ExtendedOrder | null>(null);
+  const [showReviewForm, setShowReviewForm] = useState(false);
+  const [userReviews, setUserReviews] = useState<string[]>([]);
 
   useEffect(() => {
     fetchOrders();
+    fetchUserReviews();
   }, []);
+
+  const fetchUserReviews = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+      
+      const reviews = await getMyReviews();
+      // Extract order IDs that have been reviewed
+      const reviewedOrderIds = reviews
+        .filter(review => review.order)
+        .map(review => review.order?._id)
+        .filter(Boolean) as string[];
+      setUserReviews(reviewedOrderIds);
+    } catch (err) {
+      console.error('Error fetching user reviews:', err);
+    }
+  };
+
+  const hasReviewedOrder = (orderId: string) => {
+    return userReviews.includes(orderId);
+  };
 
   const fetchOrders = async () => {
     try {
@@ -237,6 +263,31 @@ const OrderTracking: React.FC = () => {
                   }`}>
                     {selectedOrder.status.replace('_', ' ')}
                   </span>
+                  
+                  {/* Review Button for Delivered Orders */}
+                  {selectedOrder.status === 'delivered' && (
+                    <div className="mt-3">
+                      {hasReviewedOrder(selectedOrder._id) ? (
+                        <span className="text-sm text-secondary-tea flex items-center gap-1">
+                          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                          </svg>
+                          Review Submitted
+                        </span>
+                      ) : (
+                        <button
+                          onClick={() => setShowReviewForm(true)}
+                          className="px-4 py-2 bg-gold text-white rounded-lg hover:bg-yellow-600 transition-colors text-sm font-medium flex items-center gap-2"
+                        >
+                          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                          </svg>
+                          Rate Your Order
+                        </button>
+                      )}
+                    </div>
+                  )}
+                  
                   <div className="mt-2 text-right">
                     <span className="text-2xl font-bold text-primary-tea">
                       ${(selectedOrder.totalAmount + (selectedOrder.deliveryFee || 0) + (selectedOrder.tax || 0)).toFixed(2)}
@@ -372,6 +423,19 @@ const OrderTracking: React.FC = () => {
               </div>
             </div>
           </div>
+          
+          {/* Review Form Modal */}
+          {showReviewForm && selectedOrder && (
+            <ReviewForm
+              orderId={selectedOrder._id}
+              orderRef={selectedOrder._id.slice(-6).toUpperCase()}
+              onClose={() => setShowReviewForm(false)}
+              onSuccess={() => {
+                // Add order ID to reviewed list
+                setUserReviews(prev => [...prev, selectedOrder._id]);
+              }}
+            />
+          )}
         </div>
       </div>
     );
