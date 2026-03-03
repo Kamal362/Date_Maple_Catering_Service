@@ -31,7 +31,7 @@ const AdminOrders: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
-  const [filterStatus, setFilterStatus] = useState<string>('paid_only');
+  const [filterStatus, setFilterStatus] = useState<string>('all');
   const [filterPayment, setFilterPayment] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
@@ -137,12 +137,7 @@ const AdminOrders: React.FC = () => {
   };
 
   const filteredOrders = orders.filter(order => {
-    // Payment filter: by default show only paid orders
-    if (filterStatus === 'paid_only') {
-      if (order.paymentStatus !== 'paid') return false;
-    } else if (filterStatus !== 'all') {
-      if (order.status !== filterStatus) return false;
-    }
+    if (filterStatus !== 'all' && order.status !== filterStatus) return false;
     if (filterPayment !== 'all' && order.paymentStatus !== filterPayment) return false;
     if (searchTerm) {
       const q = searchTerm.toLowerCase();
@@ -239,11 +234,13 @@ const AdminOrders: React.FC = () => {
                 onChange={e => setFilterStatus(e.target.value)}
                 className="px-3 py-2 border border-secondary-tea rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-tea bg-cream text-sm"
               >
-                <option value="paid_only">Approved Payments (All Statuses)</option>
                 <option value="all">All Orders</option>
-                {ORDER_STATUSES.map(s => (
-                  <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>
-                ))}
+                <option value="pending">Pending</option>
+                <option value="confirmed">Confirmed</option>
+                <option value="preparing">Preparing</option>
+                <option value="ready">Ready</option>
+                <option value="delivered">Delivered</option>
+                <option value="cancelled">Cancelled</option>
               </select>
             </div>
             <div>
@@ -298,13 +295,21 @@ const AdminOrders: React.FC = () => {
                     const isUpdating = updatingId === order._id;
                     return (
                       <tr key={order._id} className="border-b border-secondary-tea hover:bg-light-tea/30 transition-colors">
+          {/* Order ID with View Details button */}
                         <td className="py-3 px-4">
-                          <button
-                            onClick={() => { setSelectedOrder(order); setShowDetailModal(true); }}
-                            className="font-mono font-bold text-primary-tea hover:text-dark-tea transition-colors"
-                          >
-                            #{order._id.slice(-6).toUpperCase()}
-                          </button>
+                          <div className="flex items-center gap-2">
+                            <span className="font-mono font-bold text-dark-tea">#{order._id.slice(-6).toUpperCase()}</span>
+                            <button
+                              onClick={() => { setSelectedOrder(order); setShowDetailModal(true); }}
+                              className="text-xs bg-secondary-tea/30 hover:bg-secondary-tea/50 text-dark-tea px-2 py-1 rounded-lg transition-colors flex items-center gap-1"
+                            >
+                              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                              </svg>
+                              View
+                            </button>
+                          </div>
                           {order.transactionCompleted && (
                             <span className="ml-2 text-xs bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded-full">Completed</span>
                           )}
@@ -325,6 +330,9 @@ const AdminOrders: React.FC = () => {
                           }`}>
                             {order.paymentStatus || 'pending'}
                           </span>
+                          {order.paymentStatus !== 'paid' && (
+                            <span className="ml-1 text-xs text-orange-600" title="Approve in Payment Proofs">⚠️</span>
+                          )}
                         </td>
                         <td className="py-3 px-4">
                           <span className={`px-2 py-1 rounded-full text-xs font-medium capitalize border ${STATUS_COLORS[order.status] || 'bg-gray-100 text-gray-700 border-gray-200'}`}>
