@@ -68,20 +68,21 @@
 
   /* Dark Theme */
   .dark {
-    --bg-primary: #1a1a1a;
-    --bg-secondary: #2d2d2d;
-    --bg-card: #252525;
-    --text-primary: #e9ecef;
-    --text-secondary: #adb5bd;
-    --border-color: #404040;
-    --shadow-color: rgba(0, 0, 0, 0.3);
-    /* Adjust tea colors for dark theme */
-    --primary-tea: #D4AF37;
-    --secondary-tea: #F5DEB3;
-    --accent-tea: #FFD700;
-    --light-tea: #FFF8DC;
-    --dark-tea: #B8860B;
-    --cream: #2D2D2D;
+    --bg-primary: #121212;
+    --bg-secondary: #1e1e1e;
+    --bg-card: #1e1e1e;
+    --text-primary: #f0ece4;
+    --text-secondary: #b0a89a;
+    --border-color: #333333;
+    --shadow-color: rgba(0, 0, 0, 0.5);
+    /* Warm amber/gold tea palette for dark mode */
+    --primary-tea: #c8892a;
+    --secondary-tea: #a0784a;
+    --accent-tea: #e8a020;
+    --light-tea: #3a2e1e;
+    --dark-tea: #e0c090;
+    --cream: #1e1a14;
+    --gold: #e8c44a;
   }
 
   html {
@@ -362,7 +363,12 @@
 /* Mobile menu improvements */
 @layer utilities {
   .mobile-menu-item {
-    @apply flex items-center py-3 px-4 text-dark-tea hover:text-primary-tea hover:bg-light-tea rounded-lg transition-colors duration-200;
+    @apply flex items-center py-3 px-4 rounded-lg transition-colors duration-200 font-medium;
+    color: var(--text-primary);
+  }
+  .mobile-menu-item:hover {
+    color: var(--primary-tea);
+    background-color: var(--light-tea);
   }
   
   .mobile-menu-icon {

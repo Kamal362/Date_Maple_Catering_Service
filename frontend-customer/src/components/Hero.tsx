@@ -51,6 +51,9 @@ const Hero: React.FC = () => {
 
   const displayContent = content || defaultContent;
 
+  // Strip HTML tags from a string (for fields that may come from rich-text editor)
+  const stripHtml = (html: string): string => html.replace(/<[^>]*>/g, '').trim();
+
   return (
     <section className="relative bg-primary-tea text-cream overflow-hidden">
       <div className="absolute inset-0 bg-black opacity-30"></div>
@@ -66,8 +69,7 @@ const Hero: React.FC = () => {
             <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-heading font-bold mb-4 sm:mb-6 leading-tight">
               {displayContent.title ? (
                 (() => {
-                  // Strip HTML tags and split by 'Coffees' to highlight it
-                  const cleanTitle = displayContent.title.replace(/<[^>]*>/g, '');
+                  const cleanTitle = stripHtml(displayContent.title);
                   const parts = cleanTitle.split('Coffees');
                   if (parts.length === 2) {
                     return (
@@ -85,11 +87,20 @@ const Hero: React.FC = () => {
               )}
             </h1>
             <p className="text-base sm:text-lg md:text-xl mb-6 sm:mb-8 text-light-tea max-w-lg mx-auto lg:mx-0 px-4 sm:px-0">
-              {displayContent.subtitle}
+              {displayContent.subtitle ? stripHtml(displayContent.subtitle) : ''}
             </p>
             <div className="flex flex-col sm:flex-row justify-center lg:justify-start space-y-3 sm:space-y-0 sm:space-x-4 px-4 sm:px-0">
-              <Link to="/menu" className="btn-primary inline-block text-center px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold rounded-none hover:bg-dark-tea transition duration-300 btn-touch">
-                {displayContent.buttonText}
+              <Link
+                to="/menu"
+                className="inline-flex items-center justify-center px-8 py-3 text-base sm:text-lg font-semibold rounded-lg bg-white text-primary-tea border-2 border-white hover:bg-primary-tea hover:text-white hover:border-primary-tea transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 min-h-[48px] w-full sm:w-auto"
+              >
+                {displayContent.buttonText ? stripHtml(displayContent.buttonText) : 'Learn More'}
+              </Link>
+              <Link
+                to="/about"
+                className="inline-flex items-center justify-center px-8 py-3 text-base sm:text-lg font-semibold rounded-lg bg-transparent text-white border-2 border-white hover:bg-white hover:text-primary-tea transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 min-h-[48px] w-full sm:w-auto"
+              >
+                About Us
               </Link>
             </div>
           </div>
