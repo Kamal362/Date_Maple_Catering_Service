@@ -55,6 +55,12 @@ exports.processCheckout = async (req, res) => {
     
     const { orderType, deliveryAddress, pickupTime, paymentMethod } = orderData;
     
+    // Convert pickupTime object to Date if needed
+    let parsedPickupTime = pickupTime;
+    if (pickupTime && typeof pickupTime === 'object' && pickupTime.date && pickupTime.time) {
+      parsedPickupTime = new Date(`${pickupTime.date}T${pickupTime.time}:00`);
+    }
+    
     // Get user's cart
     console.log('Looking up cart for user:', req.user.id);
     const cart = await Cart.findOne({ user: req.user.id }).populate('items.menuItem');
@@ -114,7 +120,7 @@ exports.processCheckout = async (req, res) => {
       totalAmount,
       orderType,
       deliveryAddress: orderType === 'delivery' ? deliveryAddress : undefined,
-      pickupTime: orderType === 'pickup' ? pickupTime : undefined,
+      pickupTime: orderType === 'pickup' ? parsedPickupTime : undefined,
       paymentMethod,
       paymentReceipt: paymentReceiptUrl,
       tax
@@ -162,6 +168,12 @@ exports.processGuestCheckout = async (req, res) => {
     }
     
     const { orderType, deliveryAddress, pickupTime, paymentMethod, guestInfo, items } = orderData;
+    
+    // Convert pickupTime object to Date if needed
+    let parsedPickupTime = pickupTime;
+    if (pickupTime && typeof pickupTime === 'object' && pickupTime.date && pickupTime.time) {
+      parsedPickupTime = new Date(`${pickupTime.date}T${pickupTime.time}:00`);
+    }
     
     // Validate guest info
     if (!guestInfo || !guestInfo.firstName || !guestInfo.lastName || !guestInfo.email || !guestInfo.phone) {
@@ -231,7 +243,7 @@ exports.processGuestCheckout = async (req, res) => {
       totalAmount,
       orderType,
       deliveryAddress: orderType === 'delivery' ? deliveryAddress : undefined,
-      pickupTime: orderType === 'pickup' ? pickupTime : undefined,
+      pickupTime: orderType === 'pickup' ? parsedPickupTime : undefined,
       paymentMethod,
       paymentReceipt: paymentReceiptUrl,
       tax,
