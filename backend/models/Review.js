@@ -4,7 +4,20 @@ const reviewSchema = new mongoose.Schema({
   user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-    required: true
+    required: false // Optional for guest reviews
+  },
+  // Guest review fields
+  isGuestReview: {
+    type: Boolean,
+    default: false
+  },
+  guestEmail: {
+    type: String,
+    required: false
+  },
+  guestName: {
+    type: String,
+    required: false
   },
   menuItem: {
     type: mongoose.Schema.Types.ObjectId,

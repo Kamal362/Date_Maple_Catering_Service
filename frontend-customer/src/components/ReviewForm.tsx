@@ -5,14 +5,27 @@ import { useToast } from '../context/ToastContext';
 interface ReviewFormProps {
   orderId: string;
   orderRef: string; // display reference like last 6 chars
+  isGuest?: boolean;
+  guestEmail?: string;
+  guestName?: string;
   onClose: () => void;
   onSuccess: () => void;
 }
 
-const ReviewForm: React.FC<ReviewFormProps> = ({ orderId, orderRef, onClose, onSuccess }) => {
+const ReviewForm: React.FC<ReviewFormProps> = ({ 
+  orderId, 
+  orderRef, 
+  isGuest = false,
+  guestEmail: initialGuestEmail = '',
+  guestName: initialGuestName = '',
+  onClose, 
+  onSuccess 
+}) => {
   const [rating, setRating] = useState(0);
   const [hoveredRating, setHoveredRating] = useState(0);
   const [comment, setComment] = useState('');
+  const [guestEmail, setGuestEmail] = useState(initialGuestEmail);
+  const [guestName, setGuestName] = useState(initialGuestName);
   const [submitting, setSubmitting] = useState(false);
   const toast = useToast();
 
@@ -26,9 +39,24 @@ const ReviewForm: React.FC<ReviewFormProps> = ({ orderId, orderRef, onClose, onS
       toast.error('Please write at least 10 characters in your review');
       return;
     }
+    if (isGuest) {
+      if (!guestEmail.trim()) {
+        toast.error('Please enter your email');
+        return;
+      }
+      if (!guestName.trim()) {
+        toast.error('Please enter your name');
+        return;
+      }
+    }
     setSubmitting(true);
     try {
-      await createReview({ orderId, rating, comment: comment.trim() });
+      const reviewData: any = { orderId, rating, comment: comment.trim() };
+      if (isGuest) {
+        reviewData.guestEmail = guestEmail.trim();
+        reviewData.guestName = guestName.trim();
+      }
+      await createReview(reviewData);
       toast.success('Thank you! Your review has been submitted and will appear after approval.');
       onSuccess();
       onClose();
@@ -68,6 +96,41 @@ const ReviewForm: React.FC<ReviewFormProps> = ({ orderId, orderRef, onClose, onS
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
+          {/* Guest Info Fields */}
+          {isGuest && (
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-dark-tea mb-2">
+                  Your Name <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={guestName}
+                  onChange={(e) => setGuestName(e.target.value)}
+                  placeholder="Enter your name"
+                  className="w-full px-4 py-3 border border-secondary-tea rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-tea text-sm text-dark-tea placeholder-secondary-tea"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-dark-tea mb-2">
+                  Your Email <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="email"
+                  value={guestEmail}
+                  onChange={(e) => setGuestEmail(e.target.value)}
+                  placeholder="Enter your email (must match order email)"
+                  className="w-full px-4 py-3 border border-secondary-tea rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-tea text-sm text-dark-tea placeholder-secondary-tea"
+                  required
+                />
+                <p className="text-xs text-secondary-tea mt-1">
+                  Must match the email used when placing the order
+                </p>
+              </div>
+            </div>
+          )}
+
           {/* Star Rating */}
           <div className="text-center">
             <p className="text-sm font-medium text-secondary-tea mb-3">How would you rate your experience?</p>

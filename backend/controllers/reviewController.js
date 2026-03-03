@@ -107,10 +107,11 @@ exports.getMyReviews = async (req, res) => {
 
 // @desc    Create a new review
 // @route   POST /api/reviews
-// @access  Private
+// @access  Public (both authenticated users and guests)
 exports.createReview = async (req, res) => {
   try {
-    const { menuItemId, orderId, rating, comment } = req.body;
+    const { menuItemId, orderId, rating, comment, guestEmail, guestName } = req.body;
+    const Order = require('../models/Order');
 
     // Validate that either menuItem or order is provided
     if (!menuItemId && !orderId) {
@@ -120,6 +121,74 @@ exports.createReview = async (req, res) => {
       });
     }
 
+    // Check if this is a guest review or authenticated user review
+    const isGuestReview = !req.user;
+
+    if (isGuestReview) {
+      // Guest review - verify order exists and matches provided email
+      if (!orderId) {
+        return res.status(400).json({
+          success: false,
+          message: 'Order ID is required for guest reviews'
+        });
+      }
+
+      if (!guestEmail || !guestName) {
+        return res.status(400).json({
+          success: false,
+          message: 'Guest email and name are required'
+        });
+      }
+
+      const order = await Order.findById(orderId);
+      if (!order || !order.isGuestOrder) {
+        return res.status(404).json({
+          success: false,
+          message: 'Order not found or not a guest order'
+        });
+      }
+
+      // Verify guest email matches order's guestInfo
+      if (order.guestInfo?.email?.toLowerCase() !== guestEmail.toLowerCase()) {
+        return res.status(403).json({
+          success: false,
+          message: 'Email does not match the order'
+        });
+      }
+
+      // Check if guest has already reviewed this order
+      const existingReview = await Review.findOne({
+        isGuestReview: true,
+        guestEmail: guestEmail.toLowerCase(),
+        order: orderId
+      });
+
+      if (existingReview) {
+        return res.status(400).json({
+          success: false,
+          message: 'You have already reviewed this order'
+        });
+      }
+
+      // Create guest review
+      const review = await Review.create({
+        isGuestReview: true,
+        guestEmail: guestEmail.toLowerCase(),
+        guestName: guestName,
+        order: orderId,
+        rating,
+        comment,
+        isApproved: false
+      });
+
+      return res.status(201).json({
+        success: true,
+        data: review,
+        message: 'Review submitted successfully. It will be visible after approval.'
+      });
+    }
+
+    // Authenticated user review
     // Check if user has already reviewed this item/order
     const existingReview = await Review.findOne({
       user: req.user.id,
@@ -137,7 +206,7 @@ exports.createReview = async (req, res) => {
     // If reviewing an order, verify user owns the order
     if (orderId) {
       const order = await Order.findById(orderId);
-      if (!order || order.user.toString() !== req.user.id) {
+      if (!order || order.user?.toString() !== req.user.id) {
         return res.status(403).json({
           success: false,
           message: 'You can only review your own orders'
@@ -151,7 +220,7 @@ exports.createReview = async (req, res) => {
       ...(orderId && { order: orderId }),
       rating,
       comment,
-      isApproved: false // Requires admin approval
+      isApproved: false
     });
 
     const populatedReview = await Review.findById(review._id)

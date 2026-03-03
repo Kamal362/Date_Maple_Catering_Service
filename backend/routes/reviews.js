@@ -12,7 +12,7 @@ const {
   updateReviewAdmin,
   deleteReviewAdmin
 } = require('../controllers/reviewController');
-const { protect, authorize } = require('../middleware/auth');
+const { protect, authorize, optionalAuth } = require('../middleware/auth');
 
 const router = express.Router();
 
@@ -26,12 +26,13 @@ router.route('/item/:menuItemId')
 router.route('/item/:menuItemId/rating')
   .get(getMenuItemRating);
 
+// Create review - public (supports both authenticated and guest users)
+router.route('/')
+  .post(optionalAuth, createReview);
+
 // Protected routes (user)
 router.route('/my')
   .get(protect, getMyReviews);
-
-router.route('/')
-  .post(protect, createReview);
 
 router.route('/:id')
   .put(protect, updateReview)

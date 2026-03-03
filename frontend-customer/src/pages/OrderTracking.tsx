@@ -11,6 +11,13 @@ interface ExtendedOrder extends OrderType {
   size?: string;
   customizations?: Record<string, any>;
   notes?: string;
+  guestInfo?: {
+    firstName?: string;
+    lastName?: string;
+    email?: string;
+    phone?: string;
+  };
+  isGuestOrder?: boolean;
 }
 
 const OrderTracking: React.FC = () => {
@@ -21,10 +28,21 @@ const OrderTracking: React.FC = () => {
   const [selectedOrder, setSelectedOrder] = useState<ExtendedOrder | null>(null);
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [userReviews, setUserReviews] = useState<string[]>([]);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
+    const token = localStorage.getItem('token');
+    setIsAuthenticated(!!token);
     fetchOrders();
-    fetchUserReviews();
+    if (token) {
+      fetchUserReviews();
+    } else {
+      // For guests, load reviewed orders from localStorage
+      const guestReviews = localStorage.getItem('guestReviews');
+      if (guestReviews) {
+        setUserReviews(JSON.parse(guestReviews));
+      }
+    }
   }, []);
 
   const fetchUserReviews = async () => {
@@ -46,6 +64,16 @@ const OrderTracking: React.FC = () => {
 
   const hasReviewedOrder = (orderId: string) => {
     return userReviews.includes(orderId);
+  };
+
+  const markOrderAsReviewed = (orderId: string) => {
+    const updatedReviews = [...userReviews, orderId];
+    setUserReviews(updatedReviews);
+    
+    // If guest, also save to localStorage
+    if (!isAuthenticated) {
+      localStorage.setItem('guestReviews', JSON.stringify(updatedReviews));
+    }
   };
 
   const fetchOrders = async () => {
@@ -429,10 +457,12 @@ const OrderTracking: React.FC = () => {
             <ReviewForm
               orderId={selectedOrder._id}
               orderRef={selectedOrder._id.slice(-6).toUpperCase()}
+              isGuest={!isAuthenticated}
+              guestEmail={selectedOrder.guestInfo?.email || ''}
+              guestName={selectedOrder.guestInfo?.firstName + ' ' + selectedOrder.guestInfo?.lastName || ''}
               onClose={() => setShowReviewForm(false)}
               onSuccess={() => {
-                // Add order ID to reviewed list
-                setUserReviews(prev => [...prev, selectedOrder._id]);
+                markOrderAsReviewed(selectedOrder._id);
               }}
             />
           )}
