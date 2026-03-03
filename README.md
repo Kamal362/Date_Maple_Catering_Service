@@ -327,3 +327,6 @@ sudo chown -R www-data:www-data /var/www/date-maple/
 cd ../backend
 pm2 restart date-maple-backend
 
+# 3. Check logs for any errors
+pm2 logs date-maple-backend
+

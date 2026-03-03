@@ -83,7 +83,7 @@ const OrderTracking: React.FC = () => {
       
       const token = localStorage.getItem('token');
       if (!token) {
-        setError('Please log in to view your orders');
+        // Guests don't have a list — just show the search box
         setLoading(false);
         return;
       }
@@ -499,81 +499,115 @@ const OrderTracking: React.FC = () => {
           {error && <p className="mt-3 text-red-500 text-sm text-center">{error}</p>}
         </div>
 
-        {/* Orders List */}
+        {/* Orders List — logged-in users only */}
         <div className="max-w-4xl mx-auto">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-heading font-semibold text-dark-tea">Your Recent Orders</h2>
-            <button 
-              onClick={fetchOrders}
-              disabled={loading}
-              className="px-4 py-2 bg-primary-tea text-cream rounded-xl hover:bg-dark-tea transition-colors disabled:opacity-50 flex items-center gap-2"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-              </svg>
-              Refresh
-            </button>
-          </div>
-
-          {orders.length > 0 ? (
-            <div className="space-y-4">
-              {orders.map((order) => (
-                <div 
-                  key={order._id} 
-                  className="bg-white rounded-xl p-5 border border-secondary-tea hover:shadow-lg transition-all cursor-pointer group"
-                  onClick={() => handleSelectOrder(order)}
-                >
-                  <div className="flex flex-wrap justify-between items-center">
-                    <div>
-                      <h3 className="font-mono font-bold text-lg text-dark-tea group-hover:text-primary-tea transition-colors">
-                        #{order._id.slice(-6).toUpperCase()}
-                      </h3>
-                      <p className="text-secondary-tea text-sm mt-1">
-                        {format(new Date(order.createdAt), 'MMM d, yyyy • h:mm a')}
-                      </p>
-                    </div>
-                    
-                    <div className="flex items-center gap-4 mt-3 md:mt-0">
-                      <div className="text-right">
-                        <span className="text-xl font-bold text-dark-tea">${order.totalAmount.toFixed(2)}</span>
-                        <p className="text-sm text-secondary-tea capitalize">{order.orderType}</p>
-                      </div>
-                      <span className={`px-3 py-1 rounded-full text-xs font-medium capitalize ${
-                        order.status === 'delivered' ? 'bg-primary-tea text-cream' :
-                        order.status === 'cancelled' ? 'bg-red-100 text-red-800' :
-                        'bg-blue-100 text-blue-800'
-                      }`}>
-                        {order.status}
-                      </span>
-                      <svg className="w-5 h-5 text-secondary-tea group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path>
-                      </svg>
-                    </div>
-                  </div>
-                  
-                  <div className="mt-3 pt-3 border-t border-secondary-tea">
-                    <div className="flex justify-between items-center text-sm">
-                      <span className="text-secondary-tea">
-                        {order.items.length} {order.items.length === 1 ? 'item' : 'items'}
-                      </span>
-                      <span className="font-medium text-primary-tea">Click to track →</span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="bg-white rounded-2xl shadow-lg p-12 text-center border border-secondary-tea">
-              <div className="w-24 h-24 bg-light-tea rounded-full flex items-center justify-center mx-auto mb-6">
-                <svg className="w-12 h-12 text-secondary-tea" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+          {!isAuthenticated ? (
+            /* Guest panel */
+            <div className="bg-white rounded-2xl shadow-lg p-10 text-center border border-secondary-tea">
+              <div className="w-20 h-20 bg-light-tea rounded-full flex items-center justify-center mx-auto mb-5">
+                <svg className="w-10 h-10 text-primary-tea" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                 </svg>
               </div>
-              <h3 className="text-xl font-heading font-semibold mb-3 text-dark-tea">No Orders Yet</h3>
-              <p className="text-secondary-tea max-w-md mx-auto">
-                You haven't placed any orders yet. Once you place an order, you'll be able to track it here.
+              <h3 className="text-xl font-heading font-semibold mb-2 text-dark-tea">Tracking as Guest</h3>
+              <p className="text-secondary-tea mb-1 max-w-sm mx-auto text-sm">
+                Enter your order ID above to track your order status in real-time.
               </p>
+              <p className="text-secondary-tea mb-6 max-w-sm mx-auto text-sm">
+                Your order ID was included in your order confirmation.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                <a
+                  href="/client-login"
+                  className="px-6 py-3 bg-primary-tea text-white rounded-xl hover:bg-dark-tea transition-colors font-medium text-sm"
+                >
+                  Sign In for Full History
+                </a>
+                <a
+                  href="/client-register"
+                  className="px-6 py-3 border border-primary-tea text-primary-tea rounded-xl hover:bg-light-tea transition-colors font-medium text-sm"
+                >
+                  Create Account
+                </a>
+              </div>
             </div>
+          ) : (
+            <>
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-heading font-semibold text-dark-tea">Your Recent Orders</h2>
+                <button 
+                  onClick={fetchOrders}
+                  disabled={loading}
+                  className="px-4 py-2 bg-primary-tea text-cream rounded-xl hover:bg-dark-tea transition-colors disabled:opacity-50 flex items-center gap-2"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                  </svg>
+                  Refresh
+                </button>
+              </div>
+
+              {orders.length > 0 ? (
+                <div className="space-y-4">
+                  {orders.map((order) => (
+                    <div 
+                      key={order._id} 
+                      className="bg-white rounded-xl p-5 border border-secondary-tea hover:shadow-lg transition-all cursor-pointer group"
+                      onClick={() => handleSelectOrder(order)}
+                    >
+                      <div className="flex flex-wrap justify-between items-center">
+                        <div>
+                          <h3 className="font-mono font-bold text-lg text-dark-tea group-hover:text-primary-tea transition-colors">
+                            #{order._id.slice(-6).toUpperCase()}
+                          </h3>
+                          <p className="text-secondary-tea text-sm mt-1">
+                            {format(new Date(order.createdAt), 'MMM d, yyyy • h:mm a')}
+                          </p>
+                        </div>
+                        
+                        <div className="flex items-center gap-4 mt-3 md:mt-0">
+                          <div className="text-right">
+                            <span className="text-xl font-bold text-dark-tea">${order.totalAmount.toFixed(2)}</span>
+                            <p className="text-sm text-secondary-tea capitalize">{order.orderType}</p>
+                          </div>
+                          <span className={`px-3 py-1 rounded-full text-xs font-medium capitalize ${
+                            order.status === 'delivered' ? 'bg-primary-tea text-cream' :
+                            order.status === 'cancelled' ? 'bg-red-100 text-red-800' :
+                            'bg-blue-100 text-blue-800'
+                          }`}>
+                            {order.status}
+                          </span>
+                          <svg className="w-5 h-5 text-secondary-tea group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path>
+                          </svg>
+                        </div>
+                      </div>
+                      
+                      <div className="mt-3 pt-3 border-t border-secondary-tea">
+                        <div className="flex justify-between items-center text-sm">
+                          <span className="text-secondary-tea">
+                            {order.items.length} {order.items.length === 1 ? 'item' : 'items'}
+                          </span>
+                          <span className="font-medium text-primary-tea">Click to track →</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="bg-white rounded-2xl shadow-lg p-12 text-center border border-secondary-tea">
+                  <div className="w-24 h-24 bg-light-tea rounded-full flex items-center justify-center mx-auto mb-6">
+                    <svg className="w-12 h-12 text-secondary-tea" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                    </svg>
+                  </div>
+                  <h3 className="text-xl font-heading font-semibold mb-3 text-dark-tea">No Orders Yet</h3>
+                  <p className="text-secondary-tea max-w-md mx-auto">
+                    You haven't placed any orders yet. Once you place an order, you'll be able to track it here.
+                  </p>
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>
