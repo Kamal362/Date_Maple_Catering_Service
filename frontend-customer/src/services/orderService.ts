@@ -14,6 +14,7 @@ export interface Order {
   items: Array<{
     menuItem: {
       name: string;
+      image?: string;
     };
     quantity: number;
     price: number;
@@ -26,6 +27,8 @@ export interface Order {
   paymentReceipt?: string;
   deliveryFee?: number;
   tax?: number;
+  transactionCompleted?: boolean;
+  completedAt?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -133,6 +136,17 @@ export const cancelOrder = async (id: string): Promise<Order> => {
     return response.data.data;
   } catch (error) {
     console.error('Error cancelling order:', error);
+    throw error;
+  }
+};
+
+// Mark order as transaction completed (customer confirms receipt)
+export const completeOrder = async (id: string): Promise<Order> => {
+  try {
+    const response = await apiClient.put(`/orders/${id}/complete`);
+    return response.data.data;
+  } catch (error) {
+    console.error('Error completing order:', error);
     throw error;
   }
 };

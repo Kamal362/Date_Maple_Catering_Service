@@ -10,12 +10,21 @@ export interface Order {
     lastName: string;
     email: string;
   };
+  guestInfo?: {
+    firstName?: string;
+    lastName?: string;
+    email?: string;
+    phone?: string;
+  };
+  isGuestOrder?: boolean;
   items: Array<{
     menuItem: {
       name: string;
+      image?: string;
     };
     quantity: number;
     price: number;
+    specialInstructions?: string;
   }>;
   totalAmount: number;
   status: string;
@@ -25,6 +34,15 @@ export interface Order {
   paymentReceipt?: string;
   deliveryFee?: number;
   tax?: number;
+  deliveryAddress?: {
+    street?: string;
+    city?: string;
+    state?: string;
+    zipCode?: string;
+  };
+  pickupTime?: string;
+  transactionCompleted?: boolean;
+  completedAt?: string;
   createdAt: string;
   updatedAt: string;
 }

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getMyOrders, trackOrder, Order as OrderType } from '../services/orderService';
+import { getMyOrders, trackOrder, completeOrder, Order as OrderType } from '../services/orderService';
 import { getMyReviews } from '../services/reviewService';
 import { format } from 'date-fns';
 import ReviewForm from '../components/ReviewForm';
@@ -11,6 +11,8 @@ interface ExtendedOrder extends OrderType {
   size?: string;
   customizations?: Record<string, any>;
   notes?: string;
+  transactionCompleted?: boolean;
+  completedAt?: string;
   guestInfo?: {
     firstName?: string;
     lastName?: string;
@@ -29,6 +31,7 @@ const OrderTracking: React.FC = () => {
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [userReviews, setUserReviews] = useState<string[]>([]);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [completingOrder, setCompletingOrder] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -73,6 +76,21 @@ const OrderTracking: React.FC = () => {
     // If guest, also save to localStorage
     if (!isAuthenticated) {
       localStorage.setItem('guestReviews', JSON.stringify(updatedReviews));
+    }
+  };
+
+  const handleConfirmReceipt = async () => {
+    if (!selectedOrder) return;
+    setCompletingOrder(true);
+    try {
+      const updated = await completeOrder(selectedOrder._id);
+      setSelectedOrder({ ...selectedOrder, transactionCompleted: true } as ExtendedOrder);
+      // Also update in the orders list
+      setOrders(prev => prev.map(o => o._id === selectedOrder._id ? { ...o, transactionCompleted: true } as ExtendedOrder : o));
+    } catch (err) {
+      console.error('Error confirming receipt:', err);
+    } finally {
+      setCompletingOrder(false);
     }
   };
 
@@ -294,9 +312,29 @@ const OrderTracking: React.FC = () => {
                   
                   {/* Review Button for Delivered Orders */}
                   {selectedOrder.status === 'delivered' && (
-                    <div className="mt-3">
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {/* Confirm Receipt */}
+                      {!selectedOrder.transactionCompleted ? (
+                        <button
+                          onClick={handleConfirmReceipt}
+                          disabled={completingOrder}
+                          className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium flex items-center gap-2 disabled:opacity-60"
+                        >
+                          {completingOrder ? (
+                            <><svg className="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>Confirming...</>
+                          ) : (
+                            <><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" /></svg>Confirm Receipt</>
+                          )}
+                        </button>
+                      ) : (
+                        <span className="px-4 py-2 bg-purple-100 text-purple-700 rounded-lg text-sm font-medium flex items-center gap-2">
+                          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" /></svg>
+                          Transaction Completed
+                        </span>
+                      )}
+                      {/* Rate Button */}
                       {hasReviewedOrder(selectedOrder._id) ? (
-                        <span className="text-sm text-secondary-tea flex items-center gap-1">
+                        <span className="text-sm text-secondary-tea flex items-center gap-1 px-3 py-2">
                           <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                           </svg>

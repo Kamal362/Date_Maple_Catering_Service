@@ -80,6 +80,13 @@ const orderSchema = new mongoose.Schema({
   discount: {
     type: Number,
     default: 0
+  },
+  transactionCompleted: {
+    type: Boolean,
+    default: false
+  },
+  completedAt: {
+    type: Date
   }
 }, {
   timestamps: true

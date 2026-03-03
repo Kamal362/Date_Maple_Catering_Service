@@ -251,6 +251,46 @@ exports.deleteOrder = async (req, res) => {
   }
 };
 
+// @desc    Mark order as transaction completed (customer confirms receipt)
+// @route   PUT /api/orders/:id/complete
+// @access  Public (optionalAuth - works for guests too)
+exports.completeOrder = async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.id);
+    
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: 'Order not found'
+      });
+    }
+    
+    // Only delivered orders can be marked as completed
+    if (order.status !== 'delivered') {
+      return res.status(400).json({
+        success: false,
+        message: 'Only delivered orders can be marked as completed'
+      });
+    }
+    
+    order.transactionCompleted = true;
+    order.completedAt = new Date();
+    await order.save();
+    
+    res.status(200).json({
+      success: true,
+      data: order,
+      message: 'Order marked as transaction completed'
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Server error',
+      error: error.message
+    });
+  }
+};
+
 // @desc    Cancel order
 // @route   PUT /api/orders/:id/cancel
 // @access  Private
