@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { createOrUpdateHomePageContent, getHomePageContentBySection } from '../services/homeContentService';
 import { HomePageContent } from '../services/homeContentService';
 import ConfirmModal from './ConfirmModal';
@@ -9,7 +9,16 @@ interface HomePageContentEditorProps {
   onSave: () => void;
 }
 
+// ─── Per-member upload state types ────────────────────────────────────────────
+type MemberImageMode = 'url' | 'upload';
+
 const HomePageContentEditor: React.FC<HomePageContentEditorProps> = ({ section, onClose, onSave }) => {
+  // Per-member upload state (parallel arrays indexed by member index)
+  const [memberImageModes, setMemberImageModes] = useState<MemberImageMode[]>([]);
+  const [memberPreviews, setMemberPreviews] = useState<(string | null)[]>([]);
+  const [memberUploading, setMemberUploading] = useState<boolean[]>([]);
+  const memberFileRefs = useRef<(HTMLInputElement | null)[]>([]);
+
   const [content, setContent] = useState<HomePageContent>({
     section: section,
     title: '',
@@ -32,6 +41,14 @@ const HomePageContentEditor: React.FC<HomePageContentEditorProps> = ({ section, 
         setLoading(true);
         const existingContent = await getHomePageContentBySection(section);
         setContent(existingContent);
+        // Initialize per-member upload state from loaded items
+        if (existingContent.items?.length) {
+          const count = existingContent.items.length;
+          setMemberImageModes(existingContent.items.map((it) => (it.image ? 'url' : 'url')));
+          setMemberPreviews(existingContent.items.map((it) => it.image || null));
+          setMemberUploading(Array(count).fill(false));
+          memberFileRefs.current = Array(count).fill(null);
+        }
       } catch (err) {
         console.log(`No existing content found for section: ${section}, using defaults`);
         // Keep default empty content for new sections
@@ -69,7 +86,57 @@ const HomePageContentEditor: React.FC<HomePageContentEditorProps> = ({ section, 
       ...prev,
       items: newItems
     }));
+    // Extend parallel upload state arrays
+    setMemberImageModes(prev => [...prev, 'url']);
+    setMemberPreviews(prev => [...prev, null]);
+    setMemberUploading(prev => [...prev, false]);
+    memberFileRefs.current = [...memberFileRefs.current, null];
   };
+
+  // ─── Team member image upload helpers ──────────────────────────────────────
+  const setMemberImageMode = useCallback((index: number, mode: MemberImageMode) => {
+    setMemberImageModes(prev => {
+      const next = [...prev];
+      next[index] = mode;
+      return next;
+    });
+  }, []);
+
+  const handleMemberFileChange = useCallback(async (index: number, file: File | null) => {
+    if (!file) {
+      setMemberPreviews(prev => { const n = [...prev]; n[index] = null; return n; });
+      return;
+    }
+    // Show local preview immediately
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setMemberPreviews(prev => { const n = [...prev]; n[index] = reader.result as string; return n; });
+    };
+    reader.readAsDataURL(file);
+
+    // Upload to server
+    setMemberUploading(prev => { const n = [...prev]; n[index] = true; return n; });
+    try {
+      const formData = new FormData();
+      formData.append('image', file);
+      const token = localStorage.getItem('token');
+      const apiBase = `${import.meta.env.VITE_API_URL || 'http://localhost:5002'}/api`;
+      const res = await fetch(`${apiBase}/upload?type=team-member`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData,
+      });
+      const data = await res.json();
+      if (data.success && data.url) {
+        handleItemsChange(index, 'image', data.url);
+        setMemberPreviews(prev => { const n = [...prev]; n[index] = data.url; return n; });
+      }
+    } catch (err) {
+      console.error('Team member photo upload failed:', err);
+    } finally {
+      setMemberUploading(prev => { const n = [...prev]; n[index] = false; return n; });
+    }
+  }, []);
 
   const removeItem = (index: number) => {
     const newItems = [...(content.items || [])];
@@ -78,6 +145,11 @@ const HomePageContentEditor: React.FC<HomePageContentEditorProps> = ({ section, 
       ...prev,
       items: newItems
     }));
+    // Shrink parallel upload state arrays
+    setMemberImageModes(prev => prev.filter((_, i) => i !== index));
+    setMemberPreviews(prev => prev.filter((_, i) => i !== index));
+    setMemberUploading(prev => prev.filter((_, i) => i !== index));
+    memberFileRefs.current = memberFileRefs.current.filter((_, i) => i !== index);
   };
 
   const handleSettingsChange = (key: string, value: string | number | boolean) => {
@@ -1481,6 +1553,439 @@ const HomePageContentEditor: React.FC<HomePageContentEditorProps> = ({ section, 
   );
 
   // Section configuration mapping
+  const renderAboutStoryEditor = () => (
+    <div className="space-y-6">
+      {/* Hero Header */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label className="block text-dark-tea text-sm font-medium mb-2">Page Title</label>
+          <input
+            type="text"
+            name="title"
+            value={content.title || ''}
+            onChange={handleChange}
+            className="w-full px-4 py-3 border border-secondary-tea rounded-md focus:outline-none focus:ring-2 focus:ring-primary-tea"
+            placeholder="Our Story"
+          />
+        </div>
+        <div>
+          <label className="block text-dark-tea text-sm font-medium mb-2">Page Tagline</label>
+          <input
+            type="text"
+            name="subtitle"
+            value={content.subtitle || ''}
+            onChange={handleChange}
+            className="w-full px-4 py-3 border border-secondary-tea rounded-md focus:outline-none focus:ring-2 focus:ring-primary-tea"
+            placeholder="Lorem ipsum dolor sit amet…"
+          />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label className="block text-dark-tea text-sm font-medium mb-2">About Section Heading</label>
+          <input
+            type="text"
+            name="buttonText"
+            value={content.buttonText || ''}
+            onChange={handleChange}
+            className="w-full px-4 py-3 border border-secondary-tea rounded-md focus:outline-none focus:ring-2 focus:ring-primary-tea"
+            placeholder="About Coffee Shop"
+          />
+        </div>
+        <div>
+          <label className="block text-dark-tea text-sm font-medium mb-2">Side Image URL</label>
+          <input
+            type="text"
+            name="buttonLink"
+            value={content.buttonLink || ''}
+            onChange={handleChange}
+            className="w-full px-4 py-3 border border-secondary-tea rounded-md focus:outline-none focus:ring-2 focus:ring-primary-tea"
+            placeholder="https://example.com/about-photo.jpg"
+          />
+        </div>
+      </div>
+
+      <div>
+        <label className="block text-dark-tea text-sm font-medium mb-2">About Paragraph 1</label>
+        <textarea
+          name="description"
+          value={content.description || ''}
+          onChange={handleChange}
+          rows={4}
+          className="w-full px-4 py-3 border border-secondary-tea rounded-md focus:outline-none focus:ring-2 focus:ring-primary-tea resize-none"
+          placeholder="Tell your story… (first paragraph)"
+        />
+      </div>
+
+      <div>
+        <label className="block text-dark-tea text-sm font-medium mb-2">About Paragraph 2</label>
+        <textarea
+          name="settings.paragraph2" 
+          value={(content.settings?.paragraph2 as string) || ''}
+          onChange={(e) => handleSettingsChange('paragraph2', e.target.value)}
+          rows={3}
+          className="w-full px-4 py-3 border border-secondary-tea rounded-md focus:outline-none focus:ring-2 focus:ring-primary-tea resize-none"
+          placeholder="Continuation of your story… (second paragraph)"
+        />
+      </div>
+
+      <div className="border-t border-secondary-tea pt-6">
+        <h4 className="text-base font-heading font-semibold text-dark-tea mb-4">Statistics</h4>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label className="block text-sm text-secondary-tea mb-1">Coffee Served (value)</label>
+            <input
+              type="text"
+              value={(content.settings?.coffeeServed as string) || ''}
+              onChange={(e) => handleSettingsChange('coffeeServed', e.target.value)}
+              className="w-full px-3 py-2 border border-secondary-tea rounded-md text-sm"
+              placeholder="36546"
+            />
+          </div>
+          <div>
+            <label className="block text-sm text-secondary-tea mb-1">Types of Coffees (value)</label>
+            <input
+              type="text"
+              value={(content.settings?.coffeeTypes as string) || ''}
+              onChange={(e) => handleSettingsChange('coffeeTypes', e.target.value)}
+              className="w-full px-3 py-2 border border-secondary-tea rounded-md text-sm"
+              placeholder="28"
+            />
+          </div>
+          <div>
+            <label className="block text-sm text-secondary-tea mb-1">Years of Experience (optional extra stat)</label>
+            <input
+              type="text"
+              value={(content.settings?.extraStatValue as string) || ''}
+              onChange={(e) => handleSettingsChange('extraStatValue', e.target.value)}
+              className="w-full px-3 py-2 border border-secondary-tea rounded-md text-sm"
+              placeholder="e.g. 10+"
+            />
+          </div>
+          <div className="md:col-span-3">
+            <label className="block text-sm text-secondary-tea mb-1">Extra Stat Label (e.g. Years of Experience)</label>
+            <input
+              type="text"
+              value={(content.settings?.extraStatLabel as string) || ''}
+              onChange={(e) => handleSettingsChange('extraStatLabel', e.target.value)}
+              className="w-full px-3 py-2 border border-secondary-tea rounded-md text-sm"
+              placeholder="Years of Experience"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderAboutValuesEditor = () => (
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label className="block text-dark-tea text-sm font-medium mb-2">Section Title</label>
+          <input
+            type="text"
+            name="title"
+            value={content.title || ''}
+            onChange={handleChange}
+            className="w-full px-4 py-3 border border-secondary-tea rounded-md focus:outline-none focus:ring-2 focus:ring-primary-tea"
+            placeholder="Our Values"
+          />
+        </div>
+        <div className="flex items-end">
+          <button
+            onClick={addItem}
+            className="btn-primary text-sm py-2 px-4"
+          >
+            + Add Value Card
+          </button>
+        </div>
+      </div>
+
+      <div className="space-y-4 max-h-[500px] overflow-y-auto pr-1">
+        {(content.items || []).map((item, index) => (
+          <div key={index} className="border border-secondary-tea rounded-lg p-4 bg-light-tea">
+            <div className="flex justify-between items-start mb-3">
+              <h5 className="font-medium text-dark-tea">Value {index + 1}</h5>
+              <button
+                onClick={() => removeItem(index)}
+                className="text-red-500 hover:text-red-700"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+              </button>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-sm text-secondary-tea mb-1">Value Title</label>
+                <input
+                  type="text"
+                  value={item.title || ''}
+                  onChange={(e) => handleItemsChange(index, 'title', e.target.value)}
+                  className="w-full px-3 py-2 border border-secondary-tea rounded-md text-sm"
+                  placeholder="e.g. Quality"
+                />
+              </div>
+              <div>
+                <label className="block text-sm text-secondary-tea mb-1">Icon (emoji or leave blank)</label>
+                <input
+                  type="text"
+                  value={item.icon || ''}
+                  onChange={(e) => handleItemsChange(index, 'icon', e.target.value)}
+                  className="w-full px-3 py-2 border border-secondary-tea rounded-md text-sm"
+                  placeholder="⭐ or leave blank for default icon"
+                />
+              </div>
+              <div className="md:col-span-2">
+                <label className="block text-sm text-secondary-tea mb-1">Description</label>
+                <textarea
+                  value={item.description || ''}
+                  onChange={(e) => handleItemsChange(index, 'description', e.target.value)}
+                  rows={2}
+                  className="w-full px-3 py-2 border border-secondary-tea rounded-md text-sm resize-none"
+                  placeholder="Describe this value…"
+                />
+              </div>
+            </div>
+            {item.title && (
+              <div className="mt-3 pt-3 border-t border-secondary-tea flex items-center gap-2">
+                <span className="text-xl">{item.icon || '✨'}</span>
+                <div>
+                  <p className="text-sm font-medium text-dark-tea">{item.title}</p>
+                  {item.description && <p className="text-xs text-secondary-tea line-clamp-1">{item.description}</p>}
+                </div>
+              </div>
+            )}
+          </div>
+        ))}
+        {(content.items || []).length === 0 && (
+          <div className="text-center py-8 text-secondary-tea border-2 border-dashed border-secondary-tea rounded-lg">
+            <svg className="w-12 h-12 mx-auto text-secondary-tea mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+            </svg>
+            <p className="font-medium">No value cards added yet</p>
+            <p className="text-sm mt-1">Click "Add Value Card" to add your company values</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
+  const renderTeamEditor = () => (
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label className="block text-dark-tea text-sm font-medium mb-2">Section Title</label>
+          <input
+            type="text"
+            name="title"
+            value={content.title || ''}
+            onChange={handleChange}
+            className="w-full px-4 py-3 border border-secondary-tea rounded-md focus:outline-none focus:ring-2 focus:ring-primary-tea"
+            placeholder="Meet Our Team"
+          />
+        </div>
+        <div>
+          <label className="block text-dark-tea text-sm font-medium mb-2">Subtitle</label>
+          <input
+            type="text"
+            name="subtitle"
+            value={content.subtitle || ''}
+            onChange={handleChange}
+            className="w-full px-4 py-3 border border-secondary-tea rounded-md focus:outline-none focus:ring-2 focus:ring-primary-tea"
+            placeholder="The passionate people behind Date & Maple"
+          />
+        </div>
+      </div>
+
+      <div className="border-t border-secondary-tea pt-6">
+        <div className="flex justify-between items-center mb-4">
+          <h4 className="text-lg font-heading font-semibold text-dark-tea">Team Members</h4>
+          <button
+            onClick={addItem}
+            className="btn-primary text-sm py-2 px-4"
+          >
+            Add Member
+          </button>
+        </div>
+
+        <div className="space-y-4 max-h-[500px] overflow-y-auto pr-1">
+          {(content.items || []).map((item, index) => (
+            <div key={index} className="border border-secondary-tea rounded-lg p-4 bg-light-tea">
+              <div className="flex justify-between items-start mb-3">
+                <h5 className="font-medium text-dark-tea">Member {index + 1}</h5>
+                <button
+                  onClick={() => removeItem(index)}
+                  className="text-red-500 hover:text-red-700"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                  </svg>
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm text-secondary-tea mb-1">Full Name</label>
+                  <input
+                    type="text"
+                    value={item.name || ''}
+                    onChange={(e) => handleItemsChange(index, 'name', e.target.value)}
+                    className="w-full px-3 py-2 border border-secondary-tea rounded-md text-sm"
+                    placeholder="e.g. Sarah Johnson"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm text-secondary-tea mb-1">Role / Position</label>
+                  <input
+                    type="text"
+                    value={item.role || ''}
+                    onChange={(e) => handleItemsChange(index, 'role', e.target.value)}
+                    className="w-full px-3 py-2 border border-secondary-tea rounded-md text-sm"
+                    placeholder="e.g. Founder & Head Chef"
+                  />
+                </div>
+
+                <div className="md:col-span-2">
+                  <label className="block text-sm text-secondary-tea mb-1">Profile Photo</label>
+                  {/* Tab toggle: URL vs Upload */}
+                  <div className="flex border-b border-secondary-tea mb-2">
+                    <button
+                      type="button"
+                      onClick={() => setMemberImageMode(index, 'url')}
+                      className={`py-1.5 px-4 text-xs font-medium transition-all ${
+                        (memberImageModes[index] ?? 'url') === 'url'
+                          ? 'border-b-2 border-primary-tea text-primary-tea'
+                          : 'text-secondary-tea hover:text-dark-tea'
+                      }`}
+                    >
+                      Image URL
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setMemberImageMode(index, 'upload')}
+                      className={`py-1.5 px-4 text-xs font-medium transition-all ${
+                        (memberImageModes[index] ?? 'url') === 'upload'
+                          ? 'border-b-2 border-primary-tea text-primary-tea'
+                          : 'text-secondary-tea hover:text-dark-tea'
+                      }`}
+                    >
+                      Upload Photo
+                    </button>
+                  </div>
+
+                  {(memberImageModes[index] ?? 'url') === 'url' ? (
+                    <input
+                      type="text"
+                      value={item.image || ''}
+                      onChange={(e) => handleItemsChange(index, 'image', e.target.value)}
+                      className="w-full px-3 py-2 border border-secondary-tea rounded-md text-sm"
+                      placeholder="https://example.com/photo.jpg (leave blank for initials avatar)"
+                    />
+                  ) : (
+                    <div>
+                      {/* Hidden file input */}
+                      <input
+                        type="file"
+                        accept="image/*"
+                        ref={(el) => { memberFileRefs.current[index] = el; }}
+                        className="hidden"
+                        onChange={(e) => handleMemberFileChange(index, e.target.files?.[0] || null)}
+                      />
+                      {memberUploading[index] ? (
+                        <div className="flex items-center gap-2 py-4 px-3 border border-secondary-tea rounded-md text-sm text-secondary-tea">
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary-tea" />
+                          <span>Uploading...</span>
+                        </div>
+                      ) : memberPreviews[index] || item.image ? (
+                        <div className="flex items-center gap-3 py-2 px-3 border border-secondary-tea rounded-md bg-light-tea">
+                          <img
+                            src={memberPreviews[index] || item.image || ''}
+                            alt="preview"
+                            className="w-10 h-10 rounded-full object-cover border-2 border-secondary-tea flex-shrink-0"
+                            onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                          />
+                          <span className="text-xs text-dark-tea flex-1 truncate">{item.image}</span>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              handleItemsChange(index, 'image', '');
+                              setMemberPreviews(prev => { const n = [...prev]; n[index] = null; return n; });
+                              if (memberFileRefs.current[index]) memberFileRefs.current[index]!.value = '';
+                            }}
+                            className="text-red-500 hover:text-red-700 text-xs font-medium"
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => memberFileRefs.current[index]?.click()}
+                          className="w-full py-6 border-2 border-dashed border-secondary-tea rounded-md text-center hover:border-primary-tea hover:bg-light-tea transition-colors cursor-pointer"
+                        >
+                          <svg className="w-8 h-8 text-secondary-tea mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                          </svg>
+                          <span className="text-xs text-secondary-tea">Click to upload photo (max 5MB)</span>
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                <div className="md:col-span-2">
+                  <label className="block text-sm text-secondary-tea mb-1">Bio / Description</label>
+                  <textarea
+                    value={item.description || ''}
+                    onChange={(e) => handleItemsChange(index, 'description', e.target.value)}
+                    rows={2}
+                    className="w-full px-3 py-2 border border-secondary-tea rounded-md text-sm resize-none"
+                    placeholder="A short bio about this team member..."
+                  />
+                </div>
+              </div>
+
+              {/* Preview */}
+              {item.name && (
+                <div className="mt-3 pt-3 border-t border-secondary-tea flex items-center gap-3">
+                  {item.image ? (
+                    <img
+                      src={item.image}
+                      alt={item.name}
+                      className="w-10 h-10 rounded-full object-cover border-2 border-light-tea"
+                      onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                    />
+                  ) : (
+                    <div className="w-10 h-10 rounded-full bg-primary-tea flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
+                      {(item.name.split(' ').map((w: string) => w[0]).join('')).toUpperCase().slice(0, 2)}
+                    </div>
+                  )}
+                  <div>
+                    <p className="text-sm font-medium text-dark-tea">{item.name}</p>
+                    {item.role && <p className="text-xs text-accent-tea">{item.role}</p>}
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
+
+          {(content.items || []).length === 0 && (
+            <div className="text-center py-8 text-secondary-tea border-2 border-dashed border-secondary-tea rounded-lg">
+              <svg className="w-12 h-12 mx-auto text-secondary-tea mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+              </svg>
+              <p className="font-medium">No team members added yet</p>
+              <p className="text-sm mt-1">Click "Add Member" to showcase your team</p>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+
   const sectionRenderers = {
     hero: renderHeroEditor,
     features: renderFeaturesEditor,
@@ -1489,7 +1994,10 @@ const HomePageContentEditor: React.FC<HomePageContentEditorProps> = ({ section, 
     catering: renderCateringEditor,
     testimonials: renderTestimonialsEditor,
     newsletter: renderNewsletterEditor,
-    footer: renderFooterEditor
+    footer: renderFooterEditor,
+    team: renderTeamEditor,
+    aboutStory: renderAboutStoryEditor,
+    aboutValues: renderAboutValuesEditor
   };
 
   const renderer = sectionRenderers[section as keyof typeof sectionRenderers] || renderHeroEditor;
@@ -1501,7 +2009,10 @@ const HomePageContentEditor: React.FC<HomePageContentEditorProps> = ({ section, 
     catering: 'Catering Services',
     testimonials: 'Testimonials',
     newsletter: 'Newsletter Signup',
-    footer: 'Footer Content'
+    footer: 'Footer Content',
+    team: 'Meet Our Team',
+    aboutStory: 'Our Story (About Page)',
+    aboutValues: 'Our Values (About Page)'
   };
   
   const sectionTitle = sectionTitles[section as keyof typeof sectionTitles] || 'Hero Section';

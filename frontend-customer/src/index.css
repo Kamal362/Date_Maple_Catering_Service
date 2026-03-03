@@ -2,6 +2,24 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Disable text selection highlight */
+::selection {
+  background: transparent;
+}
+
+/* Disable user-select globally, re-enable for editable fields */
+* {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+}
+
+input, textarea, [contenteditable] {
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  user-select: text;
+}
+
 /* Fire animation for featured items */
 @keyframes fire-flicker {
   0%, 100% {

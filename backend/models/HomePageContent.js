@@ -5,7 +5,7 @@ const homePageContentSchema = new mongoose.Schema({
     type: String,
     required: true,
     unique: true,
-    enum: ['hero', 'features', 'menuHighlights', 'gallery', 'catering', 'testimonials', 'newsletter', 'contact', 'footer']
+    enum: ['hero', 'features', 'menuHighlights', 'gallery', 'catering', 'testimonials', 'newsletter', 'contact', 'footer', 'team', 'aboutStory', 'aboutValues']
   },
   title: {
     type: String,

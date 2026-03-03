@@ -21,6 +21,7 @@ import AdminPaymentProofs from './pages/AdminPaymentProofs';
 import AdminTaxSettings from './pages/AdminTaxSettings';
 import AdminHomeContent from './pages/AdminHomeContent';
 import AdminInquiries from './pages/AdminInquiries';
+import AdminReviews from './pages/AdminReviews';
 import AdminLogin from './pages/AdminLogin';
 import AdminRegister from './pages/AdminRegister';
 import ForgotPassword from './pages/ForgotPassword';
@@ -46,6 +47,7 @@ function App() {
               <Route path="/tax-settings" element={<ProtectedRoute adminOnly><AdminTaxSettings /></ProtectedRoute>} />
               <Route path="/home-content" element={<ProtectedRoute adminOnly><AdminHomeContent /></ProtectedRoute>} />
               <Route path="/inquiries" element={<ProtectedRoute adminOnly><AdminInquiries /></ProtectedRoute>} />
+              <Route path="/reviews" element={<ProtectedRoute adminOnly><AdminReviews /></ProtectedRoute>} />
               <Route path="/admin-login" element={<AdminLogin />} />
               <Route path="/admin-register" element={<AdminRegister />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />

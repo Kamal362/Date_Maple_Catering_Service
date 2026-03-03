@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useToast } from '../context/ToastContext';
 import { getMyOrders, cancelOrder } from '../services/orderService';
 import { Order } from '../services/orderService';
+import { getMyReviews } from '../services/reviewService';
 import OrderDetails from './OrderDetails';
 import ReorderButton from './ReorderButton';
+import ReviewForm from './ReviewForm';
 
 interface OrderHistoryProps {
   userId?: string;
@@ -19,16 +21,29 @@ const OrderHistory: React.FC<OrderHistoryProps> = ({ userId }) => {
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [reviewedOrderIds, setReviewedOrderIds] = useState<Set<string>>(new Set());
+  const [reviewOrder, setReviewOrder] = useState<Order | null>(null);
   
   const toast = useToast();
 
   useEffect(() => {
     fetchOrders();
+    fetchMyReviews();
   }, []);
 
   useEffect(() => {
     filterAndSortOrders();
   }, [orders, filterStatus, sortBy, sortOrder]);
+
+  const fetchMyReviews = async () => {
+    try {
+      const reviews = await getMyReviews();
+      const ids = new Set(reviews.map((r: any) => r.order?._id).filter(Boolean));
+      setReviewedOrderIds(ids as Set<string>);
+    } catch {
+      // silently fail — review button just won't show "already reviewed"
+    }
+  };
 
   const fetchOrders = async () => {
     try {
@@ -276,6 +291,29 @@ const OrderHistory: React.FC<OrderHistoryProps> = ({ userId }) => {
                     </button>
                   )}
                   
+                  {/* Rate Order Button - only for delivered orders not yet reviewed */}
+                  {order.status === 'delivered' && !reviewedOrderIds.has(order._id) && (
+                    <button
+                      onClick={() => setReviewOrder(order)}
+                      className="px-3 py-2 border border-gold text-yellow-700 rounded-md hover:bg-gold hover:text-white transition-colors text-xs sm:text-sm flex items-center gap-1"
+                    >
+                      <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+                      </svg>
+                      Rate Order
+                    </button>
+                  )}
+
+                  {/* Already reviewed badge */}
+                  {order.status === 'delivered' && reviewedOrderIds.has(order._id) && (
+                    <span className="px-3 py-2 text-xs sm:text-sm text-green-600 flex items-center gap-1">
+                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                      Reviewed
+                    </span>
+                  )}
+                  
                   <ReorderButton 
                     order={order}
                     size="sm"
@@ -326,6 +364,19 @@ const OrderHistory: React.FC<OrderHistoryProps> = ({ userId }) => {
         <OrderDetails
           order={selectedOrder}
           onClose={handleCloseDetails}
+        />
+      )}
+
+      {/* Review Form Modal */}
+      {reviewOrder && (
+        <ReviewForm
+          orderId={reviewOrder._id}
+          orderRef={reviewOrder._id.slice(-6).toUpperCase()}
+          onClose={() => setReviewOrder(null)}
+          onSuccess={() => {
+            setReviewedOrderIds(prev => new Set([...prev, reviewOrder._id]));
+            setReviewOrder(null);
+          }}
         />
       )}
     </div>

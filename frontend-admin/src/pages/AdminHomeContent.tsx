@@ -2,6 +2,158 @@ import React, { useState, useEffect } from 'react';
 import { getAllHomePageContent, deleteHomePageContent, HomePageContent } from '../services/homeContentService';
 import HomePageContentEditor from '../components/HomePageContentEditor';
 import ConfirmModal from '../components/ConfirmModal';
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+  DragOverlay,
+  DragStartEvent,
+} from '@dnd-kit/core';
+import {
+  SortableContext,
+  useSortable,
+  arrayMove,
+  rectSortingStrategy,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+
+// ─── Section type ────────────────────────────────────────────────────────────
+interface SectionDef {
+  key: string;
+  label: string;
+  description: string;
+}
+
+// ─── Sortable card component ──────────────────────────────────────────────────
+interface SortableSectionCardProps {
+  section: SectionDef;
+  sectionContent: HomePageContent | undefined;
+  isDragging: boolean;
+  onEdit: (key: string) => void;
+  onDelete: (key: string) => void;
+}
+
+const SortableSectionCard: React.FC<SortableSectionCardProps> = ({
+  section,
+  sectionContent,
+  isDragging,
+  onEdit,
+  onDelete,
+}) => {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging: localDragging } =
+    useSortable({ id: section.key });
+
+  const style: React.CSSProperties = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: localDragging ? 0.4 : 1,
+    zIndex: localDragging ? 50 : undefined,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={`bg-white rounded-lg shadow p-6 flex flex-col relative group ${
+        localDragging ? 'ring-2 ring-primary-tea' : ''
+      }`}
+    >
+      {/* Drag handle — top-right grip icon */}
+      <div
+        {...attributes}
+        {...listeners}
+        className="absolute top-3 right-3 cursor-grab active:cursor-grabbing p-1.5 rounded-md hover:bg-gray-100 transition-colors text-gray-400 hover:text-gray-600"
+        title="Drag to reorder"
+      >
+        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+          <path d="M7 2a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm6 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM7 8a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm6 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm-6 6a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm6 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4z" />
+        </svg>
+      </div>
+
+      <div className="flex items-start justify-between mb-4 pr-8">
+        <div>
+          <h3 className="text-lg font-semibold text-gray-900">{section.label}</h3>
+          <p className="text-sm text-gray-500 mt-1">{section.description}</p>
+        </div>
+        {sectionContent ? (
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+            Active
+          </span>
+        ) : (
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+            Empty
+          </span>
+        )}
+      </div>
+
+      {sectionContent && (
+        <div className="mb-4 text-sm text-gray-600 space-y-2">
+          {sectionContent.title && (
+            <p className="font-medium text-gray-800">Title: {sectionContent.title}</p>
+          )}
+          {sectionContent.subtitle && (
+            <p className="text-gray-600 line-clamp-2">Subtitle: {sectionContent.subtitle}</p>
+          )}
+          {sectionContent.description && (
+            <p className="text-gray-600 line-clamp-2">Description: {sectionContent.description}</p>
+          )}
+          {sectionContent.items && sectionContent.items.length > 0 && (
+            <p className="text-xs text-gray-500">
+              Items: {sectionContent.items.length}{' '}
+              {sectionContent.items.length === 1 ? 'item' : 'items'}
+              <span className="ml-2 text-gray-400">
+                ({sectionContent.items
+                  .slice(0, 3)
+                  .map((item: any) => item.title || item.name || 'Untitled')
+                  .join(', ')}
+                {sectionContent.items.length > 3 ? '...' : ''})
+              </span>
+            </p>
+          )}
+          {sectionContent.settings && Object.keys(sectionContent.settings).length > 0 && (
+            <p className="text-xs text-gray-500">
+              Settings: {Object.keys(sectionContent.settings).length} configured
+            </p>
+          )}
+          <p className="text-xs text-gray-400 mt-2 pt-2 border-t border-gray-100">
+            Last updated:{' '}
+            {sectionContent.updatedAt
+              ? new Date(sectionContent.updatedAt).toLocaleDateString()
+              : 'Never'}
+          </p>
+        </div>
+      )}
+
+      <div className="flex gap-2 mt-auto">
+        <button
+          onClick={() => onEdit(section.key)}
+          className="flex-1 bg-primary-tea hover:bg-dark-tea text-white px-4 py-2 rounded-md text-sm font-medium"
+        >
+          {sectionContent ? 'Edit Content' : 'Add Content'}
+        </button>
+        {sectionContent && (
+          <button
+            onClick={() => onDelete(section.key)}
+            className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md text-sm font-medium"
+            title="Delete Content"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+              />
+            </svg>
+          </button>
+        )}
+      </div>
+    </div>
+  );
+};
 
 const AdminHomeContent: React.FC = () => {
   const [content, setContent] = useState<HomePageContent[]>([]);
@@ -13,6 +165,55 @@ const AdminHomeContent: React.FC = () => {
   const [successMessage, setSuccessMessage] = useState('');
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [sectionToDelete, setSectionToDelete] = useState<string | null>(null);
+  const [activeDragId, setActiveDragId] = useState<string | null>(null);
+
+  // Sections list stored in state so drag-and-drop can reorder it
+  const [sections, setSections] = useState<SectionDef[]>([
+    { key: 'hero', label: 'Hero Section', description: 'Main banner and welcome message' },
+    { key: 'features', label: 'Features Section', description: 'Key features and highlights' },
+    { key: 'menuHighlights', label: 'Menu Highlights', description: 'Featured menu items' },
+    { key: 'gallery', label: 'Gallery Section', description: 'Photo gallery showcase' },
+    { key: 'catering', label: 'Catering Services', description: 'Catering information and services' },
+    { key: 'testimonials', label: 'Testimonials', description: 'Customer reviews and testimonials' },
+    { key: 'newsletter', label: 'Newsletter', description: 'Newsletter signup section' },
+    { key: 'contact', label: 'Contact Page', description: 'Contact information and map' },
+    { key: 'footer', label: 'Footer', description: 'Footer content and links' },
+    { key: 'team', label: 'Meet Our Team', description: 'Team member profiles on the About page' },
+    { key: 'aboutStory', label: 'Our Story', description: 'About page hero, description, stats and side image' },
+    { key: 'aboutValues', label: 'Our Values', description: 'Value cards shown on the About page' },
+  ]);
+
+  // DnD sensors — require a 8px movement before drag starts to avoid accidental drags on button clicks
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } })
+  );
+
+  const handleDragStart = (event: DragStartEvent) => {
+    setActiveDragId(event.active.id as string);
+  };
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    setActiveDragId(null);
+    if (!over || active.id === over.id) return;
+    setSections((prev) => {
+      const oldIndex = prev.findIndex((s) => s.key === active.id);
+      const newIndex = prev.findIndex((s) => s.key === over.id);
+      return arrayMove(prev, oldIndex, newIndex);
+    });
+  };
+
+  const getSectionContent = (sectionKey: string) => {
+    return content.find(c => c.section === sectionKey);
+  };
+
+  const getEmptySections = () => {
+    return sections.filter(s => !getSectionContent(s.key));
+  };
+
+  const getActiveSections = () => {
+    return sections.filter(s => getSectionContent(s.key));
+  };
 
   useEffect(() => {
     fetchContent();
@@ -52,7 +253,6 @@ const AdminHomeContent: React.FC = () => {
 
   const handleConfirmDelete = async () => {
     if (!sectionToDelete) return;
-    
     try {
       await deleteHomePageContent(sectionToDelete);
       fetchContent();
@@ -67,37 +267,19 @@ const AdminHomeContent: React.FC = () => {
     }
   };
 
-  const sections = [
-    { key: 'hero', label: 'Hero Section', description: 'Main banner and welcome message' },
-    { key: 'features', label: 'Features Section', description: 'Key features and highlights' },
-    { key: 'menuHighlights', label: 'Menu Highlights', description: 'Featured menu items' },
-    { key: 'gallery', label: 'Gallery Section', description: 'Photo gallery showcase' },
-    { key: 'catering', label: 'Catering Services', description: 'Catering information and services' },
-    { key: 'testimonials', label: 'Testimonials', description: 'Customer reviews and testimonials' },
-    { key: 'newsletter', label: 'Newsletter', description: 'Newsletter signup section' },
-    { key: 'contact', label: 'Contact Page', description: 'Contact information and map' },
-    { key: 'footer', label: 'Footer', description: 'Footer content and links' },
-  ];
-
-  const getSectionContent = (sectionKey: string) => {
-    return content.find(c => c.section === sectionKey);
-  };
-
-  const getEmptySections = () => {
-    return sections.filter(s => !getSectionContent(s.key));
-  };
-
-  const getActiveSections = () => {
-    return sections.filter(s => getSectionContent(s.key));
-  };
+  // The card currently being dragged (for DragOverlay preview)
+  const activeDragSection = sections.find((s) => s.key === activeDragId);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
-        <h1 className="text-3xl font-bold text-gray-900 mb-4 md:mb-0">Homepage Content Management</h1>
-        
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 mb-1">Homepage Content Management</h1>
+          <p className="text-sm text-gray-500">Drag the ⋮⋮ handle on any card to reorder sections.</p>
+        </div>
+
         {/* Quick Stats */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4 mt-4 md:mt-0">
           <div className="flex items-center gap-2 text-sm">
             <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
               {getActiveSections().length} Active
@@ -106,33 +288,31 @@ const AdminHomeContent: React.FC = () => {
               {getEmptySections().length} Empty
             </span>
           </div>
-          
+
           {/* Create New Section Dropdown */}
           <div className="relative group">
-            <button 
+            <button
               onClick={() => {
                 const emptySections = getEmptySections();
                 if (emptySections.length === 1) {
-                  // If only one empty section, open it directly
                   handleEdit(emptySections[0].key);
                 }
-                // Otherwise dropdown will show on hover
               }}
               className={`px-4 py-2 rounded-md text-sm font-medium flex items-center gap-2 transition-colors ${
-                getEmptySections().length > 0 
-                  ? 'bg-primary-tea hover:bg-dark-tea text-white cursor-pointer' 
+                getEmptySections().length > 0
+                  ? 'bg-primary-tea hover:bg-dark-tea text-white cursor-pointer'
                   : 'bg-gray-300 text-gray-500 cursor-not-allowed'
               }`}
               disabled={getEmptySections().length === 0}
               title={getEmptySections().length === 0 ? 'All sections are already created' : 'Create new section content'}
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"></path>
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
               </svg>
               {getEmptySections().length > 0 ? 'Create New Section' : 'All Sections Created'}
               {getEmptySections().length > 1 && (
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
                 </svg>
               )}
             </button>
@@ -165,85 +345,41 @@ const AdminHomeContent: React.FC = () => {
 
       {loading ? (
         <div className="text-center py-8">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-tea mx-auto"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-tea mx-auto" />
           <p className="mt-4 text-gray-600">Loading content...</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {sections.map((section) => {
-            const sectionContent = getSectionContent(section.key);
-            return (
-              <div key={section.key} className="bg-white rounded-lg shadow p-6">
-                <div className="flex items-start justify-between mb-4">
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-900">{section.label}</h3>
-                    <p className="text-sm text-gray-500 mt-1">{section.description}</p>
-                  </div>
-                  {sectionContent ? (
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                      Active
-                    </span>
-                  ) : (
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                      Empty
-                    </span>
-                  )}
-                </div>
-                
-                {sectionContent && (
-                  <div className="mb-4 text-sm text-gray-600 space-y-2">
-                    {sectionContent.title && (
-                      <p className="font-medium text-gray-800">Title: {sectionContent.title}</p>
-                    )}
-                    {sectionContent.subtitle && (
-                      <p className="text-gray-600 line-clamp-2">Subtitle: {sectionContent.subtitle}</p>
-                    )}
-                    {sectionContent.description && (
-                      <p className="text-gray-600 line-clamp-2">Description: {sectionContent.description}</p>
-                    )}
-                    {sectionContent.items && sectionContent.items.length > 0 && (
-                      <p className="text-xs text-gray-500">
-                        Items: {sectionContent.items.length} {sectionContent.items.length === 1 ? 'item' : 'items'}
-                        <span className="ml-2 text-gray-400">
-                          ({sectionContent.items.slice(0, 3).map((item: any) => item.title || item.name || 'Untitled').join(', ')}
-                          {sectionContent.items.length > 3 ? '...' : ''})
-                        </span>
-                      </p>
-                    )}
-                    {sectionContent.settings && Object.keys(sectionContent.settings).length > 0 && (
-                      <p className="text-xs text-gray-500">
-                        Settings: {Object.keys(sectionContent.settings).length} configured
-                      </p>
-                    )}
-                    <p className="text-xs text-gray-400 mt-2 pt-2 border-t border-gray-100">
-                      Last updated: {sectionContent.updatedAt ? new Date(sectionContent.updatedAt).toLocaleDateString() : 'Never'}
-                    </p>
-                  </div>
-                )}
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragStart={handleDragStart}
+          onDragEnd={handleDragEnd}
+        >
+          <SortableContext items={sections.map((s) => s.key)} strategy={rectSortingStrategy}>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {sections.map((section) => (
+                <SortableSectionCard
+                  key={section.key}
+                  section={section}
+                  sectionContent={getSectionContent(section.key)}
+                  isDragging={activeDragId === section.key}
+                  onEdit={handleEdit}
+                  onDelete={handleDeleteClick}
+                />
+              ))}
+            </div>
+          </SortableContext>
 
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => handleEdit(section.key)}
-                    className="flex-1 bg-primary-tea hover:bg-dark-tea text-white px-4 py-2 rounded-md text-sm font-medium"
-                  >
-                    {sectionContent ? 'Edit Content' : 'Add Content'}
-                  </button>
-                  {sectionContent && (
-                    <button
-                      onClick={() => handleDeleteClick(section.key)}
-                      className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md text-sm font-medium"
-                      title="Delete Content"
-                    >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                      </svg>
-                    </button>
-                  )}
-                </div>
+          {/* Floating drag-overlay card */}
+          <DragOverlay>
+            {activeDragSection ? (
+              <div className="bg-white rounded-lg shadow-2xl p-6 ring-2 ring-primary-tea opacity-95 rotate-1 cursor-grabbing">
+                <p className="font-semibold text-gray-900">{activeDragSection.label}</p>
+                <p className="text-sm text-gray-500 mt-1">{activeDragSection.description}</p>
               </div>
-            );
-          })}
-        </div>
+            ) : null}
+          </DragOverlay>
+        </DndContext>
       )}
 
       {/* Content Editor Modal */}
@@ -282,7 +418,9 @@ const AdminHomeContent: React.FC = () => {
         onClose={() => setShowDeleteModal(false)}
         onConfirm={handleConfirmDelete}
         title="Delete Content"
-        message={`Are you sure you want to delete the content for "${sectionToDelete ? sections.find(s => s.key === sectionToDelete)?.label : ''}"? This action cannot be undone.`}
+        message={`Are you sure you want to delete the content for "${
+          sectionToDelete ? sections.find((s) => s.key === sectionToDelete)?.label : ''
+        }"? This action cannot be undone.`}
         confirmText="Delete"
         cancelText="Cancel"
         confirmButtonClass="bg-red-500 hover:bg-red-600"

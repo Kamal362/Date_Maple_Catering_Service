@@ -2,6 +2,30 @@ const Review = require('../models/Review');
 const MenuItem = require('../models/MenuItem');
 const Order = require('../models/Order');
 
+// @desc    Get all approved reviews (for public testimonials)
+// @route   GET /api/reviews/approved
+// @access  Public
+exports.getApprovedReviews = async (req, res) => {
+  try {
+    const reviews = await Review.find({ isApproved: true })
+      .populate('user', 'firstName lastName')
+      .populate('menuItem', 'name')
+      .sort({ createdAt: -1 })
+      .limit(20);
+
+    res.json({
+      success: true,
+      data: reviews
+    });
+  } catch (error) {
+    console.error('Error fetching approved reviews:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching reviews'
+    });
+  }
+};
+
 // @desc    Get all approved reviews for a menu item
 // @route   GET /api/reviews/item/:menuItemId
 // @access  Public
@@ -291,6 +315,46 @@ exports.approveReview = async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Error approving review'
+    });
+  }
+};
+
+// @desc    Update a review (rating/comment/approval) - Admin only
+// @route   PUT /api/reviews/admin/:id
+// @access  Private/Admin
+exports.updateReviewAdmin = async (req, res) => {
+  try {
+    const { rating, comment, isApproved } = req.body;
+    const review = await Review.findById(req.params.id);
+
+    if (!review) {
+      return res.status(404).json({
+        success: false,
+        message: 'Review not found'
+      });
+    }
+
+    if (rating !== undefined) review.rating = rating;
+    if (comment !== undefined) review.comment = comment;
+    if (isApproved !== undefined) review.isApproved = isApproved;
+
+    await review.save();
+
+    const updatedReview = await Review.findById(review._id)
+      .populate('user', 'firstName lastName email')
+      .populate('menuItem', 'name')
+      .populate('order', 'orderId');
+
+    res.json({
+      success: true,
+      data: updatedReview,
+      message: 'Review updated successfully'
+    });
+  } catch (error) {
+    console.error('Error updating review (admin):', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error updating review'
     });
   }
 };

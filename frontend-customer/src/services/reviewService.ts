@@ -34,6 +34,12 @@ export interface ReviewRating {
   totalReviews: number;
 }
 
+// Get all publicly approved reviews (for testimonials section)
+export const getApprovedReviews = async (): Promise<Review[]> => {
+  const response = await axiosInstance.get('/reviews/approved');
+  return response.data.data;
+};
+
 // Get reviews for a menu item
 export const getMenuItemReviews = async (menuItemId: string): Promise<Review[]> => {
   const response = await axiosInstance.get(`/reviews/item/${menuItemId}`);

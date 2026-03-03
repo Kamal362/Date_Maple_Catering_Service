@@ -13,7 +13,9 @@ const storage = multer.diskStorage({
   filename: (req, file, cb) => {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
     const ext = path.extname(file.originalname);
-    cb(null, 'flyer-' + uniqueSuffix + ext);
+    // Allow callers to pass ?type=team-member, ?type=flyer, etc.
+    const prefix = req.query.type ? String(req.query.type).replace(/[^a-z0-9-]/gi, '') : 'flyer';
+    cb(null, prefix + '-' + uniqueSuffix + ext);
   }
 });
 
