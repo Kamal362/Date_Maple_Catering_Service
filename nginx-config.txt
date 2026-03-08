@@ -1,0 +1,49 @@
+server {
+    listen 80;
+    server_name 44.202.252.118;
+
+    client_max_body_size 20M;
+
+    location ^~ /admin {
+        alias /home/ubuntu/Date_Maple_Catering_Service/frontend-admin/dist;
+        index index.html;
+        try_files $uri $uri/ @admin_fallback;
+    }
+
+    location @admin_fallback {
+        root /home/ubuntu/Date_Maple_Catering_Service/frontend-admin/dist;
+        try_files /index.html =404;
+    }
+
+    location /api/ {
+        proxy_pass http://127.0.0.1:5001;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header Origin $http_origin;
+    }
+
+    location /socket.io/ {
+        proxy_pass http://127.0.0.1:5001;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header Origin $http_origin;
+    }
+
+    location /uploads/ {
+        alias /home/ubuntu/Date_Maple_Catering_Service/backend/uploads/;
+        expires 30d;
+        add_header Cache-Control "public, immutable";
+        add_header Access-Control-Allow-Origin *;
+    }
+
+    root /home/ubuntu/Date_Maple_Catering_Service/frontend-customer/dist;
+    index index.html;
+
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+}

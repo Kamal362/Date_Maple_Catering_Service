@@ -70,7 +70,7 @@ const limiter = rateLimit({
   max: 100,
   message: 'Too many requests from this IP, please try again later.',
   skip: (req) => {
-    const publicEndpoints = ['/api/menu', '/api/auth/login', '/api/auth/register', '/api/health', '/api/events/flyers'];
+    const publicEndpoints = ['/api/menu', '/api/auth/login', '/api/auth/register', '/api/health', '/api/events/flyers', '/api/home-content'];
     return publicEndpoints.some(endpoint => req.path.startsWith(endpoint));
   }
 });
