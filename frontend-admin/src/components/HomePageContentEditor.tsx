@@ -1409,7 +1409,7 @@ const HomePageContentEditor: React.FC<HomePageContentEditorProps> = ({ section, 
           </button>
         </div>
         <div className="space-y-4 max-h-64 overflow-y-auto">
-          {(content.items || []).filter(item => item.role !== 'hours').map((item, index) => {
+          {(content.items || []).filter(item => item && item.role !== 'hours').map((item, index) => {
             // Calculate the actual index in the original array
             const actualIndex = (content.items || []).findIndex((origItem, origIndex) => 
               origItem === item
@@ -1422,7 +1422,7 @@ const HomePageContentEditor: React.FC<HomePageContentEditorProps> = ({ section, 
                     <label className="block text-sm text-secondary-tea mb-1">Link Text</label>
                     <input
                       type="text"
-                      value={item.name || ''}
+                      value={item?.name || ''}
                       onChange={(e) => handleItemsChange(actualIndex, 'name', e.target.value)}
                       className="w-full px-3 py-2 border border-secondary-tea rounded-md text-sm"
                       placeholder="Home"
@@ -1433,7 +1433,7 @@ const HomePageContentEditor: React.FC<HomePageContentEditorProps> = ({ section, 
                     <label className="block text-sm text-secondary-tea mb-1">Link URL</label>
                     <input
                       type="text"
-                      value={item.title || ''}
+                      value={item?.title || ''}
                       onChange={(e) => handleItemsChange(actualIndex, 'title', e.target.value)}
                       className="w-full px-3 py-2 border border-secondary-tea rounded-md text-sm"
                       placeholder="/"
@@ -1479,9 +1479,9 @@ const HomePageContentEditor: React.FC<HomePageContentEditorProps> = ({ section, 
           </button>
         </div>
         <div className="space-y-4 max-h-64 overflow-y-auto">
-          {(content.items || []).filter(item => item.role === 'hours').map((item, index) => {
+          {(content.items || []).filter(item => item && item.role === 'hours').map((item, index) => {
             // Get the actual index in the items array
-            const hoursItems = (content.items || []).filter(i => i.role === 'hours');
+            const hoursItems = (content.items || []).filter(i => i && i.role === 'hours');
             const actualIndex = (content.items || []).findIndex(i => i === item);
             
             return (
@@ -1506,7 +1506,7 @@ const HomePageContentEditor: React.FC<HomePageContentEditorProps> = ({ section, 
                     <label className="block text-sm text-secondary-tea mb-1">Day(s)</label>
                     <input
                       type="text"
-                      value={item.name || ''}
+                      value={item?.name || ''}
                       onChange={(e) => {
                         const newItems = [...(content.items || [])];
                         newItems[actualIndex] = { ...newItems[actualIndex], name: e.target.value };
@@ -1521,7 +1521,7 @@ const HomePageContentEditor: React.FC<HomePageContentEditorProps> = ({ section, 
                     <label className="block text-sm text-secondary-tea mb-1">Hours</label>
                     <input
                       type="text"
-                      value={item.title || ''}
+                      value={item?.title || ''}
                       onChange={(e) => {
                         const newItems = [...(content.items || [])];
                         newItems[actualIndex] = { ...newItems[actualIndex], title: e.target.value };

@@ -107,7 +107,7 @@ const SortableSectionCard: React.FC<SortableSectionCardProps> = ({
               <span className="ml-2 text-gray-400">
                 ({sectionContent.items
                   .slice(0, 3)
-                  .map((item: any) => item.title || item.name || 'Untitled')
+                  .map((item: any) => item?.title || item?.name || 'Untitled')
                   .join(', ')}
                 {sectionContent.items.length > 3 ? '...' : ''})
               </span>
