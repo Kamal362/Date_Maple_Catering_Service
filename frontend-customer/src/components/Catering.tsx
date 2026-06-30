@@ -1,10 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { getHomePageContentBySection, HomePageContent } from '../services/homeContentService';
+import { useTheme } from '../context/ThemeContext';
 
 const Catering: React.FC = () => {
   const [content, setContent] = useState<HomePageContent | null>(null);
   const [loading, setLoading] = useState(true);
+
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
 
   useEffect(() => {
     const fetchContent = async () => {
@@ -82,12 +86,12 @@ const Catering: React.FC = () => {
   ];
 
   return (
-    <div className="section-padding bg-cream">
+    <div className={`section-padding transition-colors duration-300 ${isDark ? 'bg-gray-900' : 'bg-cream'}`}>
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           <div>
-            <h2 className="text-3xl md:text-4xl font-heading font-bold mb-6">{displayContent.title}</h2>
-            <p className="text-lg text-dark-tea mb-8">
+            <h2 className={`text-3xl md:text-4xl font-heading font-bold mb-6 ${isDark ? 'text-amber-400' : 'text-dark-tea'}`}>{displayContent.title}</h2>
+            <p className={`text-lg mb-8 ${isDark ? 'text-gray-300' : 'text-dark-tea'}`}>
               {displayContent.subtitle}
             </p>
             
@@ -98,8 +102,8 @@ const Catering: React.FC = () => {
                     {event.icon}
                   </div>
                   <div>
-                    <h3 className="text-xl font-heading font-semibold mb-2">{event.name}</h3>
-                    <p className="text-dark-tea">{event.description}</p>
+                    <h3 className={`text-xl font-heading font-semibold mb-2 ${isDark ? 'text-gray-200' : 'text-dark-tea'}`}>{event.name}</h3>
+                    <p className={`${isDark ? 'text-gray-300' : 'text-dark-tea'}`}>{event.description}</p>
                   </div>
                 </div>
               ))}
@@ -111,11 +115,11 @@ const Catering: React.FC = () => {
           </div>
           
           <div className="relative">
-            <div className="bg-secondary-tea rounded-lg shadow-xl overflow-hidden">
+            <div className="rounded-xl shadow-xl overflow-hidden">
               <img 
                 src="https://images.unsplash.com/photo-1559056199-641a0ac8b55e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=774&q=80" 
                 alt="Catering Service" 
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
               />
             </div>
             <div className="absolute -bottom-6 -right-6 bg-primary-tea text-cream p-6 rounded-lg shadow-lg">

@@ -2,8 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { useToast } from '../context/ToastContext';
 import { submitContactForm } from '../services/contactService';
 import { getHomePageContentBySection, HomePageContent } from '../services/homeContentService';
+import { useTheme } from '../context/ThemeContext';
+import ScrollReveal from '../components/ScrollReveal';
 
 const Contact: React.FC = () => {
+  const { theme } = useTheme();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -14,6 +17,8 @@ const Contact: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [content, setContent] = useState<HomePageContent | null>(null);
   const toast = useToast();
+
+  const isDark = theme === 'dark';
 
   // Fetch contact content from database
   useEffect(() => {
@@ -96,20 +101,23 @@ const Contact: React.FC = () => {
   const mapUrl = String(settings.mapUrl || defaultContent.settings.mapUrl);
 
   return (
-    <div className="section-padding bg-cream">
+    <div className={`section-padding ${isDark ? 'bg-gray-900' : 'bg-cream'} transition-colors duration-300`}>
       <div className="container mx-auto px-4">
-        <div className="text-center mb-16">
-          <h1 className="text-4xl md:text-5xl font-heading font-bold mb-4 text-primary-tea">{displayContent.title}</h1>
-          <div className="w-20 h-1 bg-accent-tea mx-auto mb-6"></div>
-          <p className="text-xl text-dark-tea max-w-3xl mx-auto">
-            {displayContent.subtitle}
-          </p>
-        </div>
+        <ScrollReveal direction="down">
+          <div className="text-center mb-16">
+            <h1 className={`text-4xl md:text-5xl font-heading font-bold mb-4 ${isDark ? 'text-amber-400' : 'text-primary-tea'}`}>{displayContent.title}</h1>
+            <div className="w-20 h-1 bg-accent-tea mx-auto mb-6"></div>
+            <p className={`text-xl max-w-3xl mx-auto ${isDark ? 'text-gray-300' : 'text-dark-tea'}`}>
+              {displayContent.subtitle}
+            </p>
+          </div>
+        </ScrollReveal>
         
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-          <div>
-            <div className="card p-8 mb-8 bg-white">
-              <h2 className="text-2xl font-heading font-semibold mb-6 text-primary-tea">Contact Information</h2>
+          <ScrollReveal direction="left">
+            <div>
+              <div className={`card p-8 mb-8 ${isDark ? 'bg-gray-800 border-gray-700' : 'bg-white'}`}>
+                <h2 className={`text-2xl font-heading font-semibold mb-6 ${isDark ? 'text-amber-400' : 'text-primary-tea'}`}>Contact Information</h2>
               
               <div className="space-y-6">
                 <div className="flex items-start">
@@ -120,8 +128,8 @@ const Contact: React.FC = () => {
                     </svg>
                   </div>
                   <div>
-                    <h3 className="text-xl font-heading font-semibold mb-2">Address</h3>
-                    <p className="text-dark-tea">{settings.address}</p>
+                    <h3 className={`text-xl font-heading font-semibold mb-2 ${isDark ? 'text-amber-400' : ''}`}>Address</h3>
+                    <p className={isDark ? 'text-gray-300' : 'text-dark-tea'}>{settings.address}</p>
                   </div>
                 </div>
                 
@@ -132,8 +140,8 @@ const Contact: React.FC = () => {
                     </svg>
                   </div>
                   <div>
-                    <h3 className="text-xl font-heading font-semibold mb-2">Phone</h3>
-                    <p className="text-dark-tea">{settings.phone}</p>
+                    <h3 className={`text-xl font-heading font-semibold mb-2 ${isDark ? 'text-amber-400' : ''}`}>Phone</h3>
+                    <p className={isDark ? 'text-gray-300' : 'text-dark-tea'}>{settings.phone}</p>
                   </div>
                 </div>
                 
@@ -144,8 +152,8 @@ const Contact: React.FC = () => {
                     </svg>
                   </div>
                   <div>
-                    <h3 className="text-xl font-heading font-semibold mb-2">Email</h3>
-                    <p className="text-dark-tea">{settings.email}</p>
+                    <h3 className={`text-xl font-heading font-semibold mb-2 ${isDark ? 'text-amber-400' : ''}`}>Email</h3>
+                    <p className={isDark ? 'text-gray-300' : 'text-dark-tea'}>{settings.email}</p>
                   </div>
                 </div>
                 
@@ -156,19 +164,19 @@ const Contact: React.FC = () => {
                     </svg>
                   </div>
                   <div>
-                    <h3 className="text-xl font-heading font-semibold mb-2">Opening Hours</h3>
+                    <h3 className={`text-xl font-heading font-semibold mb-2 ${isDark ? 'text-amber-400' : ''}`}>Opening Hours</h3>
                     <div className="space-y-1">
-                      <p className="text-dark-tea flex justify-between"><span>Mon-Fri:</span> <span>{settings.mondayFriday}</span></p>
-                      <p className="text-dark-tea flex justify-between"><span>Saturday:</span> <span>{settings.saturday}</span></p>
-                      <p className="text-dark-tea flex justify-between"><span>Sunday:</span> <span>{settings.sunday}</span></p>
-                      <p className="text-dark-tea flex justify-between"><span>Half-Holidays:</span> <span>{settings.halfHolidays}</span></p>
+                      <p className={`${isDark ? 'text-gray-300' : 'text-dark-tea'} flex justify-between`}><span>Mon-Fri:</span> <span>{settings.mondayFriday}</span></p>
+                      <p className={`${isDark ? 'text-gray-300' : 'text-dark-tea'} flex justify-between`}><span>Saturday:</span> <span>{settings.saturday}</span></p>
+                      <p className={`${isDark ? 'text-gray-300' : 'text-dark-tea'} flex justify-between`}><span>Sunday:</span> <span>{settings.sunday}</span></p>
+                      <p className={`${isDark ? 'text-gray-300' : 'text-dark-tea'} flex justify-between`}><span>Half-Holidays:</span> <span>{settings.halfHolidays}</span></p>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
             
-            <div className="rounded-lg overflow-hidden shadow-xl h-80">
+            <div className="rounded-xl overflow-hidden shadow-xl h-80">
               <iframe 
                 src={mapUrl}
                 width="100%" 
@@ -181,63 +189,65 @@ const Contact: React.FC = () => {
               ></iframe>
             </div>
           </div>
+          </ScrollReveal>
           
-          <div>
-            <div className="card p-8 bg-white">
-              <h2 className="text-2xl font-heading font-semibold mb-6 text-primary-tea">Send Message</h2>
+          <ScrollReveal direction="right">
+            <div>
+              <div className={`card p-8 ${isDark ? 'bg-gray-800 border-gray-700' : 'bg-white'}`}>
+                <h2 className={`text-2xl font-heading font-semibold mb-6 ${isDark ? 'text-amber-400' : 'text-primary-tea'}`}>Send Message</h2>
               
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
-                  <label htmlFor="name" className="block text-dark-tea mb-2">Your Name</label>
+                  <label htmlFor="name" className={`block ${isDark ? 'text-gray-300' : 'text-dark-tea'} mb-2`}>Your Name</label>
                   <input
                     type="text"
                     id="name"
                     name="name"
                     value={formData.name}
                     onChange={handleChange}
-                    className="w-full px-4 py-3 border border-secondary-tea rounded-md focus:outline-none focus:ring-2 focus:ring-primary-tea bg-cream"
+                    className={`w-full px-4 py-3 border border-secondary-tea rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-tea transition-all duration-200 ${isDark ? 'bg-gray-700 text-white border-gray-600' : 'bg-cream'}`}
                     placeholder="Your Name"
                     required
                   />
                 </div>
                 
                 <div>
-                  <label htmlFor="email" className="block text-dark-tea mb-2">Your Email</label>
+                  <label htmlFor="email" className={`block ${isDark ? 'text-gray-300' : 'text-dark-tea'} mb-2`}>Your Email</label>
                   <input
                     type="email"
                     id="email"
                     name="email"
                     value={formData.email}
                     onChange={handleChange}
-                    className="w-full px-4 py-3 border border-secondary-tea rounded-md focus:outline-none focus:ring-2 focus:ring-primary-tea bg-cream"
+                    className={`w-full px-4 py-3 border border-secondary-tea rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-tea transition-all duration-200 ${isDark ? 'bg-gray-700 text-white border-gray-600' : 'bg-cream'}`}
                     placeholder="Your Email"
                     required
                   />
                 </div>
                 
                 <div>
-                  <label htmlFor="subject" className="block text-dark-tea mb-2">Subject</label>
+                  <label htmlFor="subject" className={`block ${isDark ? 'text-gray-300' : 'text-dark-tea'} mb-2`}>Subject</label>
                   <input
                     type="text"
                     id="subject"
                     name="subject"
                     value={formData.subject}
                     onChange={handleChange}
-                    className="w-full px-4 py-3 border border-secondary-tea rounded-md focus:outline-none focus:ring-2 focus:ring-primary-tea bg-cream"
+                    className={`w-full px-4 py-3 border border-secondary-tea rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-tea transition-all duration-200 ${isDark ? 'bg-gray-700 text-white border-gray-600' : 'bg-cream'}`}
                     placeholder="Subject"
                     required
                   />
                 </div>
                 
                 <div>
-                  <label htmlFor="message" className="block text-dark-tea mb-2">Message</label>
+                  <label htmlFor="message" className={`block ${isDark ? 'text-gray-300' : 'text-dark-tea'} mb-2`}>Message</label>
                   <textarea
                     id="message"
                     name="message"
                     value={formData.message}
                     onChange={handleChange}
                     rows={5}
-                    className="w-full px-4 py-3 border border-secondary-tea rounded-md focus:outline-none focus:ring-2 focus:ring-primary-tea bg-cream"
+                    className={`w-full px-4 py-3 border border-secondary-tea rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-tea transition-all duration-200 ${isDark ? 'bg-gray-700 text-white border-gray-600' : 'bg-cream'}`}
                     placeholder="Message"
                     required
                   ></textarea>
@@ -245,7 +255,7 @@ const Contact: React.FC = () => {
                 
                 <button 
                   type="submit" 
-                  className="btn-primary w-full py-3 rounded-none hover:bg-dark-tea transition duration-300"
+                  className={`w-full py-3 rounded-lg hover:bg-dark-tea transition duration-300 ${isDark ? 'bg-amber-500 hover:bg-amber-600 text-gray-900' : ''}`}
                   disabled={loading}
                 >
                   {loading ? (
@@ -261,6 +271,7 @@ const Contact: React.FC = () => {
               </form>
             </div>
           </div>
+          </ScrollReveal>
         </div>
       </div>
     </div>

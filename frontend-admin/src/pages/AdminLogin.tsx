@@ -36,9 +36,14 @@ const AdminLogin: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-cream flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md">
+    <div className="min-h-screen bg-gradient-to-br from-primary-tea via-dark-tea to-secondary-tea flex items-center justify-center p-4">
+      <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md transform transition-all">
         <div className="text-center mb-8">
+          <div className="w-16 h-16 bg-primary-tea rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg className="w-8 h-8 text-cream" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+            </svg>
+          </div>
           <h1 className="text-3xl font-heading font-bold text-primary-tea mb-2">
             Admin Login
           </h1>
@@ -89,7 +94,7 @@ const AdminLogin: React.FC = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-primary-tea text-white py-3 px-4 rounded-lg font-medium hover:bg-opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full bg-primary-tea text-white py-3 px-4 rounded-lg font-medium hover:bg-dark-tea transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed transform hover:shadow-lg"
           >
             {loading ? 'Signing in...' : 'Sign In'}
           </button>

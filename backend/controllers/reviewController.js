@@ -258,8 +258,8 @@ exports.updateReview = async (req, res) => {
       });
     }
 
-    // Check ownership
-    if (review.user.toString() !== req.user.id) {
+    // Check ownership (guest reviews can't be updated by authenticated users)
+    if (!review.user || review.user.toString() !== req.user.id) {
       return res.status(403).json({
         success: false,
         message: 'You can only update your own reviews'
@@ -305,8 +305,8 @@ exports.deleteReview = async (req, res) => {
       });
     }
 
-    // Check ownership
-    if (review.user.toString() !== req.user.id) {
+    // Check ownership (guest reviews can't be deleted by authenticated users)
+    if (!review.user || review.user.toString() !== req.user.id) {
       return res.status(403).json({
         success: false,
         message: 'You can only delete your own reviews'

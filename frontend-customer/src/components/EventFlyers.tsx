@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { format } from 'date-fns';
 import api from '../utils/axios';
+import { useTheme } from '../context/ThemeContext';
 
 interface EventFlyer {
   _id: string;
@@ -19,6 +20,8 @@ const EventFlyers: React.FC = () => {
   const [flyers, setFlyers] = useState<EventFlyer[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
 
   useEffect(() => {
     const fetchFlyers = async () => {
@@ -41,7 +44,7 @@ const EventFlyers: React.FC = () => {
       <section className="section-padding bg-cream">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="text-4xl font-heading font-bold text-primary-tea mb-4">Upcoming Events</h2>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-heading font-bold text-primary-tea mb-4">Upcoming Events</h2>
             <p className="text-secondary-tea">Check out our upcoming events and exciting happenings!</p>
           </div>
           <div className="flex justify-center">
@@ -57,7 +60,7 @@ const EventFlyers: React.FC = () => {
       <section className="section-padding bg-cream">
         <div className="container mx-auto px-4">
           <div className="text-center">
-            <h2 className="text-4xl font-heading font-bold text-primary-tea mb-4">Upcoming Events</h2>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-heading font-bold text-primary-tea mb-4">Upcoming Events</h2>
             <p className="text-red-500">{error}</p>
           </div>
         </div>
@@ -70,18 +73,18 @@ const EventFlyers: React.FC = () => {
   }
 
   return (
-    <section className="section-padding bg-cream">
+    <section className={`section-padding transition-colors duration-300 ${isDark ? 'bg-gray-900' : 'bg-cream'}`}>
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
-          <h2 className="text-4xl font-heading font-bold text-primary-tea mb-4">Upcoming Events</h2>
-          <p className="text-secondary-tea">Check out our upcoming events and exciting happenings!</p>
+          <h2 className={`text-2xl sm:text-3xl md:text-4xl font-heading font-bold mb-4 ${isDark ? 'text-amber-400' : 'text-primary-tea'}`}>Upcoming Events</h2>
+          <p className={isDark ? 'text-gray-300' : 'text-secondary-tea'}>Check out our upcoming events and exciting happenings!</p>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {flyers.map((flyer) => (
             <div 
               key={flyer._id} 
-              className="bg-white rounded-xl shadow-lg overflow-hidden border border-secondary-tea hover:shadow-xl transition-shadow duration-300"
+              className={`rounded-xl shadow-lg overflow-hidden border hover:shadow-xl transition-all duration-300 hover:-translate-y-1 ${isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-secondary-tea'}`}
             >
               <div className="relative">
                 <img 
@@ -102,8 +105,8 @@ const EventFlyers: React.FC = () => {
               </div>
               
               <div className="p-6">
-                <h3 className="font-heading font-bold text-xl text-dark-tea mb-2">{flyer.title}</h3>
-                <p className="text-secondary-tea mb-4 line-clamp-2">{flyer.description}</p>
+                <h3 className={`font-heading font-bold text-xl mb-2 ${isDark ? 'text-gray-100' : 'text-dark-tea'}`}>{flyer.title}</h3>
+                <p className={`mb-4 line-clamp-2 ${isDark ? 'text-gray-300' : 'text-secondary-tea'}`}>{flyer.description}</p>
                 
                 {flyer.location && (
                   <div className="flex items-center text-secondary-tea mb-4">

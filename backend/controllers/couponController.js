@@ -36,8 +36,7 @@ exports.createCoupon = async (req, res) => {
     console.error('Error creating coupon:', error);
     res.status(500).json({
       success: false,
-      message: 'Error creating coupon',
-      error: error.message
+      message: 'Error creating coupon'
     });
   }
 };
@@ -58,8 +57,7 @@ exports.getCoupons = async (req, res) => {
     console.error('Error fetching coupons:', error);
     res.status(500).json({
       success: false,
-      message: 'Error fetching coupons',
-      error: error.message
+      message: 'Error fetching coupons'
     });
   }
 };
@@ -84,8 +82,7 @@ exports.getActiveCoupons = async (req, res) => {
     console.error('Error fetching active coupons:', error);
     res.status(500).json({
       success: false,
-      message: 'Error fetching active coupons',
-      error: error.message
+      message: 'Error fetching active coupons'
     });
   }
 };
@@ -112,8 +109,7 @@ exports.getCoupon = async (req, res) => {
     console.error('Error fetching coupon:', error);
     res.status(500).json({
       success: false,
-      message: 'Error fetching coupon',
-      error: error.message
+      message: 'Error fetching coupon'
     });
   }
 };
@@ -168,8 +164,7 @@ exports.updateCoupon = async (req, res) => {
     console.error('Error updating coupon:', error);
     res.status(500).json({
       success: false,
-      message: 'Error updating coupon',
-      error: error.message
+      message: 'Error updating coupon'
     });
   }
 };
@@ -198,8 +193,7 @@ exports.deleteCoupon = async (req, res) => {
     console.error('Error deleting coupon:', error);
     res.status(500).json({
       success: false,
-      message: 'Error deleting coupon',
-      error: error.message
+      message: 'Error deleting coupon'
     });
   }
 };
@@ -279,8 +273,7 @@ exports.validateCoupon = async (req, res) => {
     console.error('Error validating coupon:', error);
     res.status(500).json({
       success: false,
-      message: 'Error validating coupon',
-      error: error.message
+      message: 'Error validating coupon'
     });
   }
 };
@@ -312,8 +305,7 @@ exports.applyCoupon = async (req, res) => {
     console.error('Error applying coupon:', error);
     res.status(500).json({
       success: false,
-      message: 'Error applying coupon',
-      error: error.message
+      message: 'Error applying coupon'
     });
   }
 };

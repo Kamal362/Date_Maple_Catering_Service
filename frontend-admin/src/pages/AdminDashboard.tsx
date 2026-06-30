@@ -47,7 +47,6 @@ const AdminDashboard: React.FC = () => {
     const userStr = localStorage.getItem('user');
     
     if (!token || !userStr) {
-      console.log('AdminDashboard: No authentication found, redirecting to admin login');
       window.location.href = '/admin-login';
       return;
     }
@@ -55,13 +54,11 @@ const AdminDashboard: React.FC = () => {
     try {
       const user = JSON.parse(userStr);
       if (user.role !== 'admin') {
-        console.log('AdminDashboard: Non-admin user detected, redirecting to home');
         window.location.href = '/';
         return;
       }
-      console.log('AdminDashboard: Authentication verified for admin user:', user.email);
     } catch (error) {
-      console.error('AdminDashboard: Error parsing user data, redirecting to admin login');
+      console.error('Error parsing user data, redirecting to admin login');
       window.location.href = '/admin-login';
     }
   }, []);
@@ -145,8 +142,8 @@ const AdminDashboard: React.FC = () => {
   // Fetch overview data (orders and events)
   useEffect(() => {
     const fetchOverviewData = async () => {
+      // Fetch orders independently
       try {
-        // Fetch recent orders
         const orderData = await getOrders();
         const sortedOrders = orderData
           .sort((a: Order, b: Order) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
@@ -164,17 +161,20 @@ const AdminDashboard: React.FC = () => {
           pendingOrders,
           totalCustomers: uniqueCustomers
         });
-        
-        // Fetch upcoming events
+      } catch (err) {
+        console.error('Error fetching orders for overview:', err);
+      }
+      
+      // Fetch events independently
+      try {
         const eventData = await getEvents();
         const upcomingEvents = eventData
           .filter((event: Event) => new Date(event.eventDate) >= new Date())
           .sort((a: Event, b: Event) => new Date(a.eventDate).getTime() - new Date(b.eventDate).getTime())
           .slice(0, 5);
         setRecentEvents(upcomingEvents);
-        
       } catch (err) {
-        console.error('Error fetching overview data:', err);
+        console.error('Error fetching events for overview:', err);
       }
     };
 
@@ -293,13 +293,10 @@ const AdminDashboard: React.FC = () => {
   };
 
   const toggleMenuItemAvailability = async (item: MenuItemType) => {
-    console.log('Toggling availability for item:', item);
     try {
-      console.log('Sending update request for item ID:', item.id);
       const updatedItem = await updateMenuItem(item.id || '', { 
         available: !item.available 
       });
-      console.log('Received updated item:', updatedItem);
       
       // Update the local state
       setMenuItems(menuItems.map(menuItem => 
@@ -310,8 +307,6 @@ const AdminDashboard: React.FC = () => {
       if (editingMenuItem && editingMenuItem.id === item.id) {
         setEditingMenuItem({ ...editingMenuItem, available: updatedItem.available });
       }
-      
-      console.log('Successfully updated menu item availability');
     } catch (err) {
       console.error('Error toggling menu item availability:', err);
       
@@ -438,18 +433,11 @@ const AdminDashboard: React.FC = () => {
     });
     setDeleteAction(() => async () => {
       try {
-        console.log('Attempting to delete order with ID:', orderId);
-        
         // Call the delete API
-        const response = await deleteOrder(orderId);
-        console.log('Delete API response:', response);
+        await deleteOrder(orderId);
         
         // Remove the order from state
-        setOrders(prevOrders => {
-          const updatedOrders = prevOrders.filter(order => order._id !== orderId);
-          console.log('Orders after filtering:', updatedOrders.length, 'remaining');
-          return updatedOrders;
-        });
+        setOrders(prevOrders => prevOrders.filter(order => order._id !== orderId));
         
         // Show success modal
         setSuccessModalConfig({
@@ -460,15 +448,11 @@ const AdminDashboard: React.FC = () => {
         
         // Optionally refresh the data to ensure consistency
         if (activeTab === 'paymentProofs') {
-          console.log('Refreshing orders data...');
           const updatedOrders = await getOrders();
           setOrders(updatedOrders);
-          console.log('Orders refreshed, new count:', updatedOrders.length);
         }
       } catch (err: any) {
         console.error('Error deleting payment proof:', err);
-        console.error('Full error object:', err);
-        console.error('Error response:', err.response);
         
         let errorMessage = 'Failed to delete payment proof';
         if (err.response?.data?.message) {
@@ -568,7 +552,7 @@ const AdminDashboard: React.FC = () => {
       <div className="container mx-auto px-4 py-6">
         <div className="flex flex-wrap justify-between items-center mb-6">
           <h1 className="text-2xl font-heading font-bold text-primary-tea">Admin Dashboard</h1>
-          <div className="flex space-x-2 items-center">
+          <div className="flex flex-wrap gap-2 items-center">
             <ThemeToggle />
             <button 
               onClick={handleAddMenuItem}
@@ -893,7 +877,7 @@ const AdminDashboard: React.FC = () => {
                           </span>
                         )}
                       </div>
-                      <div className="max-h-96 overflow-y-auto">
+                      <div className="overflow-x-auto max-h-96 overflow-y-auto">
                         <table className="w-full text-sm">
                           <thead className="sticky top-0 bg-cream z-10">
                             <tr className="border-b border-secondary-tea">

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { getHomePageContentBySection, HomePageContent } from '../services/homeContentService';
 import { useTheme } from '../context/ThemeContext';
+import ScrollReveal from '../components/ScrollReveal';
 
 // Fallback static team members used if no content saved by admin yet
 const FALLBACK_TEAM = [
@@ -130,22 +131,25 @@ const About: React.FC = () => {
   ];
 
   return (
-    <div className={`section-padding ${pageBg} min-h-screen`}>
+    <div className={`section-padding ${pageBg} min-h-screen transition-colors duration-300`}>
       <div className="container mx-auto px-4">
         {/* Hero header */}
-        <div className="text-center mb-16">
-          <h1 className={`text-4xl md:text-5xl font-heading font-bold mb-4 ${headingColor}`}>{pageTitle}</h1>
-          <div className="w-20 h-1 bg-accent-tea mx-auto mb-6"></div>
-          <p className={`text-xl max-w-3xl mx-auto ${textColor}`}>{pageTagline}</p>
-        </div>
+        <ScrollReveal direction="down">
+          <div className="text-center mb-16">
+            <h1 className={`text-4xl md:text-5xl font-heading font-bold mb-4 ${headingColor}`}>{pageTitle}</h1>
+            <div className="w-20 h-1 bg-accent-tea mx-auto mb-6"></div>
+            <p className={`text-xl max-w-3xl mx-auto ${textColor}`}>{pageTagline}</p>
+          </div>
+        </ScrollReveal>
 
         {/* About + Stats */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-16">
+        <ScrollReveal direction="up">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-16">
           <div>
             <h2 className={`text-3xl font-heading font-bold mb-6 ${headingColor}`}>{aboutHeading}</h2>
             <p className={`${textColor} mb-6`}>{aboutParagraph1}</p>
             <p className={`${textColor} mb-6`}>{aboutParagraph2}</p>
-            <div className={`grid grid-cols-${Math.min(stats.length, 3)} gap-4 mt-8`}>
+            <div className={`grid ${stats.length <= 2 ? 'grid-cols-2' : 'grid-cols-3'} gap-4 mt-8`}>
               {stats.map((stat, index) => (
                 <div key={index} className="text-center">
                   <h3 className={`text-2xl md:text-3xl font-heading font-bold ${headingColor}`}>{stat.value}</h3>
@@ -154,7 +158,7 @@ const About: React.FC = () => {
               ))}
             </div>
           </div>
-          <div className="rounded-lg overflow-hidden shadow-xl">
+          <div className="rounded-xl overflow-hidden shadow-xl hover:shadow-2xl transition-shadow duration-300">
             <img
               src={sideImage}
               alt="Date&Maple Café"
@@ -163,14 +167,16 @@ const About: React.FC = () => {
             />
           </div>
         </div>
+        </ScrollReveal>
 
         {/* Values */}
-        <div className="mb-16">
+        <ScrollReveal direction="up">
+          <div className="mb-16">
           <h2 className={`text-3xl font-heading font-bold mb-12 text-center ${headingColor}`}>{valuesTitle}</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {valueItems.map((value, index) => (
-              <div key={index} className={`${cardBg} border rounded-xl text-center p-8 shadow-sm`}>
-                <div className="w-16 h-16 bg-primary-tea bg-opacity-10 rounded-full flex items-center justify-center mx-auto mb-6">
+              <div key={index} className={`${cardBg} border rounded-xl text-center p-8 shadow-sm hover:shadow-lg transition-all duration-300 card-elevated`}>
+                <div className="w-16 h-16 bg-primary-tea bg-opacity-10 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
                   {value.icon ? (
                     <span className="text-3xl">{value.icon}</span>
                   ) : (
@@ -183,9 +189,11 @@ const About: React.FC = () => {
             ))}
           </div>
         </div>
+        </ScrollReveal>
 
         {/* Meet Our Team */}
-        <div className={`${cardBg} border rounded-2xl p-8 shadow-sm`}>
+        <ScrollReveal direction="up">
+          <div className={`${cardBg} border rounded-2xl p-8 shadow-sm`}>
           <div className="text-center mb-10">
             <h2 className={`text-3xl font-heading font-bold mb-3 ${headingColor}`}>{teamTitle}</h2>
             <div className="w-16 h-1 bg-accent-tea mx-auto"></div>
@@ -254,6 +262,7 @@ const About: React.FC = () => {
             </div>
           )}
         </div>
+        </ScrollReveal>
       </div>
     </div>
   );

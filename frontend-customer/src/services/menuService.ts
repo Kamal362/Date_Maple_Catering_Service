@@ -6,6 +6,10 @@ const transformMenuItem = (item: any): MenuItem => {
   return {
     ...item,
     id: item._id || item.id, // Use _id from MongoDB or existing id
+    price: typeof item.price === 'number' ? item.price : parseFloat(item.price) || 0,
+    name: item.name || 'Unnamed Item',
+    description: item.description || '',
+    category: item.category || 'uncategorized',
   };
 };
 
@@ -96,7 +100,7 @@ export const updateMenuItem = async (id: string, updates: Partial<MenuItem>): Pr
     // Create a new axios instance for FormData
     const formDataAxios = axiosInstance;
     
-    const response = await formDataAxios.put(`/api/menu/${id}`, formData, {
+    const response = await formDataAxios.put(`/menu/${id}`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
@@ -105,13 +109,13 @@ export const updateMenuItem = async (id: string, updates: Partial<MenuItem>): Pr
     return response.data.data;
   } else {
     // Regular JSON request
-    const response = await axiosInstance.put(`/api/menu/${id}`, updates);
+    const response = await axiosInstance.put(`/menu/${id}`, updates);
     return response.data.data;
   }
 };
 
 // Delete a menu item
 export const deleteMenuItem = async (id: string): Promise<void> => {
-  const response = await axiosInstance.delete(`/api/menu/${id}`);
+  const response = await axiosInstance.delete(`/menu/${id}`);
   return response.data.data;
 };

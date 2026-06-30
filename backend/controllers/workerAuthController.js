@@ -68,8 +68,7 @@ exports.workerLogin = async (req, res) => {
     console.error('Worker login error:', error);
     res.status(500).json({
       success: false,
-      message: 'Login failed',
-      error: error.message
+      message: 'Login failed'
     });
   }
 };
@@ -100,8 +99,7 @@ exports.getWorkerProfile = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Server error',
-      error: error.message
+      message: 'Server error'
     });
   }
 };
@@ -156,8 +154,7 @@ exports.workerRegister = async (req, res) => {
     console.error('Worker registration error:', error);
     res.status(500).json({
       success: false,
-      message: 'Server error',
-      error: error.message
+      message: 'Server error'
     });
   }
 };

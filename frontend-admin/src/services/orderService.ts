@@ -79,7 +79,7 @@ export const createOrder = async (formData: FormData): Promise<{success: boolean
 export const getOrders = async (): Promise<Order[]> => {
   try {
     const response = await apiClient.get('/orders');
-    return response.data.data;
+    return Array.isArray(response.data.data) ? response.data.data : [];
   } catch (error) {
     console.error('Error fetching orders:', error);
     throw error;

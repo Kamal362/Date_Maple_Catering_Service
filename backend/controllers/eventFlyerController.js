@@ -5,7 +5,7 @@ const path = require('path');
 // Configure multer for file uploads
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, 'uploads/');
+    cb(null, path.join(__dirname, '..', 'uploads'));
   },
   filename: (req, file, cb) => {
     // Generate unique filename
@@ -55,11 +55,12 @@ exports.uploadEventFlyer = [
         });
       }
 
-      // Create event flyer
+      // Create event flyer - store URL path, not filesystem path
+      const flyerImageUrl = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
       const eventFlyer = await EventFlyer.create({
         title,
         description: description || '',
-        flyerImage: req.file.path, // Store the file path
+        flyerImage: flyerImageUrl,
         eventDate: eventDate ? new Date(eventDate) : undefined,
         location: location || '',
         priority: priority ? parseInt(priority) : 0
@@ -73,8 +74,7 @@ exports.uploadEventFlyer = [
       console.error('Upload event flyer error:', error);
       res.status(500).json({
         success: false,
-        message: 'Server error',
-        error: error.message
+        message: 'Server error'
       });
     }
   }
@@ -97,8 +97,7 @@ exports.getEventFlyers = async (req, res) => {
     console.error('Get event flyers error:', error);
     res.status(500).json({
       success: false,
-      message: 'Server error',
-      error: error.message
+      message: 'Server error'
     });
   }
 };
@@ -132,8 +131,7 @@ exports.getEventFlyer = async (req, res) => {
     console.error('Get event flyer error:', error);
     res.status(500).json({
       success: false,
-      message: 'Server error',
-      error: error.message
+      message: 'Server error'
     });
   }
 };
@@ -155,9 +153,9 @@ exports.updateEventFlyer = [
       if (priority) updateData.priority = parseInt(priority);
       if (isActive !== undefined) updateData.isActive = isActive === 'true' || isActive === true;
 
-      // If a new flyer image was uploaded, update the path
+      // If a new flyer image was uploaded, update with URL path
       if (req.file) {
-        updateData.flyerImage = req.file.path;
+        updateData.flyerImage = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
       }
 
       const eventFlyer = await EventFlyer.findByIdAndUpdate(
@@ -184,8 +182,7 @@ exports.updateEventFlyer = [
       console.error('Update event flyer error:', error);
       res.status(500).json({
         success: false,
-        message: 'Server error',
-        error: error.message
+        message: 'Server error'
       });
     }
   }
@@ -213,8 +210,7 @@ exports.deleteEventFlyer = async (req, res) => {
     console.error('Delete event flyer error:', error);
     res.status(500).json({
       success: false,
-      message: 'Server error',
-      error: error.message
+      message: 'Server error'
     });
   }
 };

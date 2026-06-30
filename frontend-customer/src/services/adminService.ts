@@ -54,7 +54,7 @@ export const getAdminStats = async () => {
 
 export const getRecentOrders = async () => {
   try {
-    const response = await apiClient.get('/admin/orders/recent');
+    const response = await apiClient.get('/orders');
     return response.data;
   } catch (error) {
     console.error('Error fetching recent orders:', error);
@@ -64,7 +64,7 @@ export const getRecentOrders = async () => {
 
 export const getRecentEvents = async () => {
   try {
-    const response = await apiClient.get('/admin/events/recent');
+    const response = await apiClient.get('/events');
     return response.data;
   } catch (error) {
     console.error('Error fetching recent events:', error);

@@ -2,8 +2,11 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { register } from '../services/authService';
 import { useToast } from '../context/ToastContext';
+import { useTheme } from '../context/ThemeContext';
 
 const ClientRegister: React.FC = () => {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -101,21 +104,26 @@ const ClientRegister: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-cream flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md">
+    <div className={`min-h-screen ${isDark ? 'bg-gray-900' : 'bg-cream'} flex items-center justify-center p-4 transition-colors duration-300`}>
+      <div className={`${isDark ? 'bg-gray-800 border border-gray-700' : 'bg-white'} rounded-2xl shadow-xl p-8 w-full max-w-md animate-fade-in-up`}>
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-heading font-bold text-primary-tea mb-2">
+          <div className="w-16 h-16 bg-primary-tea rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg className="w-8 h-8 text-cream" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
+            </svg>
+          </div>
+          <h1 className={`text-3xl font-heading font-bold ${isDark ? 'text-amber-400' : 'text-primary-tea'} mb-2`}>
             Create Account
           </h1>
-          <p className="text-gray-600">
+          <p className={isDark ? 'text-gray-400' : 'text-gray-600'}>
             Join us for the best coffee experience
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="firstName" className={`block text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'} mb-2`}>
                 First Name
               </label>
               <input
@@ -124,8 +132,8 @@ const ClientRegister: React.FC = () => {
                 name="firstName"
                 value={formData.firstName}
                 onChange={handleChange}
-                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary-tea focus:border-transparent transition ${
-                  errors.firstName ? 'border-red-500' : 'border-gray-300'
+                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary-tea focus:border-transparent transition-all duration-200 ${
+                  errors.firstName ? 'border-red-500' : isDark ? 'border-gray-600 bg-gray-700 text-white' : 'border-gray-300'
                 }`}
                 placeholder="First name"
               />
@@ -135,7 +143,7 @@ const ClientRegister: React.FC = () => {
             </div>
 
             <div>
-              <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="lastName" className={`block text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'} mb-2`}>
                 Last Name
               </label>
               <input
@@ -144,8 +152,8 @@ const ClientRegister: React.FC = () => {
                 name="lastName"
                 value={formData.lastName}
                 onChange={handleChange}
-                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary-tea focus:border-transparent transition ${
-                  errors.lastName ? 'border-red-500' : 'border-gray-300'
+                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary-tea focus:border-transparent transition-all duration-200 ${
+                  errors.lastName ? 'border-red-500' : isDark ? 'border-gray-600 bg-gray-700 text-white' : 'border-gray-300'
                 }`}
                 placeholder="Last name"
               />
@@ -156,7 +164,7 @@ const ClientRegister: React.FC = () => {
           </div>
 
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="email" className={`block text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'} mb-2`}>
               Email Address
             </label>
             <input
@@ -165,8 +173,8 @@ const ClientRegister: React.FC = () => {
               name="email"
               value={formData.email}
               onChange={handleChange}
-              className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary-tea focus:border-transparent transition ${
-                errors.email ? 'border-red-500' : 'border-gray-300'
+              className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary-tea focus:border-transparent transition-all duration-200 ${
+                errors.email ? 'border-red-500' : isDark ? 'border-gray-600 bg-gray-700 text-white' : 'border-gray-300'
               }`}
               placeholder="Enter your email"
             />
@@ -176,7 +184,7 @@ const ClientRegister: React.FC = () => {
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="password" className={`block text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'} mb-2`}>
               Password
             </label>
             <input
@@ -185,8 +193,8 @@ const ClientRegister: React.FC = () => {
               name="password"
               value={formData.password}
               onChange={handleChange}
-              className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary-tea focus:border-transparent transition ${
-                errors.password ? 'border-red-500' : 'border-gray-300'
+              className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary-tea focus:border-transparent transition-all duration-200 ${
+                errors.password ? 'border-red-500' : isDark ? 'border-gray-600 bg-gray-700 text-white' : 'border-gray-300'
               }`}
               placeholder="Create a password"
             />
@@ -196,7 +204,7 @@ const ClientRegister: React.FC = () => {
           </div>
 
           <div>
-            <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="confirmPassword" className={`block text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'} mb-2`}>
               Confirm Password
             </label>
             <input
@@ -205,8 +213,8 @@ const ClientRegister: React.FC = () => {
               name="confirmPassword"
               value={formData.confirmPassword}
               onChange={handleChange}
-              className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary-tea focus:border-transparent transition ${
-                errors.confirmPassword ? 'border-red-500' : 'border-gray-300'
+              className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary-tea focus:border-transparent transition-all duration-200 ${
+                errors.confirmPassword ? 'border-red-500' : isDark ? 'border-gray-600 bg-gray-700 text-white' : 'border-gray-300'
               }`}
               placeholder="Confirm your password"
             />
@@ -216,7 +224,7 @@ const ClientRegister: React.FC = () => {
           </div>
 
           {/* Terms and Privacy Policy Checkbox */}
-          <div className="bg-gray-50 rounded-lg p-4">
+          <div className={`${isDark ? 'bg-gray-700' : 'bg-gray-50'} rounded-lg p-4`}>
             <label className="flex items-start gap-3 cursor-pointer">
               <input
                 type="checkbox"
@@ -229,13 +237,13 @@ const ClientRegister: React.FC = () => {
                 }}
                 className="mt-1 h-4 w-4 text-primary-tea rounded border-gray-300 focus:ring-primary-tea"
               />
-              <span className="text-sm text-gray-600">
+              <span className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
                 I have read and agree to the{' '}
-                <Link to="/terms" className="text-primary-tea hover:underline font-medium" target="_blank">
+                <Link to="/terms" className={`${isDark ? 'text-amber-400' : 'text-primary-tea'} hover:underline font-medium`} target="_blank">
                   Terms of Service
                 </Link>
                 {' '}and{' '}
-                <Link to="/privacy" className="text-primary-tea hover:underline font-medium" target="_blank">
+                <Link to="/privacy" className={`${isDark ? 'text-amber-400' : 'text-primary-tea'} hover:underline font-medium`} target="_blank">
                   Privacy Policy
                 </Link>
               </span>
@@ -254,12 +262,12 @@ const ClientRegister: React.FC = () => {
           </button>
         </form>
 
-        <div className="mt-6 text-center">
-          <p className="text-gray-600">
+        <div className={`mt-6 text-center ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+          <p>
             Already have an account?{' '}
             <Link 
               to="/client-login" 
-              className="text-primary-tea font-medium hover:underline"
+              className={`${isDark ? 'text-amber-400' : 'text-primary-tea'} font-medium hover:underline`}
             >
               Sign in
             </Link>

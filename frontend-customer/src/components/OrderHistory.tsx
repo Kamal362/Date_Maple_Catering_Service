@@ -255,7 +255,9 @@ const OrderHistory: React.FC<OrderHistoryProps> = ({ userId }) => {
                   <div className="flex flex-wrap gap-4 text-sm">
                     <span><span className="font-medium">{order.items.length}</span> items</span>
                     <span className="font-semibold">${order.totalAmount.toFixed(2)}</span>
-                    <span className="capitalize">{order.paymentMethod}</span>
+                    <span className="capitalize">
+                      {order.paymentMethod === 'stripe' ? 'Stripe Card' : order.paymentMethod === 'receipt_upload' ? 'Receipt Upload' : order.paymentMethod}
+                    </span>
                   </div>
                   
                   {/* Items Preview */}

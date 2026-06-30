@@ -3,11 +3,15 @@ import { Link } from 'react-router-dom';
 import { getHomePageContentBySection, HomePageContent } from '../services/homeContentService';
 import { MenuItem } from '../types/menu';
 import { getMenuItems } from '../services/menuService';
+import { useTheme } from '../context/ThemeContext';
 
 const MenuHighlights: React.FC = () => {
   const [content, setContent] = useState<HomePageContent | null>(null);
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
 
   useEffect(() => {
     const fetchData = async () => {
@@ -63,15 +67,15 @@ const MenuHighlights: React.FC = () => {
   const displayContent = content || defaultContent;
 
   return (
-    <section className="section-padding bg-cream py-20">
+    <section className={`section-padding py-20 transition-colors duration-300 ${isDark ? 'bg-gray-900' : 'bg-cream'}`}>
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-heading font-bold mb-4 text-primary-tea">{displayContent.title}</h2>
+          <h2 className={`text-3xl md:text-4xl font-heading font-bold mb-4 ${isDark ? 'text-amber-400' : 'text-primary-tea'}`}>{displayContent.title}</h2>
           <div className="w-20 h-1 bg-accent-tea mx-auto mb-6"></div>
-          <p className="text-lg text-dark-tea max-w-2xl mx-auto">
+          <p className={`text-lg max-w-2xl mx-auto ${isDark ? 'text-gray-300' : 'text-dark-tea'}`}>
             {displayContent.subtitle}
           </p>
-          <Link to="/menu" className="btn-primary inline-block mt-8 px-8 py-3 text-lg font-semibold rounded-none hover:bg-dark-tea transition duration-300">
+          <Link to="/menu" className={`btn-primary inline-block mt-8 px-8 py-3 text-lg font-semibold rounded-lg transition-all duration-300 transform hover:-translate-y-0.5 hover:shadow-lg ${isDark ? 'bg-amber-600 hover:bg-amber-700' : ''}`}>
             {displayContent.buttonText}
           </Link>
         </div>
@@ -87,11 +91,11 @@ const MenuHighlights: React.FC = () => {
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                 />
               </div>
-              <div className="absolute inset-0 bg-gradient-to-t from-primary-tea to-transparent opacity-80"></div>
+              <div className="absolute inset-0 bg-gradient-to-t from-primary-tea/80 to-transparent opacity-80 group-hover:opacity-90 transition-opacity duration-300"></div>
               <div className="absolute bottom-0 left-0 right-0 p-6 text-cream">
                 <div className="flex justify-between items-start mb-2">
                   <h3 className="text-xl font-heading font-semibold">{item.name}</h3>
-                  <span className="text-lg font-bold text-gold">${item.price.toFixed(2)}</span>
+                  <span className="text-lg font-bold text-gold">${(Number(item.price) || 0).toFixed(2)}</span>
                 </div>
                 <p className="text-light-tea mb-4">{item.description}</p>
               </div>

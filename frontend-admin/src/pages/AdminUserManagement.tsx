@@ -109,11 +109,8 @@ const AdminUserManagement: React.FC = () => {
       return;
     }
 
-    console.log('Deleting user:', userToDelete);
-
     try {
       await deleteUser(userToDelete._id);
-      console.log('User deleted successfully');
       setUsers(users.filter(u => u._id !== userToDelete._id));
       setShowDeleteModal(false);
       setSuccessMessage(`User "${userToDelete.firstName} ${userToDelete.lastName}" has been deleted successfully.`);
@@ -148,7 +145,7 @@ const AdminUserManagement: React.FC = () => {
     <div className="section-padding bg-cream min-h-screen">
       <div className="container mx-auto px-4">
         <div className="flex flex-wrap justify-between items-center mb-8">
-          <h1 className="text-4xl font-heading font-bold text-primary-tea">User Management</h1>
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-heading font-bold text-primary-tea">User Management</h1>
           <div className="flex gap-2">
             <button
               onClick={() => setShowCreateModal(true)}
@@ -275,8 +272,8 @@ const AdminUserManagement: React.FC = () => {
 
       {/* Create User Modal */}
       {showCreateModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-cream rounded-lg shadow-xl w-full max-w-md">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-cream rounded-2xl shadow-2xl w-full max-w-md animate-scale-in">
             <div className="p-6">
               <div className="flex justify-between items-center mb-6">
                 <h3 className="text-2xl font-heading font-semibold text-primary-tea">
@@ -393,8 +390,8 @@ const AdminUserManagement: React.FC = () => {
 
       {/* Edit User Modal */}
       {showEditModal && editingUser && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-cream rounded-lg shadow-xl w-full max-w-md">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-cream rounded-2xl shadow-2xl w-full max-w-md animate-scale-in">
             <div className="p-6">
               <div className="flex justify-between items-center mb-6">
                 <h3 className="text-2xl font-heading font-semibold text-primary-tea">
@@ -518,8 +515,8 @@ const AdminUserManagement: React.FC = () => {
 
       {/* Success Modal */}
       {showSuccessModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-cream rounded-lg shadow-xl w-full max-w-md p-6">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-cream rounded-2xl shadow-2xl w-full max-w-md p-6 animate-scale-in">
             <div className="text-center">
               <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 mb-4">
                 <svg className="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">

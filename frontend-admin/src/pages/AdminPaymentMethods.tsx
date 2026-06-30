@@ -148,10 +148,9 @@ const AdminPaymentMethods: React.FC = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-gray-900">Payment Methods</h1>
-      </div>
+    <div className="section-padding bg-cream min-h-screen">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-heading font-bold text-primary-tea mb-6">Payment Methods</h1>
 
       {error && (
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
@@ -160,16 +159,16 @@ const AdminPaymentMethods: React.FC = () => {
       )}
 
       {/* Tabs */}
-      <div className="bg-white rounded-t-lg shadow border-b border-gray-200">
+      <div className="bg-white rounded-t-xl shadow-lg border-b border-secondary-tea">
         <div className="flex flex-wrap">
           {(Object.keys(tabConfig) as TabType[]).map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`px-6 py-4 text-sm font-medium flex items-center gap-2 transition-colors ${
+              className={`px-6 py-4 text-sm font-medium flex items-center gap-2 transition-all duration-200 ${
                 activeTab === tab
                   ? 'border-b-2 border-primary-tea text-primary-tea bg-cream'
-                  : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                  : 'text-secondary-tea hover:text-dark-tea hover:bg-light-tea'
               }`}
             >
               <span className="text-lg">{tabConfig[tab].icon}</span>
@@ -185,7 +184,7 @@ const AdminPaymentMethods: React.FC = () => {
       </div>
 
       {/* Tab Content */}
-      <div className="bg-white rounded-b-lg shadow p-6">
+      <div className="bg-white rounded-b-xl shadow-lg p-6 border border-t-0 border-secondary-tea">
         {/* Credit Card Tab - Simple Toggle */}
         {activeTab === 'credit_card' ? (
           <div className="max-w-2xl mx-auto">
@@ -275,7 +274,7 @@ const AdminPaymentMethods: React.FC = () => {
               </div>
               <button 
                 onClick={() => handleAddForTab(activeTab)}
-                className="bg-primary-tea hover:bg-dark-tea text-white px-4 py-2 rounded-md text-sm font-medium flex items-center"
+                className="bg-primary-tea hover:bg-dark-tea text-cream px-4 py-2 rounded-lg text-sm font-medium flex items-center transition-all duration-200 hover:shadow-lg"
               >
                 <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
@@ -300,7 +299,7 @@ const AdminPaymentMethods: React.FC = () => {
                 </button>
               </div>
             ) : (
-              <div className="overflow-hidden">
+              <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead className="bg-gray-50">
                     <tr className="border-b border-gray-200">
@@ -378,10 +377,10 @@ const AdminPaymentMethods: React.FC = () => {
 
       {/* Payment Method Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto animate-scale-in">
             <div className="p-6">
-              <h2 className="text-xl font-bold mb-4">
+              <h2 className="text-2xl font-heading font-bold text-primary-tea mb-4">
                 {editingMethod ? 'Edit Payment Method' : 'Add Payment Method'}
               </h2>
               <PaymentMethodForm
@@ -408,6 +407,7 @@ const AdminPaymentMethods: React.FC = () => {
         confirmButtonClass="bg-red-500 hover:bg-red-600"
         cancelText="Cancel"
       />
+    </div>
     </div>
   );
 };

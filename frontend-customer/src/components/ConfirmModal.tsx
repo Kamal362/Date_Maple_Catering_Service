@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTheme } from '../context/ThemeContext';
 
 interface ConfirmModalProps {
   isOpen: boolean;
@@ -23,6 +24,9 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
   confirmButtonClass = 'bg-red-500 hover:bg-red-600',
   iconType = 'warning'
 }) => {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+
   if (!isOpen) return null;
 
   const handleConfirm = () => {
@@ -76,20 +80,20 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
 
   return (
     <div 
-      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+      className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
       onClick={handleBackdropClick}
     >
-      <div className="bg-cream rounded-lg shadow-xl w-full max-w-md transform transition-all duration-300 scale-100">
+      <div className={`rounded-lg shadow-xl w-full max-w-md transform transition-all duration-300 scale-100 animate-scale-in ${isDark ? 'bg-gray-800' : 'bg-cream'}`}>
         <div className="p-6 text-center">
           {getIcon()}
           <div className="flex justify-center items-center mb-4">
-            <h3 className="text-xl font-heading font-semibold text-primary-tea">
+            <h3 className={`text-xl font-heading font-semibold ${isDark ? 'text-amber-400' : 'text-primary-tea'}`}>
               {title}
             </h3>
           </div>
           
           <div className="mb-6">
-            <p className="text-dark-tea">{message}</p>
+            <p className={`${isDark ? 'text-gray-300' : 'text-dark-tea'}`}>{message}</p>
           </div>
           
           <div className="flex justify-center space-x-3">

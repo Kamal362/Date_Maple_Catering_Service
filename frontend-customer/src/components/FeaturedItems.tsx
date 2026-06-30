@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { MenuItem } from '../types/menu';
+import { useTheme } from '../context/ThemeContext';
 
 interface FeaturedItemsProps {
   items: MenuItem[];
@@ -12,6 +13,8 @@ const FeaturedItems: React.FC<FeaturedItemsProps> = ({
   onAddToCart,
   onViewDetails
 }) => {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
   const [featuredItems, setFeaturedItems] = useState<MenuItem[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -39,10 +42,10 @@ const FeaturedItems: React.FC<FeaturedItemsProps> = ({
   return (
     <div className="mb-12">
       <div className="text-center mb-8">
-        <h2 className="text-3xl font-heading font-bold text-dark-tea mb-2">
+        <h2 className={`text-3xl font-heading font-bold mb-2 ${isDark ? 'text-amber-400' : 'text-dark-tea'}`}>
           Featured Items
         </h2>
-        <p className="text-secondary-tea">
+        <p className={`${isDark ? 'text-gray-400' : 'text-secondary-tea'}`}>
           Discover our chef's recommendations
         </p>
       </div>
@@ -100,15 +103,15 @@ const FeaturedItems: React.FC<FeaturedItemsProps> = ({
 
             {/* Content */}
             <div className="text-center lg:text-left">
-              <div className="inline-block px-3 py-1 bg-cream rounded-full text-primary-tea text-sm font-medium mb-4 border border-primary-tea/30">
+              <div className={`inline-block px-3 py-1 rounded-full text-sm font-medium mb-4 border ${isDark ? 'bg-gray-700 text-amber-400 border-amber-600/30' : 'bg-cream text-primary-tea border-primary-tea/30'}`}>
                 Chef's Pick
               </div>
               
-              <h3 className="text-3xl font-heading font-bold text-dark-tea mb-3">
+              <h3 className={`text-3xl font-heading font-bold mb-3 ${isDark ? 'text-gray-100' : 'text-dark-tea'}`}>
                 {currentItem.name}
               </h3>
               
-              <p className="text-secondary-tea mb-6 leading-relaxed max-w-md">
+              <p className={`mb-6 leading-relaxed max-w-md ${isDark ? 'text-gray-300' : 'text-secondary-tea'}`}>
                 {currentItem.description}
               </p>
 
@@ -140,7 +143,7 @@ const FeaturedItems: React.FC<FeaturedItemsProps> = ({
                   onClick={() => onAddToCart(currentItem)}
                   className="px-6 py-3 border-2 border-primary-tea text-primary-tea hover:bg-primary-tea hover:text-cream rounded-lg font-medium transition-all duration-300"
                 >
-                  Quick Add • ${currentItem.price.toFixed(2)}
+                  Quick Add • ${(Number(currentItem.price) || 0).toFixed(2)}
                 </button>
               </div>
 

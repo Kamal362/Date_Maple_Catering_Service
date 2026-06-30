@@ -132,65 +132,65 @@ const AdminEventForm: React.FC<AdminEventFormProps> = ({ event, onSave, onCancel
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
+        <label className="block text-sm font-medium text-dark-tea mb-1">Title</label>
         <input
           type="text"
           name="title"
           value={formData.title}
           onChange={handleChange}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-tea"
+          className="w-full px-3 py-2 border border-secondary-tea rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-tea"
           required
         />
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+        <label className="block text-sm font-medium text-dark-tea mb-1">Description</label>
         <textarea
           name="description"
           value={formData.description}
           onChange={handleChange}
           rows={3}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-tea"
+          className="w-full px-3 py-2 border border-secondary-tea rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-tea"
           required
         />
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Event Date</label>
+        <label className="block text-sm font-medium text-dark-tea mb-1">Event Date</label>
         <input
           type="date"
           name="eventDate"
           value={formData.eventDate}
           onChange={handleChange}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-tea"
+          className="w-full px-3 py-2 border border-secondary-tea rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-tea"
           required
         />
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Location</label>
+        <label className="block text-sm font-medium text-dark-tea mb-1">Location</label>
         <input
           type="text"
           name="location"
           value={formData.location}
           onChange={handleChange}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-tea"
+          className="w-full px-3 py-2 border border-secondary-tea rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-tea"
           required
         />
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Flyer Image</label>
+        <label className="block text-sm font-medium text-dark-tea mb-1">Flyer Image</label>
         
         {/* Upload Method Toggle */}
         <div className="flex space-x-4 mb-3">
           <button
             type="button"
             onClick={() => setUploadMethod('url')}
-            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 hover:shadow-md ${
               uploadMethod === 'url'
                 ? 'bg-primary-tea text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                : 'bg-light-tea text-dark-tea hover:bg-secondary-tea hover:text-cream'
             }`}
           >
             Image URL
@@ -198,10 +198,10 @@ const AdminEventForm: React.FC<AdminEventFormProps> = ({ event, onSave, onCancel
           <button
             type="button"
             onClick={() => setUploadMethod('file')}
-            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 hover:shadow-md ${
               uploadMethod === 'file'
                 ? 'bg-primary-tea text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                : 'bg-light-tea text-dark-tea hover:bg-secondary-tea hover:text-cream'
             }`}
           >
             Upload from Computer
@@ -215,7 +215,7 @@ const AdminEventForm: React.FC<AdminEventFormProps> = ({ event, onSave, onCancel
             name="flyerImage"
             value={formData.flyerImage}
             onChange={handleChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-tea"
+            className="w-full px-3 py-2 border border-secondary-tea rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-tea"
             placeholder="https://example.com/image.jpg"
           />
         )}
@@ -225,7 +225,7 @@ const AdminEventForm: React.FC<AdminEventFormProps> = ({ event, onSave, onCancel
           <div
             onDrop={handleDrop}
             onDragOver={handleDragOver}
-            className="border-2 border-dashed border-gray-300 rounded-md p-6 text-center hover:border-primary-tea transition-colors cursor-pointer"
+            className="border-2 border-dashed border-secondary-tea rounded-lg p-6 text-center hover:border-primary-tea transition-all duration-200 hover:shadow-md cursor-pointer"
             onClick={() => fileInputRef.current?.click()}
           >
             <input
@@ -238,12 +238,12 @@ const AdminEventForm: React.FC<AdminEventFormProps> = ({ event, onSave, onCancel
             {uploading ? (
               <div className="flex flex-col items-center">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-tea mb-2"></div>
-                <p className="text-sm text-gray-600">Uploading...</p>
+                <p className="text-sm text-secondary-tea">Uploading...</p>
               </div>
             ) : (
               <>
                 <svg
-                  className="mx-auto h-12 w-12 text-gray-400"
+                  className="mx-auto h-12 w-12 text-secondary-tea"
                   stroke="currentColor"
                   fill="none"
                   viewBox="0 0 48 48"
@@ -255,10 +255,10 @@ const AdminEventForm: React.FC<AdminEventFormProps> = ({ event, onSave, onCancel
                     strokeLinejoin="round"
                   />
                 </svg>
-                <p className="mt-2 text-sm text-gray-600">
+                <p className="mt-2 text-sm text-secondary-tea">
                   <span className="font-medium text-primary-tea">Click to upload</span> or drag and drop
                 </p>
-                <p className="mt-1 text-xs text-gray-500">PNG, JPG, GIF up to 5MB</p>
+                <p className="mt-1 text-xs text-secondary-tea">PNG, JPG, GIF up to 5MB</p>
               </>
             )}
           </div>
@@ -267,8 +267,8 @@ const AdminEventForm: React.FC<AdminEventFormProps> = ({ event, onSave, onCancel
         {/* Image Preview */}
         {previewImage && (
           <div className="mt-3">
-            <p className="text-sm text-gray-600 mb-2">Preview:</p>
-            <div className="relative w-48 h-48 rounded-md overflow-hidden border border-gray-200">
+            <p className="text-sm text-secondary-tea mb-2">Preview:</p>
+            <div className="relative w-48 h-48 rounded-lg overflow-hidden border border-secondary-tea">
               <img
                 src={previewImage}
                 alt="Flyer preview"
@@ -281,13 +281,13 @@ const AdminEventForm: React.FC<AdminEventFormProps> = ({ event, onSave, onCancel
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Priority</label>
+        <label className="block text-sm font-medium text-dark-tea mb-1">Priority</label>
         <input
           type="number"
           name="priority"
           value={formData.priority}
           onChange={handleChange}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-tea"
+          className="w-full px-3 py-2 border border-secondary-tea rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-tea"
           min="0"
         />
       </div>
@@ -298,22 +298,22 @@ const AdminEventForm: React.FC<AdminEventFormProps> = ({ event, onSave, onCancel
           name="isActive"
           checked={formData.isActive}
           onChange={handleChange}
-          className="h-4 w-4 text-primary-tea focus:ring-primary-tea border-gray-300 rounded"
+          className="h-4 w-4 text-primary-tea focus:ring-primary-tea border-secondary-tea rounded"
         />
-        <label className="ml-2 block text-sm text-gray-700">Active</label>
+        <label className="ml-2 block text-sm text-dark-tea">Active</label>
       </div>
 
       <div className="flex justify-end space-x-3 pt-4">
         <button
           type="button"
           onClick={onCancel}
-          className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
+          className="px-4 py-2 border border-secondary-tea rounded-lg text-dark-tea hover:bg-light-tea transition-all duration-200 hover:shadow-md"
         >
           Cancel
         </button>
         <button
           type="submit"
-          className="px-4 py-2 bg-primary-tea text-white rounded-md hover:bg-dark-tea transition-colors"
+          className="px-4 py-2 bg-primary-tea text-white rounded-lg hover:bg-dark-tea transition-all duration-200 hover:shadow-md"
         >
           {event?._id ? 'Update' : 'Create'}
         </button>

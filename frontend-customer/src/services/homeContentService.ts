@@ -26,7 +26,7 @@ export interface HomePageContent {
 // Get all home page content
 export const getAllHomePageContent = async (): Promise<HomePageContent[]> => {
   const response = await axiosInstance.get('/home-content');
-  return response.data.data;
+  return Array.isArray(response.data.data) ? response.data.data : [];
 };
 
 // Get home page content by section
@@ -43,6 +43,6 @@ export const createOrUpdateHomePageContent = async (content: HomePageContent): P
 
 // Delete home page content (Admin only)
 export const deleteHomePageContent = async (section: string): Promise<void> => {
-  const response = await axiosInstance.delete(`/api/home-content/${section}`);
+  const response = await axiosInstance.delete(`/home-content/${section}`);
   return response.data.data;
 };

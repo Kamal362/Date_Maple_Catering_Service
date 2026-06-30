@@ -85,7 +85,7 @@ const ReorderButton: React.FC<ReorderButtonProps> = ({
     <button
       onClick={handleReorder}
       disabled={loading}
-      className={`${sizeClasses[size]} bg-primary-tea text-cream rounded-md hover:bg-dark-tea transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed`}
+      className={`${sizeClasses[size]} bg-primary-tea text-cream rounded-md hover:bg-dark-tea transition-all duration-300 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105 active:scale-95`}
     >
       {loading ? (
         <>

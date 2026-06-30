@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getHomePageContentBySection, HomePageContent } from '../services/homeContentService';
+import { useTheme } from '../context/ThemeContext';
 
 interface GalleryItem {
   id: number;
@@ -12,6 +13,8 @@ interface GalleryItem {
 const Gallery: React.FC = () => {
   const [content, setContent] = useState<HomePageContent | null>(null);
   const [loading, setLoading] = useState(true);
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
 
   useEffect(() => {
     const fetchContent = async () => {
@@ -105,22 +108,23 @@ const Gallery: React.FC = () => {
       }))
     : defaultGalleryImages;
 
-  // Generate grid class based on columns setting
+  // Static map for grid classes to avoid dynamic Tailwind class bug
+  const baseClass = 'gap-6';
+  const gridClassMap: Record<number, string> = {
+    1: `${baseClass} grid-cols-1`,
+    2: `${baseClass} grid-cols-1 sm:grid-cols-2`,
+    3: `${baseClass} grid-cols-1 sm:grid-cols-2 lg:grid-cols-3`,
+    4: `${baseClass} grid-cols-1 sm:grid-cols-2 lg:grid-cols-4`,
+    5: `${baseClass} grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5`,
+    6: `${baseClass} grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6`,
+  };
+
+  // Generate grid class based on columns setting using static map
   const getGridClass = () => {
-    const baseClass = 'grid gap-6';
     if (layoutStyle === 'masonry') {
-      return `${baseClass} grid-cols-1 sm:grid-cols-2 lg:grid-cols-${columns}`;
+      return `grid ${gridClassMap[columns] || gridClassMap[4]}`;
     }
-    // Grid layout
-    switch (columns) {
-      case 1: return `${baseClass} grid-cols-1`;
-      case 2: return `${baseClass} grid-cols-1 sm:grid-cols-2`;
-      case 3: return `${baseClass} grid-cols-1 sm:grid-cols-2 lg:grid-cols-3`;
-      case 4: return `${baseClass} grid-cols-1 sm:grid-cols-2 lg:grid-cols-4`;
-      case 5: return `${baseClass} grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5`;
-      case 6: return `${baseClass} grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6`;
-      default: return `${baseClass} grid-cols-1 sm:grid-cols-2 lg:grid-cols-4`;
-    }
+    return `grid ${gridClassMap[columns] || gridClassMap[4]}`;
   };
 
   const [lightboxOpen, setLightboxOpen] = useState(false);
@@ -146,12 +150,12 @@ const Gallery: React.FC = () => {
   };
 
   return (
-    <section className="section-padding bg-cream py-20">
+    <section className={`section-padding py-20 transition-colors duration-300 ${isDark ? 'bg-gray-900' : 'bg-cream'}`}>
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-heading font-bold mb-4 text-primary-tea">{displayContent.title}</h2>
+          <h2 className={`text-3xl md:text-4xl font-heading font-bold mb-4 ${isDark ? 'text-amber-400' : 'text-primary-tea'}`}>{displayContent.title}</h2>
           <div className="w-20 h-1 bg-accent-tea mx-auto mb-6"></div>
-          <p className="text-lg text-dark-tea max-w-2xl mx-auto">
+          <p className={`text-lg max-w-2xl mx-auto ${isDark ? 'text-gray-300' : 'text-dark-tea'}`}>
             {displayContent.subtitle}
           </p>
         </div>
@@ -181,7 +185,7 @@ const Gallery: React.FC = () => {
 
         {/* Lightbox Modal */}
         {enableLightbox && lightboxOpen && (
-          <div className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center" onClick={closeLightbox}>
+          <div className="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center animate-fade-in" onClick={closeLightbox}>
             <div className="relative max-w-5xl max-h-[90vh] p-4" onClick={(e) => e.stopPropagation()}>
               <button 
                 className="absolute top-4 right-4 text-white text-4xl hover:text-gray-300 z-10"

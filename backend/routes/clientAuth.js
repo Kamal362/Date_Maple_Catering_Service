@@ -5,7 +5,8 @@ const {
   createGuestSession,
   convertGuestToUser,
   getClientProfile,
-  updateClientProfile
+  updateClientProfile,
+  changeClientPassword
 } = require('../controllers/clientAuthController');
 const { protect } = require('../middleware/auth');
 const { validateEmail, validatePassword, validateRequiredFields } = require('../middleware/validation');
@@ -41,5 +42,6 @@ router.post('/convert-guest',
 // Protected Client Routes
 router.get('/profile', protect, getClientProfile);
 router.put('/profile', protect, updateClientProfile);
+router.put('/password', protect, changeClientPassword);
 
 module.exports = router;

@@ -8,8 +8,7 @@ const AdminRegister: React.FC = () => {
     lastName: '',
     email: '',
     password: '',
-    confirmPassword: '',
-    adminCode: ''
+    confirmPassword: ''
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -39,19 +38,12 @@ const AdminRegister: React.FC = () => {
     }
 
     try {
-      // Register as admin using the public admin creation endpoint
-      console.log('=== Admin Registration Debug ===');
-      console.log('Form data:', formData);
-      console.log('API endpoint:', '/auth/admin/create');
-      
       const response = await api.post('/auth/admin/create', {
         firstName: formData.firstName,
         lastName: formData.lastName,
         email: formData.email,
         password: formData.password
       });
-      
-      console.log('Registration response:', response.data);
 
       if (response.data.success) {
         // Store token and user data
@@ -63,7 +55,6 @@ const AdminRegister: React.FC = () => {
       }
     } catch (err: any) {
       console.error('Registration error:', err);
-      console.error('Error response:', err.response?.data);
       setError(err.response?.data?.message || 'Registration failed. Please try again.');
     } finally {
       setLoading(false);
@@ -71,9 +62,14 @@ const AdminRegister: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-cream flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md">
+    <div className="min-h-screen bg-gradient-to-br from-primary-tea via-dark-tea to-secondary-tea flex items-center justify-center p-4">
+      <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md">
         <div className="text-center mb-8">
+          <div className="w-16 h-16 bg-primary-tea rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg className="w-8 h-8 text-cream" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
+            </svg>
+          </div>
           <h1 className="text-3xl font-heading font-bold text-primary-tea mb-2">
             Admin Registration
           </h1>
@@ -100,7 +96,7 @@ const AdminRegister: React.FC = () => {
                 name="firstName"
                 value={formData.firstName}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-tea"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-tea transition-all duration-200"
                 required
               />
             </div>
@@ -114,7 +110,7 @@ const AdminRegister: React.FC = () => {
                 name="lastName"
                 value={formData.lastName}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-tea"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-tea transition-all duration-200"
                 required
               />
             </div>
@@ -169,7 +165,7 @@ const AdminRegister: React.FC = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-primary-tea text-white py-3 px-4 rounded-lg font-medium hover:bg-dark-tea transition disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full bg-primary-tea text-white py-3 px-4 rounded-lg font-medium hover:bg-dark-tea transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed transform hover:shadow-lg"
           >
             {loading ? 'Creating Account...' : 'Create Admin Account'}
           </button>

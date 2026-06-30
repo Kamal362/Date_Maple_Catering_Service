@@ -107,7 +107,7 @@ const AdminPaymentProofs: React.FC = () => {
   return (
     <div className="section-padding bg-cream min-h-screen">
       <div className="container mx-auto px-4">
-        <h1 className="text-4xl font-heading font-bold text-primary-tea mb-8">Payment Proofs</h1>
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-heading font-bold text-primary-tea mb-8">Payment Proofs</h1>
 
       {error && (
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
@@ -179,7 +179,11 @@ const AdminPaymentProofs: React.FC = () => {
                     <td className="py-3 px-4 text-dark-tea">{order.user?.firstName} {order.user?.lastName}</td>
                     <td className="py-3 px-4 text-dark-tea">${order.totalAmount?.toFixed(2)}</td>
                     <td className="py-3 px-4">
-                      {order.paymentReceipt ? (
+                      {order.paymentMethod === 'stripe' ? (
+                        <span className="px-2 py-1 rounded-full text-xs bg-purple-100 text-purple-800">
+                          Stripe
+                        </span>
+                      ) : order.paymentReceipt ? (
                         <span className="px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800">
                           Available
                         </span>
@@ -299,10 +303,10 @@ const AdminPaymentProofs: React.FC = () => {
       {/* Receipt View Modal */}
       {showReceiptModal && selectedReceiptOrder && (
         <div 
-          className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4"
+          className="fixed inset-0 bg-black/75 backdrop-blur-sm flex items-center justify-center z-50 p-4"
           onClick={() => setShowReceiptModal(false)}
         >
-          <div className="bg-white rounded-lg shadow-xl max-w-4xl max-h-[90vh] overflow-auto p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-auto p-4 animate-scale-in">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-xl font-semibold text-gray-900">
                 Payment Receipt - Order #{selectedReceiptOrder._id?.slice(-6)}

@@ -108,7 +108,7 @@ const PaymentMethodForm: React.FC<PaymentMethodFormProps> = ({ paymentMethod, on
             name="type"
             value={selectedType}
             onChange={handleTypeChange}
-            className="w-full px-4 py-3 border border-secondary-tea rounded-md focus:outline-none focus:ring-2 focus:ring-primary-tea bg-white transition-all duration-200 hover:border-primary-tea"
+            className="w-full px-4 py-3 border border-secondary-tea rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-tea bg-white transition-all duration-200 hover:border-primary-tea"
             required
           >
             {paymentTypeOptions.map(option => (
@@ -124,7 +124,7 @@ const PaymentMethodForm: React.FC<PaymentMethodFormProps> = ({ paymentMethod, on
             name="vendor"
             value={formData.vendor}
             onChange={handleChange}
-            className="w-full px-4 py-3 border border-secondary-tea rounded-md focus:outline-none focus:ring-2 focus:ring-primary-tea bg-white transition-all duration-200 hover:border-primary-tea"
+            className="w-full px-4 py-3 border border-secondary-tea rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-tea bg-white transition-all duration-200 hover:border-primary-tea"
             required
           >
             {getVendorOptions().map(vendor => (
@@ -143,7 +143,7 @@ const PaymentMethodForm: React.FC<PaymentMethodFormProps> = ({ paymentMethod, on
             name="accountName"
             value={formData.accountName}
             onChange={handleChange}
-            className="w-full px-4 py-3 border border-secondary-tea rounded-md focus:outline-none focus:ring-2 focus:ring-primary-tea transition-all duration-200 hover:border-primary-tea"
+            className="w-full px-4 py-3 border border-secondary-tea rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-tea transition-all duration-200 hover:border-primary-tea"
             placeholder={isCreditCard ? 'Enter cardholder name' : 'Enter account holder name'}
             required
           />
@@ -159,11 +159,11 @@ const PaymentMethodForm: React.FC<PaymentMethodFormProps> = ({ paymentMethod, on
                 name="cardNumber"
                 value={formData.cardNumber || ''}
                 onChange={handleChange}
-                className="w-full px-4 py-3 border border-secondary-tea rounded-md focus:outline-none focus:ring-2 focus:ring-primary-tea transition-all duration-200 hover:border-primary-tea"
+                className="w-full px-4 py-3 border border-secondary-tea rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-tea transition-all duration-200 hover:border-primary-tea"
                 placeholder="**** **** **** ****"
                 maxLength={19}
               />
-              <p className="text-xs text-gray-500 mt-1">Optional - Enter last 4 digits only for security (e.g., **** **** **** 1234)</p>
+              <p className="text-xs text-secondary-tea mt-1">Optional - Enter last 4 digits only for security (e.g., **** **** **** 1234)</p>
             </div>
             
             <div className="grid grid-cols-2 gap-4">
@@ -174,7 +174,7 @@ const PaymentMethodForm: React.FC<PaymentMethodFormProps> = ({ paymentMethod, on
                   name="cardExpiry"
                   value={formData.cardExpiry || ''}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 border border-secondary-tea rounded-md focus:outline-none focus:ring-2 focus:ring-primary-tea transition-all duration-200 hover:border-primary-tea"
+                  className="w-full px-4 py-3 border border-secondary-tea rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-tea transition-all duration-200 hover:border-primary-tea"
                   placeholder="MM/YY"
                   maxLength={5}
                 />
@@ -186,7 +186,7 @@ const PaymentMethodForm: React.FC<PaymentMethodFormProps> = ({ paymentMethod, on
                   name="cardCvv"
                   value={formData.cardCvv || ''}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 border border-secondary-tea rounded-md focus:outline-none focus:ring-2 focus:ring-primary-tea transition-all duration-200 hover:border-primary-tea"
+                  className="w-full px-4 py-3 border border-secondary-tea rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-tea transition-all duration-200 hover:border-primary-tea"
                   placeholder="***"
                   maxLength={4}
                 />
@@ -206,7 +206,7 @@ const PaymentMethodForm: React.FC<PaymentMethodFormProps> = ({ paymentMethod, on
               name="accountAlias"
               value={formData.accountAlias}
               onChange={handleChange}
-              className="w-full px-4 py-3 border border-secondary-tea rounded-md focus:outline-none focus:ring-2 focus:ring-primary-tea transition-all duration-200 hover:border-primary-tea"
+              className="w-full px-4 py-3 border border-secondary-tea rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-tea transition-all duration-200 hover:border-primary-tea"
               placeholder={formData.vendor === 'Zelle' ? 'Enter phone or email' : 'Enter @username or ID'}
               required
             />
@@ -222,7 +222,7 @@ const PaymentMethodForm: React.FC<PaymentMethodFormProps> = ({ paymentMethod, on
               name="accountNumber"
               value={formData.accountNumber}
               onChange={handleChange}
-              className="w-full px-4 py-3 border border-secondary-tea rounded-md focus:outline-none focus:ring-2 focus:ring-primary-tea transition-all duration-200 hover:border-primary-tea"
+              className="w-full px-4 py-3 border border-secondary-tea rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-tea transition-all duration-200 hover:border-primary-tea"
               placeholder="Enter account or routing number"
             />
           </div>
@@ -236,7 +236,7 @@ const PaymentMethodForm: React.FC<PaymentMethodFormProps> = ({ paymentMethod, on
             value={formData.description || ''}
             onChange={handleChange}
             rows={2}
-            className="w-full px-4 py-3 border border-secondary-tea rounded-md focus:outline-none focus:ring-2 focus:ring-primary-tea transition-all duration-200 hover:border-primary-tea"
+            className="w-full px-4 py-3 border border-secondary-tea rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-tea transition-all duration-200 hover:border-primary-tea"
             placeholder="Brief description of this payment method"
           />
         </div>
@@ -249,7 +249,7 @@ const PaymentMethodForm: React.FC<PaymentMethodFormProps> = ({ paymentMethod, on
             value={formData.instructions || ''}
             onChange={handleChange}
             rows={3}
-            className="w-full px-4 py-3 border border-secondary-tea rounded-md focus:outline-none focus:ring-2 focus:ring-primary-tea transition-all duration-200 hover:border-primary-tea"
+            className="w-full px-4 py-3 border border-secondary-tea rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-tea transition-all duration-200 hover:border-primary-tea"
             placeholder="Instructions for customers on how to use this payment method"
           />
         </div>
@@ -262,11 +262,11 @@ const PaymentMethodForm: React.FC<PaymentMethodFormProps> = ({ paymentMethod, on
             name="displayOrder"
             value={formData.displayOrder || 0}
             onChange={handleChange}
-            className="w-full px-4 py-3 border border-secondary-tea rounded-md focus:outline-none focus:ring-2 focus:ring-primary-tea transition-all duration-200 hover:border-primary-tea"
+            className="w-full px-4 py-3 border border-secondary-tea rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-tea transition-all duration-200 hover:border-primary-tea"
             placeholder="0"
             min={0}
           />
-          <p className="text-xs text-gray-500 mt-1">Lower numbers appear first</p>
+          <p className="text-xs text-secondary-tea mt-1">Lower numbers appear first</p>
         </div>
         
         {/* Active Status */}
@@ -286,13 +286,13 @@ const PaymentMethodForm: React.FC<PaymentMethodFormProps> = ({ paymentMethod, on
         <button
           type="button"
           onClick={onCancel}
-          className="px-6 py-3 border border-secondary-tea text-dark-tea rounded-md hover:bg-secondary-tea hover:text-cream transition-all duration-200 font-medium"
+          className="px-6 py-3 border border-secondary-tea text-dark-tea rounded-lg hover:bg-secondary-tea hover:text-cream transition-all duration-200 font-medium hover:shadow-md"
         >
           Cancel
         </button>
         <button
           type="submit"
-          className="px-6 py-3 bg-primary-tea text-cream rounded-md hover:bg-accent-tea transition-all duration-200 font-medium shadow-md hover:shadow-lg"
+          className="px-6 py-3 bg-primary-tea text-cream rounded-lg hover:bg-accent-tea transition-all duration-200 font-medium shadow-md hover:shadow-lg"
         >
           {paymentMethod ? 'Update Payment Method' : 'Add Payment Method'}
         </button>

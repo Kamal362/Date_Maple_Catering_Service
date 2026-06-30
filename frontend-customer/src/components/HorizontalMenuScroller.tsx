@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { MenuItem } from '../types/menu';
 import { useCart } from '../context/CartContext';
+import { useTheme } from '../context/ThemeContext';
 
 interface HorizontalMenuScrollerProps {
   items: MenuItem[];
@@ -15,6 +16,9 @@ const HorizontalMenuScroller: React.FC<HorizontalMenuScrollerProps> = ({
   onViewDetails,
   title = "Our Menu Items"
 }) => {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -80,7 +84,7 @@ const HorizontalMenuScroller: React.FC<HorizontalMenuScrollerProps> = ({
     <div className="relative py-8">
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-3xl font-heading font-bold text-dark-tea">
+        <h2 className={`text-3xl font-heading font-bold ${isDark ? 'text-amber-400' : 'text-dark-tea'}`}>
           {title}
         </h2>
         <div className="flex gap-2">
@@ -147,7 +151,7 @@ const HorizontalMenuScroller: React.FC<HorizontalMenuScrollerProps> = ({
             {items.map((item, index) => (
               <div 
                 key={item.id} 
-                className="group relative bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden transform hover:-translate-y-1 border border-secondary-tea/20"
+                className="group relative bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden transform hover:-translate-y-1 border border-secondary-tea/20 dark:border-gray-700"
               >
                 {/* Image Container with Overlay */}
                 <div className="relative overflow-hidden h-64">
@@ -160,7 +164,7 @@ const HorizontalMenuScroller: React.FC<HorizontalMenuScrollerProps> = ({
                   
                   {/* Price Badge with Animation */}
                   <div className="absolute top-4 right-4 bg-gradient-to-r from-primary-tea to-accent-tea text-cream px-4 py-2 rounded-full font-bold shadow-lg transform transition-all duration-300 group-hover:scale-110 group-hover:rotate-6">
-                    <span className="text-lg">${item.price.toFixed(2)}</span>
+                    <span className="text-lg">${(Number(item.price) || 0).toFixed(2)}</span>
                   </div>
                   
                   {/* Quick View Overlay */}
@@ -260,7 +264,7 @@ const HorizontalMenuScroller: React.FC<HorizontalMenuScrollerProps> = ({
                       
                       {/* Price Badge with Animation */}
                       <div className="absolute top-4 right-4 bg-gradient-to-r from-primary-tea to-accent-tea text-cream px-4 py-2 rounded-full font-bold shadow-lg transform transition-all duration-300 group-hover:scale-110 group-hover:rotate-6">
-                        <span className="text-lg">${item.price.toFixed(2)}</span>
+                        <span className="text-lg">${(Number(item.price) || 0).toFixed(2)}</span>
                       </div>
                       
                       {/* Quick View Overlay */}

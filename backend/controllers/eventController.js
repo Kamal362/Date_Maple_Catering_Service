@@ -5,9 +5,7 @@ const Event = require('../models/Event');
 // @access  Private (Admin only)
 exports.getEvents = async (req, res) => {
   try {
-    console.log('Fetching all events for admin:', req.user?.email);
     const events = await Event.find().lean();
-    console.log('Found events:', events.length);
     
     res.status(200).json({
       success: true,
@@ -18,8 +16,7 @@ exports.getEvents = async (req, res) => {
     console.error('Error fetching events:', error);
     res.status(500).json({
       success: false,
-      message: 'Server error',
-      error: error.message
+      message: 'Server error'
     });
   }
 };
@@ -39,8 +36,7 @@ exports.getMyEvents = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Server error',
-      error: error.message
+      message: 'Server error'
     });
   }
 };
@@ -76,8 +72,7 @@ exports.getEvent = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Server error',
-      error: error.message
+      message: 'Server error'
     });
   }
 };
@@ -121,8 +116,7 @@ exports.createEvent = async (req, res) => {
     console.error('Event creation error:', error);
     res.status(500).json({
       success: false,
-      message: 'Server error',
-      error: error.message
+      message: 'Server error'
     });
   }
 };
@@ -161,8 +155,7 @@ exports.updateEvent = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Server error',
-      error: error.message
+      message: 'Server error'
     });
   }
 };
@@ -172,7 +165,6 @@ exports.updateEvent = async (req, res) => {
 // @access  Private (Admin only)
 exports.updateEventStatus = async (req, res) => {
   try {
-    console.log('Update event status called:', req.params.id, req.body);
     const { status } = req.body;
     
     // Use findByIdAndUpdate to only update the status field without validating entire document
@@ -197,8 +189,7 @@ exports.updateEventStatus = async (req, res) => {
     console.error('Error updating event status:', error);
     res.status(500).json({
       success: false,
-      message: 'Server error: ' + error.message,
-      error: error.message
+      message: 'Server error'
     });
   }
 };
@@ -225,7 +216,7 @@ exports.deleteEvent = async (req, res) => {
       });
     }
     
-    await event.remove();
+    await event.deleteOne();
     
     res.status(200).json({
       success: true,
@@ -234,8 +225,7 @@ exports.deleteEvent = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Server error',
-      error: error.message
+      message: 'Server error'
     });
   }
 };
@@ -262,8 +252,7 @@ exports.getPublicEvents = async (req, res) => {
     console.error('Error fetching public events:', error);
     res.status(500).json({
       success: false,
-      message: 'Server error',
-      error: error.message
+      message: 'Server error'
     });
   }
 };

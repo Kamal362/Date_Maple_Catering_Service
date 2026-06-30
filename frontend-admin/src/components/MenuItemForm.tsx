@@ -190,7 +190,7 @@ const MenuItemForm: React.FC<MenuItemFormProps> = ({ menuItem, onSave, onCancel 
           name="name"
           value={formData.name || ''}
           onChange={handleChange}
-          className="w-full px-4 py-3 border border-secondary-tea rounded-md focus:outline-none focus:ring-2 focus:ring-primary-tea transition-all duration-200 hover:border-primary-tea"
+          className="w-full px-4 py-3 border border-secondary-tea rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-tea transition-all duration-200 hover:border-primary-tea"
           placeholder="Enter menu item name"
           required
         />
@@ -205,7 +205,7 @@ const MenuItemForm: React.FC<MenuItemFormProps> = ({ menuItem, onSave, onCancel 
           value={formData.description || ''}
           onChange={handleChange}
           rows={4}
-          className="w-full px-4 py-3 border border-secondary-tea rounded-md focus:outline-none focus:ring-2 focus:ring-primary-tea transition-all duration-200 hover:border-primary-tea resize-none"
+          className="w-full px-4 py-3 border border-secondary-tea rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-tea transition-all duration-200 hover:border-primary-tea resize-none"
           placeholder="Describe the menu item (ingredients, preparation, etc.)"
         />
       </div>
@@ -222,7 +222,7 @@ const MenuItemForm: React.FC<MenuItemFormProps> = ({ menuItem, onSave, onCancel 
             onChange={handleChange}
             min="0"
             step="0.01"
-            className="w-full px-4 py-3 border border-secondary-tea rounded-md focus:outline-none focus:ring-2 focus:ring-primary-tea transition-all duration-200 hover:border-primary-tea"
+            className="w-full px-4 py-3 border border-secondary-tea rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-tea transition-all duration-200 hover:border-primary-tea"
             placeholder="0.00"
             required
           />
@@ -239,7 +239,7 @@ const MenuItemForm: React.FC<MenuItemFormProps> = ({ menuItem, onSave, onCancel 
             name="category"
             value={formData.category || ''}
             onChange={handleChange}
-            className="w-full px-4 py-3 border border-secondary-tea rounded-md focus:outline-none focus:ring-2 focus:ring-primary-tea transition-all duration-200 hover:border-primary-tea bg-white"
+            className="w-full px-4 py-3 border border-secondary-tea rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-tea transition-all duration-200 hover:border-primary-tea bg-white"
             required
           >
             <option value="">Choose category</option>
@@ -272,7 +272,7 @@ const MenuItemForm: React.FC<MenuItemFormProps> = ({ menuItem, onSave, onCancel 
                 value={size.size}
                 onChange={(e) => updateSize(index, 'size', e.target.value)}
                 placeholder="Size name (e.g., Small, Large)"
-                className="flex-1 px-3 py-2 border border-secondary-tea rounded-md text-sm"
+                className="flex-1 px-3 py-2 border border-secondary-tea rounded-lg text-sm"
               />
               <input
                 type="number"
@@ -281,7 +281,7 @@ const MenuItemForm: React.FC<MenuItemFormProps> = ({ menuItem, onSave, onCancel 
                 placeholder="Price"
                 min="0"
                 step="0.01"
-                className="w-24 px-3 py-2 border border-secondary-tea rounded-md text-sm"
+                className="w-24 px-3 py-2 border border-secondary-tea rounded-lg text-sm"
               />
               <button
                 type="button"
@@ -322,7 +322,7 @@ const MenuItemForm: React.FC<MenuItemFormProps> = ({ menuItem, onSave, onCancel 
                 value={extra.name}
                 onChange={(e) => updateExtra(index, 'name', e.target.value)}
                 placeholder="Extra name (e.g., Extra Shot, Whipped Cream)"
-                className="flex-1 px-3 py-2 border border-secondary-tea rounded-md text-sm"
+                className="flex-1 px-3 py-2 border border-secondary-tea rounded-lg text-sm"
               />
               <input
                 type="number"
@@ -331,7 +331,7 @@ const MenuItemForm: React.FC<MenuItemFormProps> = ({ menuItem, onSave, onCancel 
                 placeholder="Price"
                 min="0"
                 step="0.01"
-                className="w-24 px-3 py-2 border border-secondary-tea rounded-md text-sm"
+                className="w-24 px-3 py-2 border border-secondary-tea rounded-lg text-sm"
               />
               <button
                 type="button"
@@ -389,7 +389,7 @@ const MenuItemForm: React.FC<MenuItemFormProps> = ({ menuItem, onSave, onCancel 
             name="image"
             value={typeof formData.image === 'string' ? formData.image : ''}
             onChange={handleChange}
-            className="w-full px-4 py-3 border border-secondary-tea rounded-md focus:outline-none focus:ring-2 focus:ring-primary-tea transition-all duration-200 hover:border-primary-tea"
+            className="w-full px-4 py-3 border border-secondary-tea rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-tea transition-all duration-200 hover:border-primary-tea"
             placeholder="https://example.com/item-image.jpg"
           />
         )}
@@ -528,13 +528,13 @@ const MenuItemForm: React.FC<MenuItemFormProps> = ({ menuItem, onSave, onCancel 
           <button
             type="button"
             onClick={onCancel}
-            className="px-6 py-3 border border-secondary-tea text-dark-tea rounded-md hover:bg-secondary-tea hover:text-cream transition-all duration-200 font-medium"
+            className="px-6 py-3 border border-secondary-tea text-dark-tea rounded-lg hover:bg-secondary-tea hover:text-cream transition-all duration-200 font-medium"
           >
             Cancel
           </button>
           <button
             type="submit"
-            className="px-6 py-3 bg-primary-tea text-cream rounded-md hover:bg-accent-tea transition-all duration-200 font-medium shadow-md hover:shadow-lg"
+            className="px-6 py-3 bg-primary-tea text-cream rounded-lg hover:bg-accent-tea transition-all duration-200 font-medium shadow-md hover:shadow-lg"
           >
             {menuItem ? 'Update Menu Item' : 'Add Menu Item'}
           </button>

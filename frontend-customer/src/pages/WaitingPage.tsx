@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { getOrder } from '../services/orderService';
+import { useTheme } from '../context/ThemeContext';
 
 interface OrderDetails {
   _id: string;
@@ -26,6 +27,8 @@ interface OrderDetails {
 
 const WaitingPage: React.FC = () => {
   const { orderId } = useParams<{ orderId: string }>();
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
   const [order, setOrder] = useState<OrderDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -58,7 +61,7 @@ const WaitingPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="section-padding bg-cream min-h-screen flex items-center justify-center">
+      <div className={`section-padding ${isDark ? 'bg-gray-900' : 'bg-cream'} min-h-screen flex items-center justify-center transition-colors duration-300`}>
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-tea mx-auto mb-4"></div>
           <p>Loading order details...</p>
@@ -69,7 +72,7 @@ const WaitingPage: React.FC = () => {
 
   if (error || !order) {
     return (
-      <div className="section-padding bg-cream min-h-screen flex items-center justify-center">
+      <div className={`section-padding ${isDark ? 'bg-gray-900' : 'bg-cream'} min-h-screen flex items-center justify-center transition-colors duration-300`}>
         <div className="text-center">
           <svg className="w-16 h-16 text-red-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -85,15 +88,15 @@ const WaitingPage: React.FC = () => {
   }
 
   return (
-    <div className="section-padding bg-cream min-h-screen">
+    <div className={`section-padding ${isDark ? 'bg-gray-900' : 'bg-cream'} min-h-screen transition-colors duration-300`}>
       <div className="container mx-auto px-4">
         <div className="max-w-2xl mx-auto">
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-heading font-bold text-primary-tea mb-2">Order Received!</h1>
-            <p className="text-dark-tea">Thank you for your order. Your food is being prepared.</p>
+            <h1 className={`text-3xl font-heading font-bold ${isDark ? 'text-amber-400' : 'text-primary-tea'} mb-2`}>Order Received!</h1>
+            <p className={isDark ? 'text-gray-300' : 'text-dark-tea'}>Thank you for your order. Your food is being prepared.</p>
           </div>
 
-          <div className="card p-6 mb-6">
+          <div className={`card p-6 mb-6 ${isDark ? 'bg-gray-800 border-gray-700' : ''}`}>
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-heading font-semibold">Order #{order.orderId || order._id.substring(0, 8)}</h2>
               <span className={`px-3 py-1 rounded-full text-sm font-medium ${
@@ -130,8 +133,8 @@ const WaitingPage: React.FC = () => {
             </div>
           </div>
 
-          <div className="card p-6 mb-6">
-            <h3 className="text-xl font-heading font-semibold mb-4">Order Items</h3>
+          <div className={`card p-6 mb-6 ${isDark ? 'bg-gray-800 border-gray-700' : ''}`}>
+            <h3 className={`text-xl font-heading font-semibold mb-4 ${isDark ? 'text-gray-100' : ''}`}>Order Items</h3>
             <div className="space-y-3">
               {order.items.map((item, index) => (
                 <div key={index} className="flex justify-between py-2 border-b border-secondary-tea">
@@ -150,8 +153,8 @@ const WaitingPage: React.FC = () => {
             </div>
           </div>
 
-          <div className="card p-6 mb-6">
-            <h3 className="text-xl font-heading font-semibold mb-4">Estimated Preparation Time</h3>
+          <div className={`card p-6 mb-6 ${isDark ? 'bg-gray-800 border-gray-700' : ''}`}>
+            <h3 className={`text-xl font-heading font-semibold mb-4 ${isDark ? 'text-gray-100' : ''}`}>Estimated Preparation Time</h3>
             <div className="text-center">
               <div className="inline-block bg-primary-tea text-cream rounded-full w-24 h-24 flex items-center justify-center mb-4">
                 <span className="text-2xl font-bold">{estimatedTime}</span>

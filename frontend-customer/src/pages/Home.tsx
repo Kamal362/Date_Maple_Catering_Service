@@ -7,18 +7,33 @@ import Testimonials from '../components/Testimonials';
 import Newsletter from '../components/Newsletter';
 import Gallery from '../components/Gallery';
 import EventFlyers from '../components/EventFlyers';
+import ScrollReveal from '../components/ScrollReveal';
 
 const Home: React.FC = () => {
   return (
-    <div>
+    <div className="bg-cream dark:bg-gray-900 transition-colors duration-300">
       <Hero />
-      <Features />
-      <MenuHighlights />
-      <Gallery />
-      <Catering />
-      <EventFlyers />
-      <Testimonials />
-      <Newsletter />
+      <ScrollReveal direction="up">
+        <Features />
+      </ScrollReveal>
+      <ScrollReveal direction="up" delay={100}>
+        <MenuHighlights />
+      </ScrollReveal>
+      <ScrollReveal direction="up" delay={100}>
+        <Gallery />
+      </ScrollReveal>
+      <ScrollReveal direction="up" delay={100}>
+        <Catering />
+      </ScrollReveal>
+      <ScrollReveal direction="up" delay={100}>
+        <EventFlyers />
+      </ScrollReveal>
+      <ScrollReveal direction="up" delay={100}>
+        <Testimonials />
+      </ScrollReveal>
+      <ScrollReveal direction="up" delay={100}>
+        <Newsletter />
+      </ScrollReveal>
     </div>
   );
 };

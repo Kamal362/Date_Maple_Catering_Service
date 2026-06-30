@@ -29,15 +29,28 @@ exports.sendOrderConfirmation = async (req, res) => {
         message: 'Order not found'
       });
     }
+
+    // Determine recipient (registered user or guest)
+    const recipientEmail = order.user ? order.user.email : (order.guestInfo ? order.guestInfo.email : null);
+    const recipientName = order.user 
+      ? `${order.user.firstName} ${order.user.lastName}`
+      : (order.guestInfo ? `${order.guestInfo.firstName} ${order.guestInfo.lastName}` : 'Customer');
+
+    if (!recipientEmail) {
+      return res.status(400).json({
+        success: false,
+        message: 'No email address found for this order'
+      });
+    }
     
     // Email content
     const mailOptions = {
       from: process.env.FROM_EMAIL || '"Date&Maple" <no-reply@datemaple.com>',
-      to: order.user.email,
+      to: recipientEmail,
       subject: 'Order Confirmation - Date&Maple',
       html: `
         <h2>Order Confirmation</h2>
-        <p>Dear ${order.user.firstName} ${order.user.lastName},</p>
+        <p>Dear ${recipientName},</p>
         <p>Thank you for your order! Here are the details:</p>
         <p><strong>Order ID:</strong> ${order._id}</p>
         <p><strong>Total Amount:</strong> $${order.totalAmount.toFixed(2)}</p>
@@ -58,8 +71,7 @@ exports.sendOrderConfirmation = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Failed to send order confirmation email',
-      error: error.message
+      message: 'Failed to send order confirmation email'
     });
   }
 };
@@ -84,15 +96,29 @@ exports.sendOrderStatusUpdate = async (req, res) => {
     // Update order status
     order.status = status;
     await order.save();
+
+    // Determine recipient (registered user or guest)
+    const recipientEmail = order.user ? order.user.email : (order.guestInfo ? order.guestInfo.email : null);
+    const recipientName = order.user 
+      ? `${order.user.firstName} ${order.user.lastName}`
+      : (order.guestInfo ? `${order.guestInfo.firstName} ${order.guestInfo.lastName}` : 'Customer');
+
+    if (!recipientEmail) {
+      return res.status(200).json({
+        success: true,
+        message: 'Order status updated but no email address found to send notification',
+        data: order
+      });
+    }
     
     // Email content
     const mailOptions = {
       from: process.env.FROM_EMAIL || '"Date&Maple" <no-reply@datemaple.com>',
-      to: order.user.email,
+      to: recipientEmail,
       subject: `Order Status Update - Date&Maple`,
       html: `
         <h2>Order Status Update</h2>
-        <p>Dear ${order.user.firstName} ${order.user.lastName},</p>
+        <p>Dear ${recipientName},</p>
         <p>Your order status has been updated:</p>
         <p><strong>Order ID:</strong> ${order._id}</p>
         <p><strong>New Status:</strong> ${order.status}</p>
@@ -113,8 +139,7 @@ exports.sendOrderStatusUpdate = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Failed to send order status update email',
-      error: error.message
+      message: 'Failed to send order status update email'
     });
   }
 };
@@ -160,8 +185,7 @@ exports.sendGeneralNotification = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Failed to send general notification email',
-      error: error.message
+      message: 'Failed to send general notification email'
     });
   }
 };

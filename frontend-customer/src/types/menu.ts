@@ -9,6 +9,10 @@ export interface MenuItem {
     size: string;
     price: number;
   }[];
+  extras?: {
+    name: string;
+    price: number;
+  }[];
   available?: boolean;
   dietary?: string[];
   altMilkOptions?: string[];

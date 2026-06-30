@@ -50,7 +50,7 @@ const HomePageContentEditor: React.FC<HomePageContentEditorProps> = ({ section, 
           memberFileRefs.current = Array(count).fill(null);
         }
       } catch (err) {
-        console.log(`No existing content found for section: ${section}, using defaults`);
+        // No existing content found for this section — use defaults
         // Keep default empty content for new sections
       } finally {
         setLoading(false);
@@ -166,7 +166,9 @@ const HomePageContentEditor: React.FC<HomePageContentEditorProps> = ({ section, 
     try {
       setLoading(true);
       setError(null);
-      await createOrUpdateHomePageContent(content);
+      // Strip read-only fields before sending to backend
+      const { _id, __v, createdAt, updatedAt, ...contentData } = content as any;
+      await createOrUpdateHomePageContent(contentData);
       onSave();
       onClose();
     } catch (err: any) {
@@ -183,7 +185,9 @@ const HomePageContentEditor: React.FC<HomePageContentEditorProps> = ({ section, 
       setLoading(true);
       setError(null);
       const updatedContent = { ...content, ...sectionData, section };
-      await createOrUpdateHomePageContent(updatedContent);
+      // Strip read-only fields before sending to backend
+      const { _id, __v, createdAt, updatedAt, ...contentData } = updatedContent as any;
+      await createOrUpdateHomePageContent(contentData);
       // Update local state
       setContent(updatedContent);
       // Show success feedback
@@ -2018,8 +2022,8 @@ const HomePageContentEditor: React.FC<HomePageContentEditorProps> = ({ section, 
   const sectionTitle = sectionTitles[section as keyof typeof sectionTitles] || 'Hero Section';
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-cream rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="bg-cream dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto animate-scale-in border border-secondary-tea dark:border-gray-700">
         <div className="p-6">
           <div className="mb-6">
             <h3 className="text-xl font-heading font-semibold text-primary-tea">
@@ -2037,17 +2041,17 @@ const HomePageContentEditor: React.FC<HomePageContentEditorProps> = ({ section, 
             {renderer()}
           </div>
             
-          <div className="flex justify-end space-x-3 pt-4">
+          <div className="flex flex-col sm:flex-row justify-end gap-3 pt-4">
             <button
               onClick={onClose}
-              className="px-6 py-2 border border-secondary-tea text-dark-tea rounded-md hover:bg-secondary-tea hover:text-cream transition-colors"
+              className="px-6 py-2 border border-secondary-tea text-dark-tea dark:text-gray-200 dark:border-gray-600 rounded-lg hover:bg-secondary-tea hover:text-cream dark:hover:bg-gray-700 dark:hover:text-cream transition-all duration-200 hover:shadow-md"
             >
               Cancel
             </button>
             <button
               onClick={handleSave}
               disabled={loading}
-              className="px-6 py-2 bg-primary-tea text-cream rounded-md hover:bg-accent-tea transition-colors disabled:opacity-50"
+              className="px-6 py-2 bg-primary-tea text-cream rounded-lg hover:bg-accent-tea transition-all duration-200 hover:shadow-md disabled:opacity-50"
             >
               {loading ? 'Saving...' : 'Save Changes'}
             </button>

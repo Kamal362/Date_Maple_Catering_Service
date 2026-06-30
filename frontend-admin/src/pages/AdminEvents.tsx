@@ -227,7 +227,7 @@ const AdminEvents: React.FC = () => {
         {/* Header */}
         <div className="flex flex-wrap justify-between items-center mb-8">
           <div>
-            <h1 className="text-4xl font-heading font-bold text-primary-tea">Event Management</h1>
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-heading font-bold text-primary-tea">Event Management</h1>
             <p className="text-secondary-tea mt-2">Manage event bookings and promotional flyers</p>
           </div>
           <div className="flex flex-wrap gap-3">
@@ -298,8 +298,8 @@ const AdminEvents: React.FC = () => {
 
         {/* Admin Event Form Modal */}
         {showAdminEventForm && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-cream rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div className="bg-cream rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto animate-scale-in">
               <div className="p-6">
                 <div className="flex justify-between items-center mb-4">
                   <h3 className="text-2xl font-heading font-bold text-primary-tea">
@@ -584,8 +584,8 @@ const AdminEvents: React.FC = () => {
 
         {/* Delete Confirmation Modal */}
         {showDeleteModal && selectedEvent && activeTab === 'bookings' && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-cream rounded-2xl shadow-xl w-full max-w-md">
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div className="bg-cream rounded-2xl shadow-2xl w-full max-w-md animate-scale-in">
               <div className="p-6">
                 <div className="flex items-center mb-4">
                   <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mr-4">
@@ -627,8 +627,8 @@ const AdminEvents: React.FC = () => {
 
         {/* Status Update Modal */}
         {showStatusModal && selectedEvent && activeTab === 'bookings' && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-cream rounded-2xl shadow-xl w-full max-w-md">
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div className="bg-cream rounded-2xl shadow-2xl w-full max-w-md animate-scale-in">
               <div className="p-6">
                 <div className="flex items-center mb-4">
                   <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mr-4">

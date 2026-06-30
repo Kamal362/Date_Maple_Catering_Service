@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { getHomePageContentBySection, HomePageContent } from '../services/homeContentService';
+import { useTheme } from '../context/ThemeContext';
+import ScrollReveal from './ScrollReveal';
 
 // Extend the HomePageContent items type to include number property
 interface FeatureItem {
@@ -21,6 +23,9 @@ interface FeaturesContent extends HomePageContent {
 const Features: React.FC = () => {
   const [content, setContent] = useState<FeaturesContent | null>(null);
   const [loading, setLoading] = useState(true);
+
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
 
   useEffect(() => {
     const fetchContent = async () => {
@@ -121,34 +126,38 @@ const Features: React.FC = () => {
   }));
 
   return (
-    <section className="section-padding bg-cream py-12 sm:py-16 md:py-20">
+    <section className={`section-padding py-12 sm:py-16 md:py-20 transition-colors duration-300 ${isDark ? 'bg-gray-900' : 'bg-cream'}`}>
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-10 sm:mb-12 md:mb-16">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-heading font-bold mb-3 sm:mb-4 text-primary-tea px-4 sm:px-0">{displayContent.title}</h2>
-          <div className="w-16 sm:w-20 h-1 bg-accent-tea mx-auto mb-4 sm:mb-6"></div>
-          <p className="text-base sm:text-lg text-dark-tea max-w-2xl mx-auto px-4 sm:px-6">
-            {displayContent.subtitle}
-          </p>
-        </div>
+        <ScrollReveal direction="down">
+          <div className="text-center mb-10 sm:mb-12 md:mb-16">
+            <h2 className={`text-2xl sm:text-3xl md:text-4xl font-heading font-bold mb-3 sm:mb-4 px-4 sm:px-0 ${isDark ? 'text-amber-400' : 'text-primary-tea'}`}>{displayContent.title}</h2>
+            <div className="w-16 sm:w-20 h-1 bg-accent-tea mx-auto mb-4 sm:mb-6"></div>
+            <p className={`text-base sm:text-lg max-w-2xl mx-auto px-4 sm:px-6 ${isDark ? 'text-gray-300' : 'text-dark-tea'}`}>
+              {displayContent.subtitle}
+            </p>
+          </div>
+        </ScrollReveal>
         
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 lg:gap-10 px-4 sm:px-0">
           {features.map((feature, index) => (
-            <div key={index} className="bg-white rounded-lg p-6 sm:p-8 shadow-lg hover:shadow-xl transition duration-300 border-t-4 border-accent-tea group">
-              <div className="flex justify-between items-start mb-4 sm:mb-6">
-                <div className="flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-cream rounded-full group-hover:bg-accent-tea transition duration-300">
-                  {feature.icon}
+            <ScrollReveal key={index} direction="up" delay={index * 100}>
+              <div className={`rounded-lg p-6 sm:p-8 shadow-lg hover:shadow-xl transition-all duration-300 border-t-4 border-accent-tea group h-full ${isDark ? 'bg-gray-800 hover:bg-gray-750' : 'bg-white'}`}>
+                <div className="flex justify-between items-start mb-4 sm:mb-6">
+                  <div className={`flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 rounded-full group-hover:bg-accent-tea transition duration-300 ${isDark ? 'bg-gray-700' : 'bg-cream'}`}>
+                    {feature.icon}
+                  </div>
+                  <span className={`text-4xl sm:text-5xl font-heading font-bold ${isDark ? 'text-gray-600' : 'text-light-tea'}`}>{feature.number}</span>
                 </div>
-                <span className="text-4xl sm:text-5xl font-heading font-bold text-light-tea">{feature.number}</span>
+                <h3 className={`text-xl sm:text-2xl font-heading font-semibold mb-3 sm:mb-4 ${isDark ? 'text-amber-400' : 'text-primary-tea'}`}>{feature.title}</h3>
+                <p className={`text-sm sm:text-base mb-4 ${isDark ? 'text-gray-300' : 'text-dark-tea'}`}>{feature.description}</p>
+                <button className="text-accent-tea font-medium flex items-center group-hover:text-primary-tea transition duration-300 text-sm sm:text-base">
+                  Learn More
+                  <svg className="w-4 h-4 ml-2 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
               </div>
-              <h3 className="text-xl sm:text-2xl font-heading font-semibold mb-3 sm:mb-4 text-primary-tea">{feature.title}</h3>
-              <p className="text-dark-tea text-sm sm:text-base mb-4">{feature.description}</p>
-              <button className="text-accent-tea font-medium flex items-center group-hover:text-primary-tea transition duration-300 text-sm sm:text-base">
-                Learn More
-                <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
-                </svg>
-              </button>
-            </div>
+            </ScrollReveal>
           ))}
         </div>
       </div>

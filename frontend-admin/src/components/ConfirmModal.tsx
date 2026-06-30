@@ -76,10 +76,10 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
 
   return (
     <div 
-      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+      className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
       onClick={handleBackdropClick}
     >
-      <div className="bg-cream rounded-lg shadow-xl w-full max-w-md transform transition-all duration-300 scale-100">
+      <div className="bg-cream dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-md animate-scale-in border border-secondary-tea dark:border-gray-700">
         <div className="p-6 text-center">
           {getIcon()}
           <div className="flex justify-center items-center mb-4">
@@ -96,14 +96,14 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
             {cancelText && (
               <button
                 onClick={onClose}
-                className="px-4 py-2 border border-secondary-tea text-dark-tea rounded-md hover:bg-secondary-tea hover:text-cream transition-colors"
+                className="px-4 py-2 border border-secondary-tea text-dark-tea dark:text-gray-200 dark:border-gray-600 rounded-lg hover:bg-secondary-tea hover:text-cream dark:hover:bg-gray-700 dark:hover:text-cream transition-all duration-200 hover:shadow-md"
               >
                 {cancelText}
               </button>
             )}
             <button
               onClick={handleConfirm}
-              className={`${confirmButtonClass} text-cream px-6 py-2 rounded-md transition-colors`}
+              className={`${confirmButtonClass} text-cream px-6 py-2 rounded-lg transition-all duration-200 hover:shadow-md hover:scale-[1.02]`}
             >
               {confirmText}
             </button>

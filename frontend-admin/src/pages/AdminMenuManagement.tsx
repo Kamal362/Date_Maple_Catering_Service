@@ -113,12 +113,13 @@ const AdminMenuManagement: React.FC = () => {
   }, {} as Record<string, MenuItemType[]>);
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="section-padding bg-cream min-h-screen">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-gray-900">Menu Management</h1>
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-heading font-bold text-primary-tea">Menu Management</h1>
         <button 
           onClick={handleAddMenuItem}
-          className="bg-primary-tea hover:bg-dark-tea text-white px-4 py-2 rounded-md text-sm font-medium flex items-center"
+          className="bg-primary-tea hover:bg-dark-tea text-cream px-4 py-2 rounded-lg text-sm font-medium flex items-center transition-all duration-200 hover:shadow-lg"
         >
           <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
@@ -134,22 +135,22 @@ const AdminMenuManagement: React.FC = () => {
       )}
 
       {/* Filters */}
-      <div className="bg-white rounded-lg shadow p-4 mb-6">
+      <div className="bg-white rounded-xl shadow-lg p-4 mb-6 border border-secondary-tea">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Search</label>
+            <label className="block text-sm font-medium text-dark-tea mb-1">Search</label>
             <input
               type="text"
               placeholder="Search items..."
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-tea"
+              className="w-full px-3 py-2 border border-secondary-tea rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-tea transition-all duration-200"
               value={menuSearchTerm}
               onChange={(e) => setMenuSearchTerm(e.target.value)}
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+            <label className="block text-sm font-medium text-dark-tea mb-1">Category</label>
             <select
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-tea"
+              className="w-full px-3 py-2 border border-secondary-tea rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-tea transition-all duration-200"
               value={menuFilterCategory}
               onChange={(e) => setMenuFilterCategory(e.target.value)}
             >
@@ -159,9 +160,9 @@ const AdminMenuManagement: React.FC = () => {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Availability</label>
+            <label className="block text-sm font-medium text-dark-tea mb-1">Availability</label>
             <select
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-tea"
+              className="w-full px-3 py-2 border border-secondary-tea rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-tea transition-all duration-200"
               value={menuFilterAvailability}
               onChange={(e) => setMenuFilterAvailability(e.target.value)}
             >
@@ -200,24 +201,24 @@ const AdminMenuManagement: React.FC = () => {
       ) : (
         <div className="space-y-6">
           {Object.entries(menuItemsByCategory).map(([category, items]) => (
-            <div key={category} className="bg-white rounded-lg shadow overflow-hidden">
-              <div className="bg-gray-50 px-4 py-3 border-b border-gray-200">
-                <h2 className="text-lg font-semibold capitalize">{category}</h2>
+            <div key={category} className="bg-white rounded-xl shadow-lg overflow-hidden border border-secondary-tea">
+              <div className="bg-light-tea px-4 py-3 border-b border-secondary-tea">
+                <h2 className="text-lg font-heading font-semibold capitalize text-dark-tea">{category}</h2>
               </div>
               <div className="overflow-x-auto max-h-64 overflow-y-auto">
                 <table className="w-full text-sm">
-                  <thead className="sticky top-0 bg-gray-50 z-10">
-                    <tr className="border-b border-gray-200">
-                      <th className="text-left py-3 px-4">Name</th>
-                      <th className="text-left py-3 px-4">Price</th>
-                      <th className="text-left py-3 px-4">Description</th>
-                      <th className="text-left py-3 px-4">Status</th>
-                      <th className="text-left py-3 px-4">Actions</th>
+                  <thead className="sticky top-0 bg-light-tea z-10">
+                    <tr className="border-b border-secondary-tea">
+                      <th className="text-left py-3 px-4 text-dark-tea font-semibold">Name</th>
+                      <th className="text-left py-3 px-4 text-dark-tea font-semibold">Price</th>
+                      <th className="text-left py-3 px-4 text-dark-tea font-semibold">Description</th>
+                      <th className="text-left py-3 px-4 text-dark-tea font-semibold">Status</th>
+                      <th className="text-left py-3 px-4 text-dark-tea font-semibold">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
                     {items.map((item) => (
-                      <tr key={item.id} className="border-b border-gray-100 hover:bg-gray-50">
+                      <tr key={item.id} className="border-b border-secondary-tea hover:bg-light-tea/30 transition-colors">
                         <td className="py-3 px-4 font-medium">{item.name}</td>
                         <td className="py-3 px-4">${item.price?.toFixed(2)}</td>
                         <td className="py-3 px-4 max-w-xs truncate">{item.description}</td>
@@ -232,7 +233,7 @@ const AdminMenuManagement: React.FC = () => {
                           <div className="flex space-x-2">
                             <button 
                               onClick={() => toggleMenuItemAvailability(item)}
-                              className="text-xs bg-gray-100 hover:bg-gray-200 px-2 py-1 rounded"
+                              className="text-xs bg-secondary-tea/20 hover:bg-secondary-tea/40 text-dark-tea px-2 py-1 rounded-lg transition-all duration-200"
                             >
                               {item.available ? 'Disable' : 'Enable'}
                             </button>
@@ -262,10 +263,10 @@ const AdminMenuManagement: React.FC = () => {
 
       {/* Menu Item Modal */}
       {showMenuItemModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto animate-scale-in">
             <div className="p-6">
-              <h2 className="text-xl font-bold mb-4">
+              <h2 className="text-2xl font-heading font-bold text-primary-tea mb-4">
                 {editingMenuItem ? 'Edit Menu Item' : 'Add Menu Item'}
               </h2>
               <MenuItemForm
@@ -292,6 +293,7 @@ const AdminMenuManagement: React.FC = () => {
         confirmButtonClass="bg-red-500 hover:bg-red-600"
         cancelText="Cancel"
       />
+    </div>
     </div>
   );
 };

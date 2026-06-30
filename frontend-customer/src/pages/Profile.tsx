@@ -4,9 +4,12 @@ import { getCurrentUser, updateProfile, changePassword } from '../services/authS
 import { getMyOrders } from '../services/orderService';
 import { getMyEvents } from '../services/eventService';
 import { useToast } from '../context/ToastContext';
+import { useTheme } from '../context/ThemeContext';
 import OrderHistory from '../components/OrderHistory';
 
 const Profile: React.FC = () => {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
   const [activeTab, setActiveTab] = useState('profile');
   const [loading, setLoading] = useState(true);
   const [profileLoading, setProfileLoading] = useState(false);
@@ -191,7 +194,7 @@ const Profile: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="section-padding bg-cream flex items-center justify-center min-h-screen">
+      <div className={`section-padding ${isDark ? 'bg-gray-900' : 'bg-cream'} flex items-center justify-center min-h-screen transition-colors duration-300`}>
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-tea mx-auto mb-4"></div>
           <p className="text-dark-tea">Loading profile...</p>
@@ -201,19 +204,19 @@ const Profile: React.FC = () => {
   }
 
   return (
-    <div className="section-padding bg-cream">
+    <div className={`section-padding ${isDark ? 'bg-gray-900' : 'bg-cream'} transition-colors duration-300`}>
       <div className="container mx-auto px-4">
-        <h1 className="text-4xl font-heading font-bold mb-8 text-primary-tea">My Account</h1>
+        <h1 className={`text-4xl font-heading font-bold mb-8 ${isDark ? 'text-amber-400' : 'text-primary-tea'}`}>My Account</h1>
         
-        <div className="card">
-          <div className="border-b border-secondary-tea">
+        <div className={`card ${isDark ? 'bg-gray-800 border-gray-700' : ''}`}>
+          <div className={`border-b ${isDark ? 'border-gray-700' : 'border-secondary-tea'}`}>
             <nav className="flex flex-wrap gap-2 sm:gap-0">
               <button
                 onClick={() => setActiveTab('profile')}
                 className={`px-4 sm:px-6 py-3 sm:py-4 font-medium text-base sm:text-lg transition-colors whitespace-nowrap ${
                   activeTab === 'profile'
                     ? 'text-primary-tea border-b-2 border-primary-tea'
-                    : 'text-dark-tea hover:text-primary-tea'
+                    : isDark ? 'text-gray-300 hover:text-primary-tea' : 'text-dark-tea hover:text-primary-tea'
                 }`}
               >
                 Profile
@@ -240,7 +243,7 @@ const Profile: React.FC = () => {
               </button>
               <button
                 onClick={() => setShowPasswordModal(true)}
-                className="ml-auto px-4 sm:px-6 py-3 sm:py-4 font-medium text-base sm:text-lg text-dark-tea hover:text-primary-tea transition-colors whitespace-nowrap"
+                className={`ml-auto px-4 sm:px-6 py-3 sm:py-4 font-medium text-base sm:text-lg ${isDark ? 'text-gray-300' : 'text-dark-tea'} hover:text-primary-tea transition-colors whitespace-nowrap`}
               >
                 Change Password
               </button>
@@ -438,8 +441,8 @@ const Profile: React.FC = () => {
 
       {/* Change Password Modal */}
       {showPasswordModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-cream rounded-lg shadow-xl w-full max-w-md">
+        <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className={`${isDark ? 'bg-gray-800' : 'bg-cream'} rounded-lg shadow-xl w-full max-w-md`}>
             <div className="p-6">
               <div className="flex justify-between items-center mb-6">
                 <h3 className="text-2xl font-heading font-semibold text-primary-tea">

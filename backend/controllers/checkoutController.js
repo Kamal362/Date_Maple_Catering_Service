@@ -1,13 +1,14 @@
 const Cart = require('../models/Cart');
 const Order = require('../models/Order');
 const MenuItem = require('../models/MenuItem');
+const TaxSettings = require('../models/TaxSettings');
 const multer = require('multer');
 const path = require('path');
 
 // Configure multer for file uploads
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, 'uploads/');
+    cb(null, path.join(__dirname, '..', 'uploads'));
   },
   filename: (req, file, cb) => {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
@@ -38,19 +39,12 @@ exports.uploadReceipt = upload;
 // @access  Private
 exports.processCheckout = async (req, res) => {
   try {
-    console.log('Checkout request received');
-    console.log('User ID:', req.user?.id);
-    console.log('Request body:', req.body);
-    console.log('Files:', req.file);
-    
     // Parse order data from form data
     let orderData;
     if (req.body.orderData) {
       orderData = JSON.parse(req.body.orderData);
-      console.log('Parsed order data:', orderData);
     } else {
       orderData = req.body;
-      console.log('Direct order data:', orderData);
     }
     
     const { orderType, deliveryAddress, pickupTime, paymentMethod } = orderData;
@@ -62,40 +56,34 @@ exports.processCheckout = async (req, res) => {
     }
     
     // Get user's cart
-    console.log('Looking up cart for user:', req.user.id);
     const cart = await Cart.findOne({ user: req.user.id }).populate('items.menuItem');
-    console.log('Found cart:', cart);
     
     if (!cart) {
-      console.log('Cart not found for user:', req.user.id);
       return res.status(404).json({
         success: false,
-        message: 'Cart not found. Please add items to your cart and try again.',
-        debug: {
-          userId: req.user.id,
-          timestamp: new Date().toISOString()
-        }
+        message: 'Cart not found. Please add items to your cart and try again.'
       });
     }
     
     if (cart.items.length === 0) {
-      console.log('Cart is empty for user:', req.user.id);
       return res.status(400).json({
         success: false,
-        message: 'Cart is empty. Please add items to your cart and try again.',
-        debug: {
-          userId: req.user.id,
-          cartId: cart._id,
-          itemCount: 0
-        }
+        message: 'Cart is empty. Please add items to your cart and try again.'
       });
     }
     
     // Calculate order total
     let totalAmount = cart.totalAmount;
-    const taxRate = 0.08; // 8% tax
+
+    // Fetch tax settings from database
+    const taxSettings = await TaxSettings.findOne();
+    const taxRate = taxSettings && taxSettings.taxEnabled ? (taxSettings.taxRate / 100) : 0;
     const tax = totalAmount * taxRate;
     totalAmount += tax;
+    
+    // Add delivery fee for delivery orders
+    const deliveryFee = orderType === 'delivery' ? 2.99 : 0;
+    totalAmount += deliveryFee;
     
     // Create order items from cart items
     const orderItems = cart.items.map(item => ({
@@ -142,8 +130,7 @@ exports.processCheckout = async (req, res) => {
     console.error('Checkout error:', error);
     res.status(500).json({
       success: false,
-      message: 'Server error',
-      error: error.message
+      message: 'Server error'
     });
   }
 };
@@ -153,18 +140,12 @@ exports.processCheckout = async (req, res) => {
 // @access  Public
 exports.processGuestCheckout = async (req, res) => {
   try {
-    console.log('Guest checkout request received');
-    console.log('Request body:', req.body);
-    console.log('Files:', req.file);
-    
     // Parse order data from form data
     let orderData;
     if (req.body.orderData) {
       orderData = JSON.parse(req.body.orderData);
-      console.log('Parsed order data:', orderData);
     } else {
       orderData = req.body;
-      console.log('Direct order data:', orderData);
     }
     
     const { orderType, deliveryAddress, pickupTime, paymentMethod, guestInfo, items } = orderData;
@@ -198,7 +179,6 @@ exports.processGuestCheckout = async (req, res) => {
     for (const item of items) {
       const menuItem = await MenuItem.findById(item.menuItemId || item.id);
       if (!menuItem) {
-        console.log('Menu item not found:', item.menuItemId || item.id);
         continue;
       }
       
@@ -220,9 +200,15 @@ exports.processGuestCheckout = async (req, res) => {
       });
     }
     
-    const taxRate = 0.08; // 8% tax
+    // Fetch tax settings from database
+    const taxSettings = await TaxSettings.findOne();
+    const taxRate = taxSettings && taxSettings.taxEnabled ? (taxSettings.taxRate / 100) : 0;
     const tax = totalAmount * taxRate;
     totalAmount += tax;
+    
+    // Add delivery fee for delivery orders
+    const deliveryFee = orderType === 'delivery' ? 2.99 : 0;
+    totalAmount += deliveryFee;
     
     // Handle payment receipt if uploaded
     let paymentReceiptUrl = null;
@@ -261,8 +247,7 @@ exports.processGuestCheckout = async (req, res) => {
     console.error('Guest checkout error:', error);
     res.status(500).json({
       success: false,
-      message: 'Server error',
-      error: error.message
+      message: 'Server error'
     });
   }
 };

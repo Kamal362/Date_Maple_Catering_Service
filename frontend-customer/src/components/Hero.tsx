@@ -1,10 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { getHomePageContentBySection, HomePageContent } from '../services/homeContentService';
 
 const Hero: React.FC = () => {
   const [content, setContent] = useState<HomePageContent | null>(null);
   const [loading, setLoading] = useState(true);
+  const [scrollY, setScrollY] = useState(0);
+  const heroRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const handleScroll = () => setScrollY(window.scrollY);
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   useEffect(() => {
     const fetchContent = async () => {
@@ -55,12 +63,13 @@ const Hero: React.FC = () => {
   const stripHtml = (html: string): string => html.replace(/<[^>]*>/g, '').trim();
 
   return (
-    <section className="relative bg-primary-tea text-cream overflow-hidden">
-      <div className="absolute inset-0 bg-black opacity-30"></div>
+    <section ref={heroRef} className="relative bg-primary-tea text-cream overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-br from-black/40 via-black/20 to-transparent"></div>
       <div className="absolute top-0 left-0 w-full h-full" style={{
         backgroundImage: "url('https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80')",
         backgroundSize: "cover",
         backgroundPosition: "center",
+        transform: `translateY(${scrollY * 0.3}px)`,
         zIndex: -1
       }}></div>
       <div className="container mx-auto px-4 py-16 sm:py-20 md:py-24 lg:py-32 relative z-10">
@@ -92,13 +101,13 @@ const Hero: React.FC = () => {
             <div className="flex flex-col sm:flex-row justify-center lg:justify-start space-y-3 sm:space-y-0 sm:space-x-4 px-4 sm:px-0">
               <Link
                 to="/menu"
-                className="inline-flex items-center justify-center px-8 py-3 text-base sm:text-lg font-semibold rounded-lg bg-white text-primary-tea border-2 border-white hover:bg-primary-tea hover:text-white hover:border-primary-tea transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 min-h-[48px] w-full sm:w-auto"
+                className="inline-flex items-center justify-center px-8 py-3 text-base sm:text-lg font-semibold rounded-lg bg-white text-primary-tea border-2 border-white hover:bg-primary-tea hover:text-white hover:border-primary-tea transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 min-h-[48px] w-full sm:w-auto"
               >
                 {displayContent.buttonText ? stripHtml(displayContent.buttonText) : 'Learn More'}
               </Link>
               <Link
                 to="/about"
-                className="inline-flex items-center justify-center px-8 py-3 text-base sm:text-lg font-semibold rounded-lg bg-transparent text-white border-2 border-white hover:bg-white hover:text-primary-tea transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 min-h-[48px] w-full sm:w-auto"
+                className="inline-flex items-center justify-center px-8 py-3 text-base sm:text-lg font-semibold rounded-lg bg-transparent text-white border-2 border-white hover:bg-white hover:text-primary-tea transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 min-h-[48px] w-full sm:w-auto"
               >
                 About Us
               </Link>

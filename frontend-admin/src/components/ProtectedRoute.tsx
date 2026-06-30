@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
 import { isAuthenticated, getCurrentUser } from '../services/authService';
+import LoadingSpinner from './LoadingSpinner';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -13,29 +14,40 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   adminOnly = false,
   clientOnly = false
 }) => {
+  const [isVerifying, setIsVerifying] = useState(true);
   const authenticated = isAuthenticated();
   const user = getCurrentUser();
 
-  console.log('=== ProtectedRoute Debug Info ===');
-  console.log('Authenticated:', authenticated);
-  console.log('User:', user);
-  console.log('AdminOnly flag:', adminOnly);
-  console.log('ClientOnly flag:', clientOnly);
+  useEffect(() => {
+    // Brief verification delay to prevent flash and ensure auth state is stable
+    const timer = setTimeout(() => {
+      setIsVerifying(false);
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (isVerifying) {
+    return (
+      <div className="min-h-screen bg-cream dark:bg-gray-900 flex items-center justify-center">
+        <LoadingSpinner size="lg" message="Verifying access..." />
+      </div>
+    );
+  }
 
   if (!authenticated) {
-    console.log('User not authenticated, redirecting to login');
     return <Navigate to="/admin-login" replace />;
   }
 
   if (adminOnly && user?.role !== 'admin') {
-    console.log('User is not an admin, redirecting to home');
     return <Navigate to="/" replace />;
   }
 
   if (clientOnly && user?.role === 'admin') {
-    console.log('Admin user accessing client route, redirecting to admin home');
     return <Navigate to="/" replace />;
   }
 
   return <>{children}</>;
 };
+
+export default ProtectedRoute;

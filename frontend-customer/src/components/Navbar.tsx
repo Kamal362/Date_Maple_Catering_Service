@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useState } from 'react';
 import { useCart } from '../context/CartContext';
 import { useTheme } from '../context/ThemeContext';
@@ -11,7 +11,8 @@ const Navbar = () => {
   const isLoggedIn = !!localStorage.getItem('token');
   const accountPath = isLoggedIn ? '/profile' : '/order-tracking';
 
-  const navBg = theme === 'dark' ? 'bg-gray-900 border-b border-gray-700' : 'bg-cream border-b border-light-tea';
+  const { pathname } = useLocation();
+  const navBg = theme === 'dark' ? 'bg-gray-900/90 border-b border-gray-700' : 'bg-cream/90 border-b border-light-tea';
   const navLink = theme === 'dark'
     ? 'text-gray-200 hover:text-accent-tea'
     : 'text-dark-tea hover:text-primary-tea';
@@ -21,7 +22,7 @@ const Navbar = () => {
     : 'text-dark-tea hover:text-primary-tea hover:bg-light-tea';
 
   return (
-    <nav className={`${navBg} shadow-md sticky top-0 z-50 transition-colors duration-300`}>
+    <nav className={`${navBg} backdrop-blur-md shadow-md sticky top-0 z-50 transition-colors duration-300`}>
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center h-20">
           <Link to="/" className="flex items-center">
@@ -60,7 +61,7 @@ const Navbar = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d={icon}></path>
                 </svg>
                 <span className="relative z-10">{label}</span>
-                <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary-tea transition-all duration-300 group-hover:w-full"></span>
+                <span className={`absolute bottom-0 left-0 h-0.5 bg-primary-tea transition-all duration-300 ${pathname === to ? 'w-full' : 'w-0 group-hover:w-full'}`}></span>
               </Link>
             ))}
             <ThemeToggle />
@@ -106,8 +107,8 @@ const Navbar = () => {
         </div>
 
         {/* Mobile Menu */}
-        {isOpen && (
-          <div className={`md:hidden pb-4 ${mobileMenuBg} -mx-4 px-4`}>
+        <div className={`md:hidden overflow-hidden transition-all duration-300 ease-in-out ${isOpen ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'}`}>
+          <div className={`pb-4 ${mobileMenuBg} -mx-4 px-4`}>
             {[
               { to: '/', label: 'Home', icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' },
               { to: '/menu', label: 'Menu', icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2' },
@@ -130,7 +131,7 @@ const Navbar = () => {
               </Link>
             ))}
           </div>
-        )}
+        </div>
       </div>
     </nav>
   );

@@ -95,15 +95,16 @@ const AdminInquiries: React.FC = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="section-padding bg-cream min-h-screen">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Contact Messages</h1>
-          <p className="text-gray-600 mt-1">Manage customer inquiries and messages</p>
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-heading font-bold text-primary-tea">Contact Messages</h1>
+          <p className="text-secondary-tea mt-1">Manage customer inquiries and messages</p>
         </div>
         <button
           onClick={fetchInquiries}
-          className="mt-4 md:mt-0 bg-primary-tea hover:bg-dark-tea text-white px-4 py-2 rounded-md text-sm font-medium flex items-center gap-2"
+          className="mt-4 md:mt-0 bg-primary-tea hover:bg-dark-tea text-cream px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-all duration-200 hover:shadow-lg"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
@@ -114,21 +115,21 @@ const AdminInquiries: React.FC = () => {
 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-        <div className="bg-white rounded-lg shadow p-4">
-          <p className="text-sm text-gray-500">Total Messages</p>
-          <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
+        <div className="card p-4">
+          <p className="text-sm text-secondary-tea">Total Messages</p>
+          <p className="text-2xl font-bold text-dark-tea">{stats.total}</p>
         </div>
-        <div className="bg-white rounded-lg shadow p-4">
-          <p className="text-sm text-gray-500">Pending</p>
-          <p className="text-2xl font-bold text-yellow-600">{stats.pending}</p>
+        <div className="card p-4 border-l-4 border-yellow-500">
+          <p className="text-sm text-yellow-600">Pending</p>
+          <p className="text-2xl font-bold text-yellow-700">{stats.pending}</p>
         </div>
-        <div className="bg-white rounded-lg shadow p-4">
-          <p className="text-sm text-gray-500">Read</p>
-          <p className="text-2xl font-bold text-blue-600">{stats.read}</p>
+        <div className="card p-4 border-l-4 border-blue-500">
+          <p className="text-sm text-blue-600">Read</p>
+          <p className="text-2xl font-bold text-blue-700">{stats.read}</p>
         </div>
-        <div className="bg-white rounded-lg shadow p-4">
-          <p className="text-sm text-gray-500">Replied</p>
-          <p className="text-2xl font-bold text-green-600">{stats.replied}</p>
+        <div className="card p-4 border-l-4 border-green-500">
+          <p className="text-sm text-green-600">Replied</p>
+          <p className="text-2xl font-bold text-green-700">{stats.replied}</p>
         </div>
       </div>
 
@@ -138,10 +139,10 @@ const AdminInquiries: React.FC = () => {
           <button
             key={status}
             onClick={() => setFilter(status)}
-            className={`px-4 py-2 rounded-md text-sm font-medium capitalize ${
+            className={`px-4 py-2 rounded-lg text-sm font-medium capitalize transition-all duration-200 ${
               filter === status
-                ? 'bg-primary-tea text-white'
-                : 'bg-white text-gray-700 hover:bg-gray-100'
+                ? 'bg-primary-tea text-white shadow-md'
+                : 'bg-white text-dark-tea hover:bg-light-tea border border-secondary-tea'
             }`}
           >
             {status}
@@ -176,23 +177,23 @@ const AdminInquiries: React.FC = () => {
           </p>
         </div>
       ) : (
-        <div className="bg-white rounded-lg shadow overflow-hidden">
+        <div className="card overflow-hidden">
           <div className="overflow-x-auto">
             <table className="min-w-full">
-              <thead className="bg-gray-50">
+              <thead className="bg-secondary-tea/20">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">From</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subject</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-dark-tea uppercase tracking-wider">From</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-dark-tea uppercase tracking-wider">Subject</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-dark-tea uppercase tracking-wider">Date</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-dark-tea uppercase tracking-wider">Status</th>
+                  <th className="px-6 py-3 text-right text-xs font-semibold text-dark-tea uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-200">
+              <tbody className="divide-y divide-secondary-tea">
                 {filteredInquiries.map((inquiry) => (
                   <tr 
                     key={inquiry._id} 
-                    className={`hover:bg-gray-50 cursor-pointer ${inquiry.status === 'pending' ? 'bg-yellow-50' : ''}`}
+                    className={`hover:bg-light-tea/30 cursor-pointer transition-colors ${inquiry.status === 'pending' ? 'bg-yellow-50' : ''}`}
                     onClick={() => handleViewDetail(inquiry)}
                   >
                     <td className="px-6 py-4">
@@ -239,12 +240,12 @@ const AdminInquiries: React.FC = () => {
 
       {/* Detail Modal */}
       {showDetailModal && selectedInquiry && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto animate-scale-in">
             <div className="p-6">
               <div className="flex justify-between items-start mb-4">
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-900">{selectedInquiry.subject}</h2>
+                  <h2 className="text-2xl font-heading font-bold text-dark-tea">{selectedInquiry.subject}</h2>
                   <p className="text-sm text-gray-500 mt-1">
                     From: {selectedInquiry.name} ({selectedInquiry.email})
                   </p>
@@ -311,6 +312,7 @@ const AdminInquiries: React.FC = () => {
         confirmButtonClass="bg-red-500 hover:bg-red-600"
         iconType="warning"
       />
+    </div>
     </div>
   );
 };

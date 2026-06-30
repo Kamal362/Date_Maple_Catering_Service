@@ -53,7 +53,7 @@ const updateTaxSettings = async (req, res) => {
     res.json(settings);
   } catch (error) {
     console.error('Error updating tax settings:', error);
-    res.status(500).json({ message: 'Server error', error: error.message });
+    res.status(500).json({ message: 'Server error' });
   }
 };
 

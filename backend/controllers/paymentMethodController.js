@@ -17,13 +17,11 @@ const getPaymentMethods = async (req, res) => {
 // @access  Private/Admin
 const getAllPaymentMethods = async (req, res) => {
   try {
-    console.log('Fetching all payment methods for admin:', req.user?.email);
     const paymentMethods = await PaymentMethod.find({}).lean();
-    console.log('Found payment methods:', paymentMethods.length);
     res.json(paymentMethods);
   } catch (error) {
     console.error('Error fetching payment methods:', error);
-    res.status(500).json({ message: 'Server error', error: error.message });
+    res.status(500).json({ message: 'Server error' });
   }
 };
 
@@ -66,7 +64,7 @@ const createPaymentMethod = async (req, res) => {
     res.status(201).json(createdPaymentMethod);
   } catch (error) {
     console.error('Error creating payment method:', error);
-    res.status(500).json({ message: 'Server error', error: error.message });
+    res.status(500).json({ message: 'Server error' });
   }
 };
 
@@ -114,7 +112,7 @@ const updatePaymentMethod = async (req, res) => {
     res.json(updatedPaymentMethod);
   } catch (error) {
     console.error('Error updating payment method:', error);
-    res.status(500).json({ message: 'Server error', error: error.message });
+    res.status(500).json({ message: 'Server error' });
   }
 };
 

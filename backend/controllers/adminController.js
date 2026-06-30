@@ -22,11 +22,10 @@ exports.getDashboardStats = async (req, res) => {
       .populate('user', 'firstName lastName')
       .populate('items.menuItem', 'name');
       
-    // Get recent events
+    // Get recent events (customer is embedded, no populate needed)
     const recentEvents = await Event.find()
       .sort({ createdAt: -1 })
-      .limit(5)
-      .populate('customer', 'firstName lastName');
+      .limit(5);
       
     // Get order status distribution
     const orderStatusDistribution = await Order.aggregate([
@@ -123,8 +122,7 @@ exports.getDashboardStats = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Server error',
-      error: error.message
+      message: 'Server error'
     });
   }
 };
@@ -144,8 +142,7 @@ exports.getUsers = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Server error',
-      error: error.message
+      message: 'Server error'
     });
   }
 };
@@ -155,10 +152,7 @@ exports.getUsers = async (req, res) => {
 // @access  Private (Admin only)
 exports.createUser = async (req, res) => {
   try {
-    console.log('=== DEBUG: Create User Request ===');
-    console.log('Request body:', req.body);
     const { firstName, lastName, email, password, phone, role = 'customer' } = req.body;
-    console.log('Extracted role:', role);
 
     // Check if user exists
     const userExists = await User.findOne({ email });
@@ -195,8 +189,7 @@ exports.createUser = async (req, res) => {
     console.error('User creation error:', error);
     res.status(500).json({
       success: false,
-      message: 'Server error',
-      error: error.message
+      message: 'Server error'
     });
   }
 };
@@ -222,8 +215,7 @@ exports.getUser = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Server error',
-      error: error.message
+      message: 'Server error'
     });
   }
 };
@@ -245,10 +237,18 @@ exports.updateUser = async (req, res) => {
         });
       }
     }
-    
+
+    // Build update object with only provided fields to avoid overwriting with undefined
+    const updateFields = {};
+    if (firstName !== undefined) updateFields.firstName = firstName;
+    if (lastName !== undefined) updateFields.lastName = lastName;
+    if (email !== undefined) updateFields.email = email;
+    if (phone !== undefined) updateFields.phone = phone;
+    if (role !== undefined) updateFields.role = role;
+
     const user = await User.findByIdAndUpdate(
       req.params.id,
-      { firstName, lastName, email, phone, role },
+      updateFields,
       { new: true, runValidators: true }
     ).select('-password');
     
@@ -266,8 +266,7 @@ exports.updateUser = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Server error',
-      error: error.message
+      message: 'Server error'
     });
   }
 };
@@ -293,8 +292,7 @@ exports.deleteUser = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Server error',
-      error: error.message
+      message: 'Server error'
     });
   }
 };
@@ -304,8 +302,9 @@ exports.deleteUser = async (req, res) => {
 // @access  Private (Admin only)
 exports.getLowInventory = async (req, res) => {
   try {
+    // Use $expr to compare two fields within the same document
     const lowInventoryItems = await Inventory.find({
-      quantity: { $lte: '$reorderLevel' },
+      $expr: { $lte: ['$quantity', '$reorderLevel'] },
       isActive: true
     });
     
@@ -317,8 +316,148 @@ exports.getLowInventory = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Server error',
-      error: error.message
+      message: 'Server error'
     });
+  }
+};
+
+// @desc    Get revenue trend
+// @route   GET /api/admin/analytics/revenue-trend
+// @access  Private (Admin only)
+exports.getRevenueTrend = async (req, res) => {
+  try {
+    const { period = 'monthly' } = req.query;
+    let groupBy, sortBy;
+
+    if (period === 'daily') {
+      groupBy = { year: { $year: '$createdAt' }, month: { $month: '$createdAt' }, day: { $dayOfMonth: '$createdAt' } };
+      sortBy = { '_id.year': 1, '_id.month': 1, '_id.day': 1 };
+    } else if (period === 'weekly') {
+      groupBy = { year: { $year: '$createdAt' }, week: { $week: '$createdAt' } };
+      sortBy = { '_id.year': 1, '_id.week': 1 };
+    } else {
+      groupBy = { year: { $year: '$createdAt' }, month: { $month: '$createdAt' } };
+      sortBy = { '_id.year': 1, '_id.month': 1 };
+    }
+
+    const revenueTrend = await Order.aggregate([
+      { $match: { paymentStatus: 'paid' } },
+      { $group: { _id: groupBy, amount: { $sum: '$totalAmount' }, orderCount: { $sum: 1 } } },
+      { $sort: sortBy }
+    ]);
+
+    const formatted = revenueTrend.map(item => ({
+      date: item._id.day
+        ? `${item._id.year}-${String(item._id.month).padStart(2, '0')}-${String(item._id.day).padStart(2, '0')}`
+        : `${item._id.year}-${String(item._id.month || 1).padStart(2, '0')}-01`,
+      amount: item.amount,
+      orderCount: item.orderCount
+    }));
+
+    res.status(200).json({ success: true, data: formatted });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+// @desc    Get popular menu items
+// @route   GET /api/admin/analytics/popular-items
+// @access  Private (Admin only)
+exports.getPopularItems = async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit) || 10;
+
+    const popularItems = await Order.aggregate([
+      { $unwind: '$items' },
+      { $lookup: { from: 'menuitems', localField: 'items.menuItem', foreignField: '_id', as: 'menuItemData' } },
+      { $unwind: '$menuItemData' },
+      { $group: { _id: '$menuItemData.name', salesCount: { $sum: '$items.quantity' }, revenue: { $sum: { $multiply: ['$items.price', '$items.quantity'] } } } },
+      { $sort: { salesCount: -1 } },
+      { $limit: limit },
+      { $project: { _id: 0, name: '$_id', salesCount: 1, revenue: 1 } }
+    ]);
+
+    res.status(200).json({ success: true, data: popularItems });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+// @desc    Get sales by category
+// @route   GET /api/admin/analytics/sales-by-category
+// @access  Private (Admin only)
+exports.getSalesByCategory = async (req, res) => {
+  try {
+    const salesByCategory = await Order.aggregate([
+      { $unwind: '$items' },
+      { $lookup: { from: 'menuitems', localField: 'items.menuItem', foreignField: '_id', as: 'menuItemData' } },
+      { $unwind: '$menuItemData' },
+      { $group: { _id: '$menuItemData.category', sales: { $sum: '$items.quantity' }, revenue: { $sum: { $multiply: ['$items.price', '$items.quantity'] } } } },
+      { $project: { _id: 0, category: { $ifNull: ['$_id', 'Other'] }, sales: 1, revenue: 1 } }
+    ]);
+
+    res.status(200).json({ success: true, data: salesByCategory });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+// @desc    Get peak hours
+// @route   GET /api/admin/analytics/peak-hours
+// @access  Private (Admin only)
+exports.getPeakHours = async (req, res) => {
+  try {
+    const peakHours = await Order.aggregate([
+      { $group: { _id: { $hour: '$createdAt' }, orderCount: { $sum: 1 } } },
+      { $sort: { '_id': 1 } },
+      { $project: { _id: 0, hour: '$_id', orderCount: 1 } }
+    ]);
+
+    res.status(200).json({ success: true, data: peakHours });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+// @desc    Get customer demographics
+// @route   GET /api/admin/analytics/demographics
+// @access  Private (Admin only)
+exports.getCustomerDemographics = async (req, res) => {
+  try {
+    const ageGroups = await User.aggregate([
+      { $match: { age: { $exists: true, $ne: null } } },
+      { $bucket: {
+          groupBy: '$age',
+          boundaries: [0, 18, 26, 36, 46, 56, 200],
+          default: 'Unknown',
+          output: { count: { $sum: 1 } }
+      } },
+      { $project: { _id: 0, range: {
+          $switch: {
+            branches: [
+              { case: { $and: [{ $gte: ['$_id', 0] }, { $lt: ['$_id', 18] }] }, then: 'Under 18' },
+              { case: { $and: [{ $gte: ['$_id', 18] }, { $lt: ['$_id', 26] }] }, then: '18-25' },
+              { case: { $and: [{ $gte: ['$_id', 26] }, { $lt: ['$_id', 36] }] }, then: '26-35' },
+              { case: { $and: [{ $gte: ['$_id', 36] }, { $lt: ['$_id', 46] }] }, then: '36-45' },
+              { case: { $and: [{ $gte: ['$_id', 46] }, { $lt: ['$_id', 56] }] }, then: '46-55' },
+              { case: { $gte: ['$_id', 56] }, then: '55+' }
+            ],
+            default: 'Unknown'
+          }
+      }, count: 1 } }
+    ]);
+
+    const genderDistribution = await User.aggregate([
+      { $match: { gender: { $exists: true, $ne: null } } },
+      { $group: { _id: '$gender', count: { $sum: 1 } } },
+      { $project: { _id: 0, gender: '$_id', count: 1 } }
+    ]);
+
+    res.status(200).json({
+      success: true,
+      data: { ageGroups, genderDistribution }
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Server error' });
   }
 };

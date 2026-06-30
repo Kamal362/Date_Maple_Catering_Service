@@ -3,6 +3,7 @@ import { format } from 'date-fns';
 import { Order, cancelOrder } from '../services/orderService';
 import ReorderButton from './ReorderButton';
 import { useToast } from '../context/ToastContext';
+import { useTheme } from '../context/ThemeContext';
 
 interface OrderDetailsProps {
   order: Order;
@@ -12,6 +13,8 @@ interface OrderDetailsProps {
 const OrderDetails: React.FC<OrderDetailsProps> = ({ order, onClose }) => {
   const [localOrder, setLocalOrder] = useState<Order>(order);
   const toast = useToast();
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
 
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
@@ -60,13 +63,13 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ order, onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-cream rounded-lg max-w-2xl w-full max-h-[90vh] overflow-hidden">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+      <div className={`rounded-lg max-w-2xl w-full max-h-[90vh] overflow-hidden ${isDark ? 'bg-gray-800' : 'bg-cream'}`}>
         {/* Header */}
         <div className="p-6 border-b border-secondary-tea">
           <div>
-            <h2 className="text-2xl font-heading font-semibold text-primary-tea">Order Details</h2>
-            <p className="text-secondary-tea mt-1">
+            <h2 className={`text-2xl font-heading font-semibold ${isDark ? 'text-amber-400' : 'text-primary-tea'}`}>Order Details</h2>
+            <p className={`mt-1 ${isDark ? 'text-gray-400' : 'text-secondary-tea'}`}>
               Order #{localOrder._id.slice(-6).toUpperCase()} • {format(new Date(localOrder.createdAt), 'MMM dd, yyyy')}
             </p>
           </div>
@@ -103,7 +106,9 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ order, onClose }) => {
                 </div>
                 <div>
                   <p className="text-secondary-tea">Payment Method</p>
-                  <p className="font-medium capitalize">{localOrder.paymentMethod}</p>
+                  <p className="font-medium capitalize">
+                    {localOrder.paymentMethod === 'stripe' ? 'Stripe Card' : localOrder.paymentMethod === 'receipt_upload' ? 'Receipt Upload' : localOrder.paymentMethod}
+                  </p>
                 </div>
                 <div>
                   <p className="text-secondary-tea">Order Date</p>
@@ -204,7 +209,7 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ order, onClose }) => {
         </div>
 
         {/* Footer */}
-        <div className="p-6 border-t border-secondary-tea bg-cream flex flex-wrap justify-between gap-3 items-center">
+        <div className={`p-6 border-t flex flex-wrap justify-between gap-3 items-center ${isDark ? 'bg-gray-700 border-gray-600' : 'bg-cream border-secondary-tea'}`}>
           <button
             onClick={onClose}
             className="px-4 py-2 border border-secondary-tea text-secondary-tea rounded-md hover:bg-secondary-tea hover:text-dark-tea transition-colors"

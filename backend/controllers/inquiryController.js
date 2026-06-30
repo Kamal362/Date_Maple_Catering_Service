@@ -32,8 +32,7 @@ exports.submitInquiry = async (req, res) => {
     console.error('Error submitting inquiry:', error);
     res.status(500).json({
       success: false,
-      message: 'Server error',
-      error: error.message
+      message: 'Server error'
     });
   }
 };
@@ -54,8 +53,7 @@ exports.getAllInquiries = async (req, res) => {
     console.error('Error fetching inquiries:', error);
     res.status(500).json({
       success: false,
-      message: 'Server error',
-      error: error.message
+      message: 'Server error'
     });
   }
 };
@@ -82,8 +80,7 @@ exports.getInquiry = async (req, res) => {
     console.error('Error fetching inquiry:', error);
     res.status(500).json({
       success: false,
-      message: 'Server error',
-      error: error.message
+      message: 'Server error'
     });
   }
 };
@@ -117,8 +114,7 @@ exports.updateInquiry = async (req, res) => {
     console.error('Error updating inquiry:', error);
     res.status(500).json({
       success: false,
-      message: 'Server error',
-      error: error.message
+      message: 'Server error'
     });
   }
 };
@@ -145,8 +141,7 @@ exports.deleteInquiry = async (req, res) => {
     console.error('Error deleting inquiry:', error);
     res.status(500).json({
       success: false,
-      message: 'Server error',
-      error: error.message
+      message: 'Server error'
     });
   }
 };

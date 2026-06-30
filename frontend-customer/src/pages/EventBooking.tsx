@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { createEvent } from '../services/eventService';
+import { useTheme } from '../context/ThemeContext';
 
 const EventBooking: React.FC = () => {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -72,13 +75,10 @@ const EventBooking: React.FC = () => {
         specialRequests: formData.specialRequests
       };
       
-      console.log('Submitting event data:', eventData);
-      
       // Submit to backend
       const response = await createEvent(eventData);
       
       if (response.success) {
-        console.log('Event created successfully:', response.data);
         setShowSuccessModal(true);
       } else {
         throw new Error(response.message || 'Failed to create event');
@@ -115,19 +115,19 @@ const EventBooking: React.FC = () => {
   };
 
   return (
-    <div className="section-padding bg-cream">
+    <div className={`section-padding ${isDark ? 'bg-gray-900' : 'bg-cream'} transition-colors duration-300`}>
       <div className="container mx-auto px-4">
         <div className="flex items-center mb-6">
-          <Link to="/menu" className="text-primary-tea hover:text-dark-tea mr-4">
+          <Link to="/menu" className={`${isDark ? 'text-amber-400' : 'text-primary-tea'} hover:text-dark-tea mr-4`}>
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
             </svg>
           </Link>
-          <h1 className="text-4xl font-heading font-bold text-primary-tea">Book an Event</h1>
+          <h1 className={`text-4xl font-heading font-bold ${isDark ? 'text-amber-400' : 'text-primary-tea'}`}>Book an Event</h1>
         </div>
         
         <div className="max-w-4xl mx-auto">
-          <div className="bg-white rounded-2xl shadow-lg border border-secondary-tea overflow-hidden">
+          <div className={`${isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-secondary-tea'} rounded-2xl shadow-lg border overflow-hidden`}>
             <div className="p-6 bg-gradient-to-r from-primary-tea to-dark-tea">
               <h2 className="text-2xl font-heading font-bold text-cream">Book Your Event</h2>
               <p className="text-cream opacity-90 mt-2">Fill out the form below to book our catering services for your special event.</p>
@@ -237,6 +237,7 @@ const EventBooking: React.FC = () => {
                         className="w-full px-4 py-3 border border-secondary-tea rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-tea transition-all duration-200 hover:border-primary-tea"
                         value={formData.date}
                         onChange={handleChange}
+                        min={new Date().toISOString().split('T')[0]}
                         required
                       />
                     </div>
@@ -434,8 +435,8 @@ const EventBooking: React.FC = () => {
         
         {/* Success Modal */}
         {showSuccessModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-cream rounded-2xl shadow-xl w-full max-w-md transform transition-all duration-300 scale-100">
+          <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div className={`${isDark ? 'bg-gray-800' : 'bg-cream'} rounded-2xl shadow-xl w-full max-w-md transform transition-all duration-300 scale-100`}>
               <div className="p-8">
                 <div className="text-center">
                   <div className="w-16 h-16 bg-primary-tea rounded-full flex items-center justify-center mx-auto mb-6">
@@ -463,8 +464,8 @@ const EventBooking: React.FC = () => {
         
         {/* Error Modal */}
         {showErrorModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-cream rounded-2xl shadow-xl w-full max-w-md transform transition-all duration-300 scale-100">
+          <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div className={`${isDark ? 'bg-gray-800' : 'bg-cream'} rounded-2xl shadow-xl w-full max-w-md transform transition-all duration-300 scale-100`}>
               <div className="p-8">
                 <div className="text-center">
                   <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">

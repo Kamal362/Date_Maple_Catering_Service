@@ -2,8 +2,11 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { login } from '../services/authService';
 import { useToast } from '../context/ToastContext';
+import { useTheme } from '../context/ThemeContext';
 
 const ClientLogin: React.FC = () => {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -87,20 +90,25 @@ const ClientLogin: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-cream flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md">
+    <div className={`min-h-screen ${isDark ? 'bg-gray-900' : 'bg-cream'} flex items-center justify-center p-4 transition-colors duration-300`}>
+      <div className={`${isDark ? 'bg-gray-800 border border-gray-700' : 'bg-white'} rounded-2xl shadow-xl p-8 w-full max-w-md animate-fade-in-up`}>
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-heading font-bold text-primary-tea mb-2">
+          <div className="w-16 h-16 bg-primary-tea rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg className="w-8 h-8 text-cream" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+            </svg>
+          </div>
+          <h1 className={`text-3xl font-heading font-bold ${isDark ? 'text-amber-400' : 'text-primary-tea'} mb-2`}>
             Welcome Back
           </h1>
-          <p className="text-gray-600">
+          <p className={isDark ? 'text-gray-400' : 'text-gray-600'}>
             Sign in to your account or continue as guest
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="email" className={`block text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'} mb-2`}>
               Email Address
             </label>
             <input
@@ -109,8 +117,8 @@ const ClientLogin: React.FC = () => {
               name="email"
               value={formData.email}
               onChange={handleChange}
-              className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary-tea focus:border-transparent transition ${
-                errors.email ? 'border-red-500' : 'border-gray-300'
+              className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary-tea focus:border-transparent transition-all duration-200 ${
+                errors.email ? 'border-red-500' : isDark ? 'border-gray-600 bg-gray-700 text-white' : 'border-gray-300'
               }`}
               placeholder="Enter your email"
             />
@@ -120,7 +128,7 @@ const ClientLogin: React.FC = () => {
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="password" className={`block text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'} mb-2`}>
               Password
             </label>
             <input
@@ -129,8 +137,8 @@ const ClientLogin: React.FC = () => {
               name="password"
               value={formData.password}
               onChange={handleChange}
-              className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary-tea focus:border-transparent transition ${
-                errors.password ? 'border-red-500' : 'border-gray-300'
+              className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary-tea focus:border-transparent transition-all duration-200 ${
+                errors.password ? 'border-red-500' : isDark ? 'border-gray-600 bg-gray-700 text-white' : 'border-gray-300'
               }`}
               placeholder="Enter your password"
             />
@@ -151,10 +159,10 @@ const ClientLogin: React.FC = () => {
         <div className="mt-6">
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-300"></div>
+              <div className={`w-full border-t ${isDark ? 'border-gray-600' : 'border-gray-300'}`}></div>
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-white text-gray-500">Or</span>
+              <span className={`px-2 ${isDark ? 'bg-gray-800 text-gray-400' : 'bg-white text-gray-500'}`}>Or</span>
             </div>
           </div>
 
@@ -166,18 +174,18 @@ const ClientLogin: React.FC = () => {
           </button>
         </div>
 
-        <div className="mt-6 text-center">
-          <p className="text-gray-600">
+        <div className={`mt-6 text-center ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+          <p>
             Don't have an account?{' '}
             <Link 
               to="/client-register" 
-              className="text-primary-tea font-medium hover:underline"
+              className={`${isDark ? 'text-amber-400' : 'text-primary-tea'} font-medium hover:underline`}
             >
               Sign up
             </Link>
           </p>
           
-          <p className="mt-2 text-sm text-gray-500">
+          <p className="mt-2 text-sm">
             <Link to="/forgot-password" className="hover:underline">
               Forgot your password?
             </Link>
@@ -187,17 +195,17 @@ const ClientLogin: React.FC = () => {
 
       {/* Success Modal */}
       {showSuccessModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full text-center">
+        <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className={`${isDark ? 'bg-gray-800' : 'bg-white'} rounded-2xl shadow-2xl p-8 max-w-md w-full text-center animate-scale-in`}>
             <div className="w-16 h-16 bg-secondary-tea/30 rounded-full flex items-center justify-center mx-auto mb-4">
               <svg className="w-8 h-8 text-primary-tea" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
               </svg>
             </div>
-            <h2 className="text-2xl font-heading font-bold text-primary-tea mb-2">
+            <h2 className={`text-2xl font-heading font-bold ${isDark ? 'text-amber-400' : 'text-primary-tea'} mb-2`}>
               Login Successful!
             </h2>
-            <p className="text-gray-600 mb-6">
+            <p className={`${isDark ? 'text-gray-300' : 'text-gray-600'} mb-6`}>
               You have successfully logged in. Welcome back to Date & Maple!
             </p>
             <button

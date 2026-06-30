@@ -132,7 +132,7 @@ const AdminNavbar: React.FC = () => {
               </button>
 
               {paymentDropdownOpen && (
-                <div className="absolute left-0 mt-2 w-48 bg-cream dark:bg-gray-800 rounded-md shadow-lg py-1 z-50 border border-gray-200 dark:border-gray-700">
+                <div className="absolute left-0 mt-2 w-48 bg-cream/95 dark:bg-gray-800/95 backdrop-blur-sm rounded-xl shadow-xl py-1 z-50 border border-secondary-tea/50 dark:border-gray-700 animate-scale-in origin-top-left">
                   {paymentLinks.map((link) => (
                     <Link
                       key={link.to}
@@ -171,7 +171,7 @@ const AdminNavbar: React.FC = () => {
               </button>
 
               {contentDropdownOpen && (
-                <div className="absolute left-0 mt-2 w-48 bg-cream dark:bg-gray-800 rounded-md shadow-lg py-1 z-50 border border-gray-200 dark:border-gray-700">
+                <div className="absolute left-0 mt-2 w-48 bg-cream/95 dark:bg-gray-800/95 backdrop-blur-sm rounded-xl shadow-xl py-1 z-50 border border-secondary-tea/50 dark:border-gray-700 animate-scale-in origin-top-left">
                   {contentLinks.map((link) => (
                     <Link
                       key={link.to}
@@ -234,7 +234,7 @@ const AdminNavbar: React.FC = () => {
 
               {/* Profile Dropdown Menu */}
               {profileOpen && (
-                <div className="absolute right-0 mt-2 w-48 bg-cream dark:bg-gray-800 rounded-md shadow-lg py-1 z-50 border border-gray-200 dark:border-gray-700">
+                <div className="absolute right-0 mt-2 w-48 bg-cream/95 dark:bg-gray-800/95 backdrop-blur-sm rounded-xl shadow-xl py-1 z-50 border border-secondary-tea/50 dark:border-gray-700 animate-scale-in origin-top-right">
                   <div className="px-4 py-2 border-b border-gray-100 dark:border-gray-700">
                     <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{user?.firstName} {user?.lastName}</p>
                     <p className="text-xs text-gray-500 dark:text-gray-400">{user?.email}</p>
@@ -282,74 +282,76 @@ const AdminNavbar: React.FC = () => {
         </div>
 
         {/* Mobile Navigation */}
-        {mobileMenuOpen && (
-          <div className="lg:hidden py-2 border-t border-gray-200 dark:border-gray-700 bg-cream dark:bg-gray-900">
-            {navLinks.map((link) => (
+        <div 
+          className={`lg:hidden overflow-hidden transition-all duration-300 ease-in-out border-t border-gray-200 dark:border-gray-700 bg-cream dark:bg-gray-900 ${
+            mobileMenuOpen ? 'max-h-[600px] opacity-100 py-2' : 'max-h-0 opacity-0 py-0'
+          }`}
+        >
+          {navLinks.map((link) => (
+            <Link
+              key={link.to}
+              to={link.to}
+              onClick={() => setMobileMenuOpen(false)}
+              className={`flex items-center px-4 py-2 text-sm font-medium transition-colors duration-200 ${
+                isActive(link.to)
+                  ? 'bg-primary-tea text-white'
+                  : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-primary-tea'
+              }`}
+            >
+              <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={link.icon} />
+              </svg>
+              {link.label}
+            </Link>
+          ))}
+          {/* Payment Section in Mobile */}
+          <div className="border-t border-gray-200 dark:border-gray-700 mt-2 pt-2">
+            <div className="px-4 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+              Payment
+            </div>
+            {paymentLinks.map((link) => (
               <Link
                 key={link.to}
                 to={link.to}
                 onClick={() => setMobileMenuOpen(false)}
-                className={`flex items-center px-4 py-2 text-sm font-medium ${
+                className={`flex items-center px-4 py-2 text-sm font-medium transition-colors duration-200 ${
                   isActive(link.to)
                     ? 'bg-primary-tea text-white'
                     : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-primary-tea'
                 }`}
               >
                 <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={link.icon} />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
                 </svg>
                 {link.label}
               </Link>
             ))}
-            {/* Payment Section in Mobile */}
-            <div className="border-t border-gray-200 dark:border-gray-700 mt-2 pt-2">
-              <div className="px-4 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                Payment
-              </div>
-              {paymentLinks.map((link) => (
-                <Link
-                  key={link.to}
-                  to={link.to}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className={`flex items-center px-4 py-2 text-sm font-medium ${
-                    isActive(link.to)
-                      ? 'bg-primary-tea text-white'
-                      : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-primary-tea'
-                  }`}
-                >
-                  <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-                  </svg>
-                  {link.label}
-                </Link>
-              ))}
-            </div>
-
-            {/* Content Section in Mobile */}
-            <div className="border-t border-gray-200 dark:border-gray-700 mt-2 pt-2">
-              <div className="px-4 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                Content
-              </div>
-              {contentLinks.map((link) => (
-                <Link
-                  key={link.to}
-                  to={link.to}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className={`flex items-center px-4 py-2 text-sm font-medium ${
-                    isActive(link.to)
-                      ? 'bg-primary-tea text-white'
-                      : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-primary-tea'
-                  }`}
-                >
-                  <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
-                  </svg>
-                  {link.label}
-                </Link>
-              ))}
-            </div>
           </div>
-        )}
+
+          {/* Content Section in Mobile */}
+          <div className="border-t border-gray-200 dark:border-gray-700 mt-2 pt-2">
+            <div className="px-4 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+              Content
+            </div>
+            {contentLinks.map((link) => (
+              <Link
+                key={link.to}
+                to={link.to}
+                onClick={() => setMobileMenuOpen(false)}
+                className={`flex items-center px-4 py-2 text-sm font-medium transition-colors duration-200 ${
+                  isActive(link.to)
+                    ? 'bg-primary-tea text-white'
+                    : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-primary-tea'
+                }`}
+              >
+                <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+                </svg>
+                {link.label}
+              </Link>
+            ))}
+          </div>
+        </div>
       </div>
     </nav>
   );

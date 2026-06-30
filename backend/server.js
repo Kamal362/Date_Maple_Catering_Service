@@ -22,7 +22,6 @@ const authRoutes = require('./routes/auth');
 const passportAuthRoutes = require('./routes/passportAuth');
 const clientAuthRoutes = require('./routes/clientAuth');
 const workerAuthRoutes = require('./routes/workerAuth');
-const socialAuthRoutes = require('./routes/socialAuth');
 const menuRoutes = require('./routes/menu');
 const cartRoutes = require('./routes/cart');
 const checkoutRoutes = require('./routes/checkout');
@@ -38,6 +37,8 @@ const couponsRoutes = require('./routes/coupons');
 const uploadRoutes = require('./routes/upload');
 const contactRoutes = require('./routes/contact');
 const taxRoutes = require('./routes/tax');
+const stripeRoutes = require('./routes/stripe');
+const stripeController = require('./controllers/stripeController');
 
 // Initialize app
 const app = express();
@@ -70,7 +71,7 @@ const limiter = rateLimit({
   max: 100,
   message: 'Too many requests from this IP, please try again later.',
   skip: (req) => {
-    const publicEndpoints = ['/api/menu', '/api/auth/login', '/api/auth/register', '/api/health', '/api/events/flyers', '/api/home-content'];
+    const publicEndpoints = ['/api/menu', '/api/auth/login', '/api/auth/register', '/api/health', '/api/events/flyers', '/api/events/public', '/api/home-content'];
     return publicEndpoints.some(endpoint => req.path.startsWith(endpoint));
   }
 });
@@ -100,6 +101,11 @@ app.use(cors({
 
 // ─── General middleware ───────────────────────────────────────────────────────
 app.use(morgan('combined'));
+
+// Stripe webhook route MUST be mounted before express.json() because
+// signature verification requires the raw body as a Buffer.
+app.post('/api/stripe/webhook', express.raw({ type: 'application/json' }), stripeController.handleWebhook);
+
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
@@ -120,7 +126,6 @@ app.use('/api/auth', authRoutes);
 app.use('/api/auth', passportAuthRoutes);
 app.use('/api/client/auth', clientAuthRoutes);
 app.use('/api/worker/auth', workerAuthRoutes);
-app.use('/api/auth', socialAuthRoutes);
 app.use('/api/menu', menuRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/checkout', checkoutRoutes);
@@ -136,6 +141,7 @@ app.use('/api/coupons', couponsRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api/tax', taxRoutes);
+app.use('/api/stripe', stripeRoutes);
 
 // ─── Health check ─────────────────────────────────────────────────────────────
 app.get('/api/health', (req, res) => {
@@ -175,21 +181,21 @@ if (isProduction) {
   });
 }
 
-// ─── Error handling ───────────────────────────────────────────────────────────
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({
-    success: false,
-    message: 'Something went wrong!',
-    error: isProduction ? {} : err.message
-  });
-});
-
 // ─── 404 handler ──────────────────────────────────────────────────────────────
 // Note: in production this is only reached for non-API, non-static paths
 // because the SPA catch-alls above handle everything else.
 app.use((req, res) => {
   res.status(404).json({ success: false, message: 'Route not found' });
+});
+
+// ─── Error handling (must be last middleware) ────────────────────────────────
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(err.status || 500).json({
+    success: false,
+    message: 'Something went wrong!',
+    error: isProduction ? undefined : err.message
+  });
 });
 
 // ─── Start server ─────────────────────────────────────────────────────────────
@@ -202,13 +208,35 @@ connectDB().then(() => {
   process.exit(1);
 });
 
+// ─── Graceful shutdown ────────────────────────────────────────────────────────
+process.on('SIGTERM', () => {
+  console.log('SIGTERM received, shutting down gracefully...');
+  server.close(() => {
+    console.log('Server closed.');
+    process.exit(0);
+  });
+});
+
+process.on('SIGINT', () => {
+  console.log('SIGINT received, shutting down gracefully...');
+  server.close(() => {
+    console.log('Server closed.');
+    process.exit(0);
+  });
+});
+
+process.on('unhandledRejection', (err) => {
+  console.error('Unhandled Promise Rejection:', err);
+  server.close(() => {
+    process.exit(1);
+  });
+});
+
 // ─── Socket.IO ────────────────────────────────────────────────────────────────
 io.on('connection', (socket) => {
-  console.log('User connected:', socket.id);
 
   socket.on('join', (userId) => {
     connectedUsers.set(userId, socket.id);
-    console.log(`User ${userId} joined with socket ${socket.id}`);
   });
 
   socket.on('orderStatusUpdate', (data) => {
@@ -223,7 +251,6 @@ io.on('connection', (socket) => {
   });
 
   socket.on('disconnect', () => {
-    console.log('User disconnected:', socket.id);
     for (let [userId, socketId] of connectedUsers.entries()) {
       if (socketId === socket.id) {
         connectedUsers.delete(userId);

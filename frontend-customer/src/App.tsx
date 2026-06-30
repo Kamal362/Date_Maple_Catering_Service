@@ -18,6 +18,7 @@ import About from './pages/About';
 import Contact from './pages/Contact';
 import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
+import CheckoutSuccess from './pages/CheckoutSuccess';
 
 import ClientLogin from './pages/ClientLogin';
 import ClientRegister from './pages/ClientRegister';
@@ -84,6 +85,7 @@ const App: React.FC = () => {
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/cart" element={<Cart />} />
                 <Route path="/checkout" element={<Checkout />} />
+                <Route path="/checkout/success/:orderId" element={<CheckoutSuccess />} />
                 
                 <Route path="/client-login" element={<ClientLogin />} />
                 <Route path="/client-register" element={<ClientRegister />} />

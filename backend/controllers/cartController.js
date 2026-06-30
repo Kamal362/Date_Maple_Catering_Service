@@ -20,8 +20,7 @@ exports.getCart = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Server error',
-      error: error.message
+      message: 'Server error'
     });
   }
 };
@@ -31,18 +30,12 @@ exports.getCart = async (req, res) => {
 // @access  Private
 exports.addItemToCart = async (req, res) => {
   try {
-    console.log('addItemToCart called with body:', req.body);
-    console.log('User ID:', req.user.id);
-    
     const { menuItemId, quantity, specialInstructions, selectedSize, selectedMilk, addColdFoam } = req.body;
     
     // Check if menu item exists
-    console.log('Looking for menu item with ID:', menuItemId);
     const menuItem = await MenuItem.findById(menuItemId);
-    console.log('Found menu item:', menuItem);
     
     if (!menuItem) {
-      console.log('Menu item not found for ID:', menuItemId);
       return res.status(404).json({
         success: false,
         message: 'Menu item not found'
@@ -50,14 +43,10 @@ exports.addItemToCart = async (req, res) => {
     }
     
     // Find or create cart
-    console.log('Looking for existing cart for user:', req.user.id);
     let cart = await Cart.findOne({ user: req.user.id });
-    console.log('Existing cart found:', cart);
     
     if (!cart) {
-      console.log('Creating new cart for user:', req.user.id);
       cart = await Cart.create({ user: req.user.id, items: [] });
-      console.log('New cart created:', cart);
     }
     
     // Check if item already exists in cart
@@ -97,11 +86,9 @@ exports.addItemToCart = async (req, res) => {
     });
   } catch (error) {
     console.error('Error in addItemToCart:', error);
-    console.error('Error stack:', error.stack);
     res.status(500).json({
       success: false,
-      message: 'Server error',
-      error: error.message
+      message: 'Server error'
     });
   }
 };
@@ -149,8 +136,7 @@ exports.updateCartItem = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Server error',
-      error: error.message
+      message: 'Server error'
     });
   }
 };
@@ -188,8 +174,7 @@ exports.removeItemFromCart = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Server error',
-      error: error.message
+      message: 'Server error'
     });
   }
 };
@@ -220,8 +205,7 @@ exports.clearCart = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Server error',
-      error: error.message
+      message: 'Server error'
     });
   }
 };

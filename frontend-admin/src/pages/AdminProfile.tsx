@@ -111,8 +111,9 @@ const AdminProfile: React.FC = () => {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <h1 className="text-3xl font-bold text-gray-900 mb-6">Admin Profile</h1>
+    <div className="section-padding bg-cream min-h-screen">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-heading font-bold text-primary-tea mb-6">Admin Profile</h1>
       
       {message && (
         <div className={`mb-6 p-4 rounded-md ${
@@ -124,58 +125,58 @@ const AdminProfile: React.FC = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Profile Information */}
-        <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Profile Information</h2>
+        <div className="bg-white rounded-xl shadow-lg p-6 border border-secondary-tea">
+          <h2 className="text-xl font-heading font-semibold text-dark-tea mb-4">Profile Information</h2>
           <form onSubmit={handleProfileSubmit}>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">First Name</label>
+                <label className="block text-sm font-medium text-dark-tea mb-1">First Name</label>
                 <input
                   type="text"
                   name="firstName"
                   value={profileData.firstName}
                   onChange={handleProfileChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-tea"
+                  className="w-full px-3 py-2 border border-secondary-tea rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-tea transition-all duration-200"
                   required
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
+                <label className="block text-sm font-medium text-dark-tea mb-1">Last Name</label>
                 <input
                   type="text"
                   name="lastName"
                   value={profileData.lastName}
                   onChange={handleProfileChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-tea"
+                  className="w-full px-3 py-2 border border-secondary-tea rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-tea transition-all duration-200"
                   required
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                <label className="block text-sm font-medium text-dark-tea mb-1">Email</label>
                 <input
                   type="email"
                   name="email"
                   value={profileData.email}
                   onChange={handleProfileChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-tea"
+                  className="w-full px-3 py-2 border border-secondary-tea rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-tea transition-all duration-200"
                   required
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                <label className="block text-sm font-medium text-dark-tea mb-1">Phone</label>
                 <input
                   type="tel"
                   name="phone"
                   value={profileData.phone}
                   onChange={handleProfileChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-tea"
+                  className="w-full px-3 py-2 border border-secondary-tea rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-tea transition-all duration-200"
                 />
               </div>
             </div>
             <button
               type="submit"
               disabled={loading}
-              className="mt-6 w-full bg-primary-tea hover:bg-dark-tea text-white py-2 px-4 rounded-md font-medium disabled:opacity-50"
+              className="mt-6 w-full bg-primary-tea hover:bg-dark-tea text-cream py-2 px-4 rounded-lg font-medium transition-all duration-200 hover:shadow-lg disabled:opacity-50"
             >
               {loading ? 'Updating...' : 'Update Profile'}
             </button>
@@ -183,40 +184,40 @@ const AdminProfile: React.FC = () => {
         </div>
 
         {/* Change Password */}
-        <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Change Password</h2>
+        <div className="bg-white rounded-xl shadow-lg p-6 border border-secondary-tea">
+          <h2 className="text-xl font-heading font-semibold text-dark-tea mb-4">Change Password</h2>
           <form onSubmit={handlePasswordSubmit}>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Current Password</label>
+                <label className="block text-sm font-medium text-dark-tea mb-1">Current Password</label>
                 <input
                   type="password"
                   name="currentPassword"
                   value={passwordData.currentPassword}
                   onChange={handlePasswordChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-tea"
+                  className="w-full px-3 py-2 border border-secondary-tea rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-tea transition-all duration-200"
                   required
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">New Password</label>
+                <label className="block text-sm font-medium text-dark-tea mb-1">New Password</label>
                 <input
                   type="password"
                   name="newPassword"
                   value={passwordData.newPassword}
                   onChange={handlePasswordChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-tea"
+                  className="w-full px-3 py-2 border border-secondary-tea rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-tea transition-all duration-200"
                   required
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Confirm New Password</label>
+                <label className="block text-sm font-medium text-dark-tea mb-1">Confirm New Password</label>
                 <input
                   type="password"
                   name="confirmPassword"
                   value={passwordData.confirmPassword}
                   onChange={handlePasswordChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-tea"
+                  className="w-full px-3 py-2 border border-secondary-tea rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-tea transition-all duration-200"
                   required
                 />
               </div>
@@ -224,7 +225,7 @@ const AdminProfile: React.FC = () => {
             <button
               type="submit"
               disabled={loading}
-              className="mt-6 w-full bg-primary-tea hover:bg-dark-tea text-white py-2 px-4 rounded-md font-medium disabled:opacity-50"
+              className="mt-6 w-full bg-primary-tea hover:bg-dark-tea text-cream py-2 px-4 rounded-lg font-medium transition-all duration-200 hover:shadow-lg disabled:opacity-50"
             >
               {loading ? 'Changing...' : 'Change Password'}
             </button>
@@ -233,8 +234,8 @@ const AdminProfile: React.FC = () => {
       </div>
 
       {/* Account Info */}
-      <div className="mt-8 bg-white rounded-lg shadow p-6">
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">Account Information</h2>
+      <div className="mt-8 bg-white rounded-xl shadow-lg p-6 border border-secondary-tea">
+        <h2 className="text-xl font-heading font-semibold text-dark-tea mb-4">Account Information</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <p className="text-sm text-gray-600">User ID</p>
@@ -252,6 +253,7 @@ const AdminProfile: React.FC = () => {
           </div>
         </div>
       </div>
+    </div>
     </div>
   );
 };

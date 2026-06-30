@@ -34,7 +34,8 @@ const homePageContentSchema = new mongoose.Schema({
     description: String,
     price: String,
     image: String,
-    alt: String
+    alt: String,
+    icon: String
   }],
   settings: {
     type: mongoose.Schema.Types.Mixed,

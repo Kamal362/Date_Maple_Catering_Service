@@ -35,6 +35,11 @@ backend/uploads/*
 coverage/
 .nyc_output/
 
+# Security - never commit keys or certificates
+*.pem
+*.key
+*.cert
+
 # Misc
 .cache/
 temp/

@@ -121,8 +121,9 @@ const CategoryChart: React.FC<CategoryChartProps> = ({
   const totalRevenue = data.reduce((sum, item) => sum + item.revenue, 0);
 
   return (
-    <div className="bg-cream rounded-xl p-6 shadow-md border border-secondary-tea">
-      <div style={{ height: `${height}px` }} className="flex items-center justify-center">
+    <div className="bg-cream dark:bg-gray-800 rounded-xl p-4 sm:p-6 shadow-md border border-secondary-tea dark:border-gray-700 transition-colors duration-300">
+      <h3 className="text-lg font-heading font-semibold text-dark-tea dark:text-gray-100 mb-4">{title}</h3>
+      <div style={{ height: `${height}px` }} className="relative w-full flex items-center justify-center">
         <Doughnut data={chartData} options={options} />
       </div>
       <div className="mt-6 grid grid-cols-2 gap-4 text-center">

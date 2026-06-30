@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { getHomePageContentBySection, HomePageContent } from '../services/homeContentService';
 import { getApprovedReviews, Review } from '../services/reviewService';
 import { useTheme } from '../context/ThemeContext';
+import ScrollReveal from './ScrollReveal';
 
 const StarRating: React.FC<{ rating: number }> = ({ rating }) => (
   <div className="flex gap-0.5">
@@ -188,8 +189,8 @@ const Testimonials: React.FC = () => {
                   <button
                     key={i}
                     onClick={() => setCurrentPage(i)}
-                    className={`w-3 h-3 rounded-full transition-colors ${
-                      i === currentPage ? 'bg-primary-tea' : 'bg-secondary-tea hover:bg-accent-tea'
+                    className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                      i === currentPage ? 'bg-primary-tea scale-125' : 'bg-secondary-tea hover:bg-accent-tea'
                     }`}
                   />
                 ))}

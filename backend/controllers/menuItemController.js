@@ -15,8 +15,7 @@ exports.getMenuItems = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Server error',
-      error: error.message
+      message: 'Server error'
     });
   }
 };
@@ -37,8 +36,7 @@ exports.getMenuItemsByCategory = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Server error',
-      error: error.message
+      message: 'Server error'
     });
   }
 };
@@ -64,8 +62,7 @@ exports.getMenuItem = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Server error',
-      error: error.message
+      message: 'Server error'
     });
   }
 };
@@ -75,9 +72,6 @@ exports.getMenuItem = async (req, res) => {
 // @access  Private (Admin only)
 exports.createMenuItem = async (req, res) => {
   try {
-    console.log('Creating menu item with data:', req.body);
-    console.log('File data:', req.file);
-    
     // Handle image upload
     let imageData = req.body.image; // Default to URL if provided
     
@@ -125,11 +119,7 @@ exports.createMenuItem = async (req, res) => {
       price: price
     };
     
-    console.log('Final menu item data:', menuItemData);
-    
     const menuItem = await MenuItem.create(menuItemData);
-    
-    console.log('Menu item created successfully:', menuItem._id);
     
     res.status(201).json({
       success: true,
@@ -137,12 +127,9 @@ exports.createMenuItem = async (req, res) => {
     });
   } catch (error) {
     console.error('Error creating menu item:', error);
-    console.error('Error details:', error.message);
-    console.error('Stack trace:', error.stack);
     res.status(500).json({
       success: false,
-      message: 'Server error',
-      error: error.message
+      message: 'Server error'
     });
   }
 };
@@ -179,8 +166,7 @@ exports.updateMenuItem = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Server error',
-      error: error.message
+      message: 'Server error'
     });
   }
 };
@@ -205,8 +191,7 @@ exports.deleteMenuItem = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Server error',
-      error: error.message
+      message: 'Server error'
     });
   }
 };

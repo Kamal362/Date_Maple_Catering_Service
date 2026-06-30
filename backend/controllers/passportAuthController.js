@@ -15,8 +15,7 @@ exports.passportLogin = async (req, res, next) => {
     if (err) {
       return res.status(500).json({
         success: false,
-        message: 'Authentication error',
-        error: err.message
+        message: 'Authentication error'
       });
     }
     
@@ -51,8 +50,7 @@ exports.passportProtect = (req, res, next) => {
     if (err) {
       return res.status(500).json({
         success: false,
-        message: 'Authentication error',
-        error: err.message
+        message: 'Authentication error'
       });
     }
     
@@ -118,8 +116,7 @@ exports.passportRegister = async (req, res) => {
     console.error('Passport registration error:', error);
     res.status(500).json({
       success: false,
-      message: 'Server error',
-      error: error.message
+      message: 'Server error'
     });
   }
 };
@@ -127,8 +124,6 @@ exports.passportRegister = async (req, res) => {
 // Admin account creation endpoint using Passport
 exports.createAdminAccount = async (req, res) => {
   try {
-    console.log('=== DEBUG: createAdminAccount called ===');
-    console.log('Request body:', req.body);
     const { firstName, lastName, email, password, phone } = req.body;
 
     // Check if user exists
@@ -168,8 +163,7 @@ exports.createAdminAccount = async (req, res) => {
     console.error('Admin account creation error:', error);
     res.status(500).json({
       success: false,
-      message: 'Server error',
-      error: error.message
+      message: 'Server error'
     });
   }
 };
@@ -200,8 +194,7 @@ exports.getCurrentUser = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Server error',
-      error: error.message
+      message: 'Server error'
     });
   }
 };

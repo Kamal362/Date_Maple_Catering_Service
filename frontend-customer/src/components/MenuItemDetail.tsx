@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { MenuItem } from '../types/menu';
 import { useCart } from '../context/CartContext';
+import { useTheme } from '../context/ThemeContext';
 
 interface MenuItemDetailProps {
   item: MenuItem;
@@ -19,12 +20,14 @@ const MenuItemDetail: React.FC<MenuItemDetailProps> = ({
   const [selectedSize, setSelectedSize] = useState<string>('');
   const [selectedMilk, setSelectedMilk] = useState('regular');
   const [selectedExtras, setSelectedExtras] = useState<string[]>([]);
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
 
   if (!isOpen) return null;
 
   // Calculate total price based on size and extras
   const calculateTotalPrice = () => {
-    let total = item.price;
+    let total = Number(item.price) || 0;
     
     // Add size price if a size is selected
     if (selectedSize && item.sizes) {
@@ -80,13 +83,13 @@ const MenuItemDetail: React.FC<MenuItemDetailProps> = ({
       <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
         {/* Background overlay */}
         <div 
-          className="fixed inset-0 bg-black bg-opacity-50 transition-opacity"
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity"
           onClick={onClose}
         ></div>
 
         {/* Modal panel */}
-        <div className="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full">
-          <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+        <div className={`inline-block align-bottom rounded-2xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full animate-scale-in ${isDark ? 'bg-gray-800' : 'bg-white'}`}>
+          <div className={`px-4 pt-5 pb-4 sm:p-6 sm:pb-4 ${isDark ? 'bg-gray-800' : 'bg-white'}`}>
             <div className="sm:flex sm:items-start">
               {/* Image */}
               <div className="flex-shrink-0 w-full sm:w-1/3 mb-4 sm:mb-0 sm:mr-6">
@@ -100,22 +103,22 @@ const MenuItemDetail: React.FC<MenuItemDetailProps> = ({
               {/* Content */}
               <div className="sm:w-2/3">
                 <div className="mt-3 text-center sm:mt-0 sm:text-left">
-                  <h3 className="text-2xl leading-6 font-heading font-bold text-dark-tea">
+                  <h3 className={`text-2xl leading-6 font-heading font-bold ${isDark ? 'text-gray-100' : 'text-dark-tea'}`}>
                     {item.name}
                   </h3>
                   <div className="mt-2">
-                    <p className="text-secondary-tea">
+                    <p className={`${isDark ? 'text-gray-300' : 'text-secondary-tea'}`}>
                       {item.description}
                     </p>
                   </div>
                   
                   {/* Price */}
                   <div className="mt-4">
-                    <span className="text-3xl font-bold text-primary-tea">
+                    <span className={`text-3xl font-bold ${isDark ? 'text-amber-400' : 'text-primary-tea'}`}>
                       ${calculateTotalPrice().toFixed(2)}
                     </span>
                     {quantity > 1 && (
-                      <span className="text-secondary-tea ml-2">
+                      <span className={`ml-2 ${isDark ? 'text-gray-400' : 'text-secondary-tea'}`}>
                         (${(calculateTotalPrice() / quantity).toFixed(2)} each)
                       </span>
                     )}
@@ -244,7 +247,7 @@ const MenuItemDetail: React.FC<MenuItemDetailProps> = ({
           </div>
           
           {/* Action Buttons */}
-          <div className="bg-cream px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+          <div className={`px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse ${isDark ? 'bg-gray-700' : 'bg-cream'}`}>
             <button
               type="button"
               onClick={handleAddToCart}

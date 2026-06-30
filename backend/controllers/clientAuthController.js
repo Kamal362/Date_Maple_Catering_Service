@@ -58,8 +58,7 @@ exports.clientRegister = async (req, res) => {
     console.error('Client registration error:', error);
     res.status(500).json({
       success: false,
-      message: 'Registration failed',
-      error: error.message
+      message: 'Registration failed'
     });
   }
 };
@@ -124,8 +123,7 @@ exports.clientLogin = async (req, res) => {
     console.error('Client login error:', error);
     res.status(500).json({
       success: false,
-      message: 'Login failed',
-      error: error.message
+      message: 'Login failed'
     });
   }
 };
@@ -134,7 +132,7 @@ exports.clientLogin = async (req, res) => {
 exports.createGuestSession = async (req, res) => {
   try {
     // Create temporary guest identifier
-    const guestId = `guest_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const guestId = `guest_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
     
     // Generate temporary token for guest session
     const token = jwt.sign(
@@ -162,8 +160,7 @@ exports.createGuestSession = async (req, res) => {
     console.error('Guest session creation error:', error);
     res.status(500).json({
       success: false,
-      message: 'Failed to create guest session',
-      error: error.message
+      message: 'Failed to create guest session'
     });
   }
 };
@@ -222,8 +219,7 @@ exports.convertGuestToUser = async (req, res) => {
     console.error('Guest conversion error:', error);
     res.status(500).json({
       success: false,
-      message: 'Failed to create account',
-      error: error.message
+      message: 'Failed to create account'
     });
   }
 };
@@ -255,8 +251,7 @@ exports.getClientProfile = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Server error',
-      error: error.message
+      message: 'Server error'
     });
   }
 };
@@ -295,8 +290,59 @@ exports.updateClientProfile = async (req, res) => {
     console.error('Profile update error:', error);
     res.status(500).json({
       success: false,
-      message: 'Server error',
-      error: error.message
+      message: 'Server error'
+    });
+  }
+};
+
+// Change Client Password
+exports.changeClientPassword = async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide current password and new password'
+      });
+    }
+    
+    if (newPassword.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: 'New password must be at least 6 characters long'
+      });
+    }
+    
+    const user = await User.findById(req.user.id).select('+password');
+    
+    if (!user || user.role !== 'customer') {
+      return res.status(404).json({
+        success: false,
+        message: 'Customer not found'
+      });
+    }
+    
+    const isMatch = await user.comparePassword(currentPassword);
+    if (!isMatch) {
+      return res.status(401).json({
+        success: false,
+        message: 'Current password is incorrect'
+      });
+    }
+    
+    user.password = newPassword;
+    await user.save();
+    
+    res.status(200).json({
+      success: true,
+      message: 'Password updated successfully'
+    });
+  } catch (error) {
+    console.error('Password change error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error'
     });
   }
 };

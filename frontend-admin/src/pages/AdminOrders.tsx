@@ -161,7 +161,7 @@ const AdminOrders: React.FC = () => {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-4xl font-heading font-bold text-primary-tea">Order Management</h1>
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-heading font-bold text-primary-tea">Order Management</h1>
             <p className="text-secondary-tea mt-1">Manage and track all customer orders</p>
           </div>
           <button
@@ -384,8 +384,8 @@ const AdminOrders: React.FC = () => {
 
         {/* Order Detail Modal */}
         {showDetailModal && selectedOrder && (
-          <div className="fixed inset-0 bg-black bg-opacity-60 flex items-start justify-center z-50 p-4 overflow-y-auto">
-            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl my-8">
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-start justify-center z-50 p-4 overflow-y-auto">
+            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl my-8 animate-scale-in">
               {/* Modal Header */}
               <div className="flex items-center justify-between p-6 border-b border-gray-200">
                 <div>
@@ -433,7 +433,13 @@ const AdminOrders: React.FC = () => {
                     }`}>
                       {selectedOrder.paymentStatus || 'pending'}
                     </span>
-                    <p className="text-xs text-secondary-tea mt-1 capitalize">{selectedOrder.paymentMethod?.replace('_', ' ')}</p>
+                    <p className="text-xs text-secondary-tea mt-1 capitalize">
+                      {selectedOrder.paymentMethod === 'stripe'
+                        ? 'Stripe Card'
+                        : selectedOrder.paymentMethod === 'receipt_upload'
+                        ? 'Receipt Upload'
+                        : selectedOrder.paymentMethod?.replace('_', ' ')}
+                    </p>
                   </div>
                 </div>
 

@@ -15,8 +15,7 @@ exports.getOrders = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Server error',
-      error: error.message
+      message: 'Server error'
     });
   }
 };
@@ -36,8 +35,7 @@ exports.getMyOrders = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Server error',
-      error: error.message
+      message: 'Server error'
     });
   }
 };
@@ -57,7 +55,10 @@ exports.getOrder = async (req, res) => {
     }
     
     // Make sure user is order owner or admin
-    if (order.user._id.toString() !== req.user.id && req.user.role !== 'admin') {
+    // Handle guest orders where order.user is null
+    const isOwner = order.user && order.user._id.toString() === req.user.id;
+    const isAdmin = req.user.role === 'admin';
+    if (!isOwner && !isAdmin) {
       return res.status(401).json({
         success: false,
         message: 'Not authorized to view this order'
@@ -71,8 +72,7 @@ exports.getOrder = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Server error',
-      error: error.message
+      message: 'Server error'
     })
   }
 };
@@ -138,8 +138,7 @@ exports.trackOrder = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Server error',
-      error: error.message
+      message: 'Server error'
     });
   }
 };
@@ -171,8 +170,7 @@ exports.updateOrderStatus = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Server error',
-      error: error.message
+      message: 'Server error'
     });
   }
 };
@@ -207,8 +205,7 @@ exports.updatePaymentStatus = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Server error',
-      error: error.message
+      message: 'Server error'
     });
   }
 };
@@ -218,21 +215,16 @@ exports.updatePaymentStatus = async (req, res) => {
 // @access  Private (Admin only)
 exports.deleteOrder = async (req, res) => {
   try {
-    console.log('Attempting to delete order with ID:', req.params.id);
-    
     const order = await Order.findById(req.params.id);
     
     if (!order) {
-      console.log('Order not found with ID:', req.params.id);
       return res.status(404).json({
         success: false,
         message: 'Order not found'
       });
     }
     
-    console.log('Found order, proceeding with deletion');
     await Order.deleteOne({ _id: req.params.id });
-    console.log('Order deleted successfully');
     
     res.status(200).json({
       success: true,
@@ -241,12 +233,9 @@ exports.deleteOrder = async (req, res) => {
     });
   } catch (error) {
     console.error('Error deleting order:', error);
-    console.error('Error stack:', error.stack);
     res.status(500).json({
       success: false,
-      message: 'Server error',
-      error: error.message,
-      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+      message: 'Server error'
     });
   }
 };
@@ -285,8 +274,7 @@ exports.completeOrder = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Server error',
-      error: error.message
+      message: 'Server error'
     });
   }
 };
@@ -306,7 +294,10 @@ exports.cancelOrder = async (req, res) => {
     }
     
     // Make sure user is order owner or admin
-    if (order.user.toString() !== req.user.id && req.user.role !== 'admin') {
+    // Handle guest orders where order.user is null
+    const isOwner = order.user && order.user.toString() === req.user.id;
+    const isAdmin = req.user.role === 'admin';
+    if (!isOwner && !isAdmin) {
       return res.status(401).json({
         success: false,
         message: 'Not authorized to cancel this order'
@@ -332,8 +323,7 @@ exports.cancelOrder = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Server error',
-      error: error.message
+      message: 'Server error'
     });
   }
 };

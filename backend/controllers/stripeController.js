@@ -1,4 +1,5 @@
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+const Order = require('../models/Order');
 
 // @desc    Get Stripe publishable key
 // @route   GET /api/stripe/config
@@ -85,7 +86,7 @@ exports.confirmPayment = async (req, res) => {
     console.error('Error confirming payment:', error);
     res.status(500).json({
       success: false,
-      message: error.message || 'Error confirming payment',
+      message: 'Error confirming payment',
     });
   }
 };
@@ -243,7 +244,7 @@ exports.processRefund = async (req, res) => {
     console.error('Error processing refund:', error);
     res.status(500).json({
       success: false,
-      message: error.message || 'Error processing refund',
+      message: 'Error processing refund',
     });
   }
 };
@@ -286,26 +287,56 @@ exports.handleWebhook = async (req, res) => {
 
   // Handle the event
   switch (event.type) {
-    case 'payment_intent.succeeded':
+    case 'payment_intent.succeeded': {
       const paymentIntent = event.data.object;
-      console.log('PaymentIntent succeeded:', paymentIntent.id);
-      // Update order status in database
+      const orderId = paymentIntent.metadata?.orderId;
+      if (orderId) {
+        try {
+          await Order.findByIdAndUpdate(orderId, {
+            paymentStatus: 'paid',
+            transactionCompleted: true,
+            completedAt: new Date(),
+          });
+        } catch (dbError) {
+          console.error('Failed to update order after payment success:', dbError);
+        }
+      }
       break;
+    }
 
-    case 'payment_intent.payment_failed':
+    case 'payment_intent.payment_failed': {
       const failedPayment = event.data.object;
-      console.log('PaymentIntent failed:', failedPayment.id);
-      // Handle failed payment
+      const orderId = failedPayment.metadata?.orderId;
+      if (orderId) {
+        try {
+          await Order.findByIdAndUpdate(orderId, { paymentStatus: 'failed' });
+        } catch (dbError) {
+          console.error('Failed to update order after payment failure:', dbError);
+        }
+      }
       break;
+    }
 
-    case 'charge.refunded':
+    case 'charge.refunded': {
       const refund = event.data.object;
-      console.log('Charge refunded:', refund.id);
-      // Update order status
+      const orderId = refund.metadata?.orderId;
+      if (orderId) {
+        try {
+          await Order.findByIdAndUpdate(orderId, {
+            paymentStatus: 'pending',
+            transactionCompleted: false,
+            $unset: { completedAt: 1 },
+          });
+        } catch (dbError) {
+          console.error('Failed to update order after refund:', dbError);
+        }
+      }
       break;
+    }
 
     default:
-      console.log(`Unhandled event type ${event.type}`);
+      // Unhandled event type — no action needed
+      break;
   }
 
   res.json({ received: true });

@@ -3,6 +3,7 @@ import { getMyOrders, trackOrder, completeOrder, Order as OrderType } from '../s
 import { getMyReviews } from '../services/reviewService';
 import { format } from 'date-fns';
 import ReviewForm from '../components/ReviewForm';
+import { useTheme } from '../context/ThemeContext';
 
 interface ExtendedOrder extends OrderType {
   updatedAt: string;
@@ -23,6 +24,8 @@ interface ExtendedOrder extends OrderType {
 }
 
 const OrderTracking: React.FC = () => {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
   const [orderId, setOrderId] = useState('');
   const [orders, setOrders] = useState<ExtendedOrder[]>([]);
   const [loading, setLoading] = useState(false);
@@ -261,7 +264,7 @@ const OrderTracking: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-cream flex items-center justify-center">
+      <div className={`min-h-screen ${isDark ? 'bg-gray-900' : 'bg-cream'} flex items-center justify-center transition-colors duration-300`}>
         <div className="text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-4 border-primary-tea border-t-transparent mx-auto mb-4"></div>
           <p className="text-secondary-tea font-medium">Loading your orders...</p>
@@ -272,7 +275,7 @@ const OrderTracking: React.FC = () => {
 
   if (selectedOrder) {
     return (
-      <div className="min-h-screen bg-cream">
+      <div className={`min-h-screen ${isDark ? 'bg-gray-900' : 'bg-cream'} transition-colors duration-300`}>
         <div className="container mx-auto px-4 py-8">
           {/* Header */}
           <div className="flex items-center justify-between mb-8">
@@ -291,7 +294,7 @@ const OrderTracking: React.FC = () => {
 
           <div className="max-w-6xl mx-auto">
             {/* Order Info Card */}
-            <div className="bg-white rounded-2xl shadow-lg p-6 mb-6 border border-secondary-tea">
+            <div className={`${isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-secondary-tea'} rounded-2xl shadow-lg p-6 mb-6 border`}>
               <div className="flex flex-wrap justify-between items-center">
                 <div>
                   <h2 className="text-2xl font-heading font-bold text-dark-tea">
@@ -365,7 +368,7 @@ const OrderTracking: React.FC = () => {
             </div>
 
             {/* Progress Bar */}
-            <div className="bg-white rounded-2xl shadow-lg p-8 mb-6 border border-secondary-tea">
+            <div className={`${isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-secondary-tea'} rounded-2xl shadow-lg p-8 mb-6 border`}>
               <h3 className="text-xl font-heading font-semibold mb-6 text-dark-tea">Order Progress</h3>
               {renderProgressBar(selectedOrder)}
             </div>
@@ -373,7 +376,7 @@ const OrderTracking: React.FC = () => {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Order Items */}
               <div className="lg:col-span-2">
-                <div className="bg-white rounded-2xl shadow-lg p-6 border border-secondary-tea">
+                <div className={`${isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-secondary-tea'} rounded-2xl shadow-lg p-6 border`}>
                   <h3 className="text-xl font-heading font-semibold mb-6 text-dark-tea flex items-center">
                     <svg className="w-6 h-6 mr-3 text-primary-tea" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
@@ -447,7 +450,7 @@ const OrderTracking: React.FC = () => {
               </div>
 
               {/* Order Summary */}
-              <div className="bg-white rounded-2xl shadow-lg p-6 border border-secondary-tea h-fit">
+              <div className={`${isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-secondary-tea'} rounded-2xl shadow-lg p-6 border h-fit`}>
                 <h3 className="text-xl font-heading font-semibold mb-6 text-dark-tea flex items-center">
                   <svg className="w-6 h-6 mr-3 text-primary-tea" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -510,14 +513,14 @@ const OrderTracking: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-cream">
+    <div className={`min-h-screen ${isDark ? 'bg-gray-900' : 'bg-cream'} transition-colors duration-300`}>
       <div className="container mx-auto px-4 py-8">
-        <h1 className="text-4xl font-heading font-bold mb-10 text-center text-primary-tea">Order Tracking</h1>
+        <h1 className={`text-2xl sm:text-3xl md:text-4xl font-heading font-bold mb-6 sm:mb-10 text-center ${isDark ? 'text-amber-400' : 'text-primary-tea'}`}>Order Tracking</h1>
         
         {/* Search Section */}
-        <div className="max-w-2xl mx-auto bg-white rounded-2xl shadow-lg p-6 mb-8 border border-secondary-tea">
+        <div className={`max-w-2xl mx-auto ${isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-secondary-tea'} rounded-2xl shadow-lg p-6 mb-8 border`}>
           <h2 className="text-xl font-heading font-semibold mb-4 text-dark-tea">Find Your Order</h2>
-          <form onSubmit={handleTrackSpecificOrder} className="flex gap-3">
+          <form onSubmit={handleTrackSpecificOrder} className="flex flex-col sm:flex-row gap-3">
             <div className="flex-grow">
               <input
                 type="text"
@@ -541,7 +544,7 @@ const OrderTracking: React.FC = () => {
         <div className="max-w-4xl mx-auto">
           {!isAuthenticated ? (
             /* Guest panel */
-            <div className="bg-white rounded-2xl shadow-lg p-10 text-center border border-secondary-tea">
+            <div className={`${isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-secondary-tea'} rounded-2xl shadow-lg p-10 text-center border`}>
               <div className="w-20 h-20 bg-light-tea rounded-full flex items-center justify-center mx-auto mb-5">
                 <svg className="w-10 h-10 text-primary-tea" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
@@ -633,7 +636,7 @@ const OrderTracking: React.FC = () => {
                   ))}
                 </div>
               ) : (
-                <div className="bg-white rounded-2xl shadow-lg p-12 text-center border border-secondary-tea">
+                <div className={`${isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-secondary-tea'} rounded-2xl shadow-lg p-12 text-center border`}>
                   <div className="w-24 h-24 bg-light-tea rounded-full flex items-center justify-center mx-auto mb-6">
                     <svg className="w-12 h-12 text-secondary-tea" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>

@@ -1,24 +1,33 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { loadStripe, Stripe as StripeType } from '@stripe/stripe-js';
+import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { useCart } from '../context/CartContext';
 import { createOrder, createGuestOrder } from '../services/orderService';
 import { getPaymentMethods, PaymentMethod } from '../services/paymentService';
 import { syncCartWithBackend, getCart } from '../services/cartService';
 import { isAuthenticated } from '../services/authService';
 import { getTaxSettings, TaxSettings } from '../services/taxService';
+import { useTheme } from '../context/ThemeContext';
+import { getStripeConfig, createPaymentIntent } from '../services/stripeService';
 
 const Checkout: React.FC = () => {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+  const stripe = useStripe();
+  const elements = useElements();
   const [orderType, setOrderType] = useState<'delivery' | 'pickup'>('delivery');
-  const [paymentMethod, setPaymentMethod] = useState<'card' | 'receipt' | 'digital'>('digital');
+  const [paymentMethod, setPaymentMethod] = useState<'card' | 'receipt' | 'digital' | 'stripe'>('digital');
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('');
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [proofOfPayment, setProofOfPayment] = useState<File | null>(null);
-  const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showValidationErrorModal, setShowValidationErrorModal] = useState(false);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [orderId, setOrderId] = useState<string | null>(null);
+  const [clientSecret, setClientSecret] = useState<string | null>(null);
+  const [paymentError, setPaymentError] = useState<string | null>(null);
   const [isGuest, setIsGuest] = useState(!isAuthenticated());
   const [guestInfo, setGuestInfo] = useState({
     firstName: '',
@@ -35,12 +44,7 @@ const Checkout: React.FC = () => {
   const tax = subtotal * taxRate;
   const deliveryFee = orderType === 'delivery' ? 2.99 : 0;
   const total = subtotal + tax + deliveryFee;
-  
-  console.log('Cart items:', cartItems);
-  console.log('Cart total:', cartTotal);
-  console.log('Subtotal:', subtotal);
-  console.log('Tax:', tax);
-  console.log('Total:', total);
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     getTaxSettings().then(setTaxSettings);
@@ -68,6 +72,40 @@ const Checkout: React.FC = () => {
   const handleProofOfPaymentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       setProofOfPayment(e.target.files[0]);
+    }
+  };
+
+  const processStripePayment = async (targetOrderId: string) => {
+    if (!stripe || !elements) {
+      throw new Error('Stripe is not ready. Please wait a moment or refresh the page.');
+    }
+    const cardElement = elements.getElement(CardElement);
+    if (!cardElement) {
+      throw new Error('Card element not found. Please refresh the page and try again.');
+    }
+
+    const paymentIntentResponse = await createPaymentIntent(Math.round(total * 100), { orderId: targetOrderId });
+    setClientSecret(paymentIntentResponse.clientSecret);
+
+    const { error: confirmError, paymentIntent } = await stripe.confirmCardPayment(
+      paymentIntentResponse.clientSecret,
+      {
+        payment_method: {
+          card: cardElement,
+          billing_details: {
+            name: isGuest ? `${guestInfo.firstName} ${guestInfo.lastName}`.trim() : undefined,
+            email: isGuest ? guestInfo.email : undefined,
+          },
+        },
+      }
+    );
+
+    if (confirmError) {
+      throw new Error(confirmError.message || 'Payment confirmation failed. Please try again.');
+    }
+
+    if (!paymentIntent || paymentIntent.status !== 'succeeded') {
+      throw new Error(`Payment status: ${paymentIntent?.status || 'unknown'}. Please check your payment details.`);
     }
   };
 
@@ -117,6 +155,11 @@ const Checkout: React.FC = () => {
       validationErrors.push('Payment receipt is required for digital payment');
     }
     
+    // Validate Stripe readiness
+    if (paymentMethod === 'stripe' && (!stripe || !elements)) {
+      validationErrors.push('Stripe payment is not ready. Please wait a moment or refresh the page.');
+    }
+    
     // Show validation errors
     if (validationErrors.length > 0) {
       setValidationErrors(validationErrors);
@@ -124,26 +167,13 @@ const Checkout: React.FC = () => {
       return;
     }
     
+    setSubmitting(true);
     try {
-      console.log('=== CHECKOUT CART DEBUG INFO ===');
-      console.log('Syncing frontend cart with backend before checkout');
-      console.log('Frontend cart items:', cartItems);
-      console.log('Cart items count:', cartItems.length);
-      console.log('Cart items structure:', cartItems.map(item => ({
-        name: item.name || 'Unknown',
-        id: item.id || 'No ID',
-        quantity: item.quantity || 0,
-        hasId: !!(item.id)
-      })));
-      console.log('================================');
-      
       // Sync frontend cart with backend before placing order
       const syncResult = await syncCartWithBackend(cartItems);
-      console.log('Cart sync result:', syncResult);
       
       // If sync failed or no items were added, show appropriate error
       if (!syncResult) {
-        console.log('Cart sync failed or no valid items to sync');
         setValidationErrors([
           'Unable to sync your cart. Please refresh the page and add items to your cart again.',
           'Make sure you are adding items from the current menu.'
@@ -155,12 +185,9 @@ const Checkout: React.FC = () => {
       // Verify the cart was created by trying to fetch it
       try {
         const backendCart = await getCart();
-        console.log('Backend cart after sync:', backendCart);
-        console.log('Backend cart items count:', backendCart.items?.length || 0);
         
         // Double-check that cart has items
         if (!backendCart.items || backendCart.items.length === 0) {
-          console.log('Backend cart is still empty after sync');
           setValidationErrors([
             'Cart synchronization completed but no items were added to your cart.',
             'Please try adding items again or contact support.'
@@ -178,12 +205,10 @@ const Checkout: React.FC = () => {
         return; // Stop the checkout process
       }
       
-      console.log('Cart synced successfully with items, proceeding with order');
-      
       // Prepare order data
       const orderData: any = {
         orderType,
-        paymentMethod: paymentMethod === 'digital' ? 'receipt_upload' : paymentMethod,
+        paymentMethod: paymentMethod === 'digital' ? 'receipt_upload' : paymentMethod === 'stripe' ? 'stripe' : paymentMethod,
         deliveryAddress: orderType === 'delivery' ? {
           street: (document.getElementById('street') as HTMLInputElement)?.value.trim(),
           city: (document.getElementById('city') as HTMLInputElement)?.value.trim(),
@@ -217,24 +242,38 @@ const Checkout: React.FC = () => {
         formData.append('paymentReceipt', proofOfPayment);
       }
 
-      console.log('Submitting order with data:', orderData);
-      console.log('FormData entries:', [...formData.entries()]);
-      
       // Submit order - use guest checkout if not authenticated
       const response = isGuest ? await createGuestOrder(formData) : await createOrder(formData);
-      console.log('Order response:', response);
       
       if (response.success) {
-        // Set order ID and show success modal
-        setOrderId(response.data?._id || null);
-        setShowSuccessModal(true);
+        // Set order ID
+        const createdOrderId = response.data?._id || null;
+        setOrderId(createdOrderId);
+        
+        // If Stripe payment, create payment intent and confirm card payment
+        if (paymentMethod === 'stripe' && createdOrderId && stripe && elements) {
+          try {
+            await processStripePayment(createdOrderId);
+            // Payment succeeded - navigate to success page
+            navigate(`/checkout/success/${createdOrderId}`);
+          } catch (stripeErr: any) {
+            setPaymentError(stripeErr.message || 'Payment failed. Please check your card details and try again.');
+            setSubmitting(false);
+            return;
+          }
+        } else if (createdOrderId) {
+          // Non-Stripe payment - navigate to success page
+          navigate(`/checkout/success/${createdOrderId}`);
+        } else {
+          setValidationErrors(['Failed to create order. Please try again.']);
+          setShowValidationErrorModal(true);
+        }
       } else {
         setValidationErrors(['Failed to place order. Please try again.']);
         setShowValidationErrorModal(true);
       }
     } catch (err: any) {
       console.error('Error placing order:', err);
-      console.error('Error response:', err.response);
       
       let errorMessage = 'Failed to place order. Please try again.';
       
@@ -256,14 +295,23 @@ const Checkout: React.FC = () => {
       
       setValidationErrors([errorMessage]);
       setShowValidationErrorModal(true);
+    } finally {
+      setSubmitting(false);
     }
   };
 
-  const handleModalClose = () => {
-    setShowSuccessModal(false);
-    // Navigate to order tracking page for all order types
-    if (orderId) {
-      navigate(`/order-tracking/${orderId}`);
+  const handleRetryPayment = async () => {
+    if (!orderId || !stripe || !elements) return;
+    setSubmitting(true);
+    setPaymentError(null);
+
+    try {
+      await processStripePayment(orderId);
+      navigate(`/checkout/success/${orderId}`);
+    } catch (stripeErr: any) {
+      setPaymentError(stripeErr.message || 'Payment failed. Please check your card details and try again.');
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -273,14 +321,14 @@ const Checkout: React.FC = () => {
   };
 
   return (
-    <div className="section-padding bg-cream">
+    <div className={`section-padding ${isDark ? 'bg-gray-900' : 'bg-cream'} transition-colors duration-300`}>
       <div className="container mx-auto px-4">
-        <h1 className="text-4xl font-heading font-bold mb-8 text-primary-tea">Checkout</h1>
+        <h1 className={`text-2xl sm:text-3xl md:text-4xl font-heading font-bold mb-6 sm:mb-8 ${isDark ? 'text-amber-400' : 'text-primary-tea'}`}>Checkout</h1>
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2">
-            <div className="card p-6 mb-8">
-              <h2 className="text-2xl font-heading font-semibold mb-6">Delivery Method</h2>
+            <div className={`card p-6 mb-8 ${isDark ? 'bg-gray-800 border-gray-700' : ''}`}>
+              <h2 className={`text-2xl font-heading font-semibold mb-6 ${isDark ? 'text-gray-100' : ''}`}>Delivery Method</h2>
               
               <div className="flex space-x-4 mb-6">
                 <button
@@ -319,7 +367,7 @@ const Checkout: React.FC = () => {
               
               {/* Guest Info Section */}
               {isGuest && (
-                <div className="mb-6 bg-cream border border-secondary-tea rounded-lg p-6">
+                <div className={`mb-6 ${isDark ? 'bg-gray-700 border-gray-600' : 'bg-cream border-secondary-tea'} border rounded-lg p-6`}>
                   <h3 className="text-xl font-heading font-semibold mb-4 flex items-center gap-2">
                     <svg className="w-5 h-5 text-primary-tea" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
@@ -446,10 +494,10 @@ const Checkout: React.FC = () => {
               )}
             </div>
             
-            <div className="card p-6">
-              <h2 className="text-2xl font-heading font-semibold mb-6">Payment Method</h2>
+            <div className={`card p-6 ${isDark ? 'bg-gray-800 border-gray-700' : ''}`}>
+              <h2 className={`text-2xl font-heading font-semibold mb-6 ${isDark ? 'text-gray-100' : ''}`}>Payment Method</h2>
               
-              <div className="flex space-x-4 mb-6">
+              <div className="flex flex-col sm:flex-row gap-4 mb-6">
                 {/* Credit Card - shown if enabled in admin */}
                 {paymentMethods.find(m => m.type === 'credit_card' && m.isActive) && (
                   <button
@@ -503,6 +551,23 @@ const Checkout: React.FC = () => {
                     </div>
                   </button>
                 )}
+                
+                {/* Stripe Card Payment */}
+                <button
+                  onClick={() => setPaymentMethod('stripe')}
+                  className={`flex-1 py-4 px-6 rounded-lg border-2 transition-all ${
+                    paymentMethod === 'stripe' 
+                      ? 'border-primary-tea bg-primary-tea text-cream' 
+                      : 'border-secondary-tea hover:border-accent-tea'
+                  }`}
+                >
+                  <div className="flex items-center justify-center">
+                    <svg className="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
+                    </svg>
+                    <span className="font-medium">Pay with Card</span>
+                  </div>
+                </button>
               </div>
               
               {paymentMethod === 'card' ? (
@@ -544,6 +609,58 @@ const Checkout: React.FC = () => {
                       className="w-full px-4 py-3 border border-secondary-tea rounded-md focus:outline-none focus:ring-2 focus:ring-primary-tea"
                       placeholder="John Doe"
                     />
+                  </div>
+                </div>
+              ) : paymentMethod === 'stripe' ? (
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-dark-tea mb-2">Card Details</label>
+                    <div className={`w-full px-4 py-3 border border-secondary-tea rounded-md focus-within:ring-2 focus-within:ring-primary-tea ${isDark ? 'bg-gray-700 border-gray-600' : 'bg-white'}`}>
+                      <CardElement
+                        options={{
+                          style: {
+                            base: {
+                              fontSize: '16px',
+                              color: isDark ? '#f3f4f6' : '#1f2937',
+                              '::placeholder': {
+                                color: isDark ? '#9ca3af' : '#6b7280',
+                              },
+                            },
+                            invalid: {
+                              color: '#ef4444',
+                            },
+                          },
+                        }}
+                      />
+                    </div>
+                    <p className="text-sm text-secondary-tea mt-2">
+                      Your card information is securely processed by Stripe.
+                    </p>
+                    {paymentError && (
+                      <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+                        <div className="flex items-start gap-2">
+                          <svg className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                          </svg>
+                          <div className="flex-1">
+                            <p className="text-sm text-red-700 font-medium mb-1">Payment failed</p>
+                            <p className="text-sm text-red-600 mb-3">{paymentError}</p>
+                            <button
+                              type="button"
+                              onClick={handleRetryPayment}
+                              disabled={submitting}
+                              className={`text-sm px-4 py-2 rounded-lg font-medium ${
+                                submitting
+                                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                  : 'bg-primary-tea text-cream hover:bg-dark-tea'
+                              }`}
+                            >
+                              {submitting ? 'Retrying...' : 'Retry Payment'}
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               ) : paymentMethod === 'receipt' ? (
@@ -700,8 +817,8 @@ const Checkout: React.FC = () => {
           </div>
           
           <div>
-            <div className="card p-6 sticky top-6">
-              <h2 className="text-2xl font-heading font-semibold mb-6">Order Summary</h2>
+            <div className={`card p-6 sticky top-6 ${isDark ? 'bg-gray-800 border-gray-700' : ''}`}>
+              <h2 className={`text-2xl font-heading font-semibold mb-6 ${isDark ? 'text-gray-100' : ''}`}>Order Summary</h2>
               
               <div className="space-y-4 mb-6">
                 {cartItems.map((item, index) => (
@@ -751,9 +868,10 @@ const Checkout: React.FC = () => {
               
               <button 
                 onClick={handleSubmit}
-                className="btn-primary w-full py-3 mb-4"
+                disabled={submitting || !!paymentError}
+                className={`btn-primary w-full py-3 mb-4 rounded-lg ${submitting || paymentError ? 'opacity-60 cursor-not-allowed' : 'btn-glow'}`}
               >
-                Place Order
+                {paymentError ? 'Payment Failed - Retry Below' : submitting ? 'Placing Order...' : 'Place Order'}
               </button>
               
               <Link to="/cart" className="btn-secondary w-full text-center block py-3">
@@ -764,38 +882,10 @@ const Checkout: React.FC = () => {
         </div>
       </div>
       
-      {/* Success Modal */}
-      {showSuccessModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-cream rounded-lg shadow-xl w-full max-w-md">
-            <div className="p-6">
-              <div className="text-center">
-                <svg className="w-16 h-16 text-primary-tea mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                </svg>
-                <h3 className="text-2xl font-heading font-bold text-primary-tea mb-2">Order Placed Successfully!</h3>
-                <p className="text-dark-tea mb-4">
-                  Your order has been placed successfully and is now waiting for admin approval.
-                </p>
-                <p className="text-secondary-tea text-sm mb-6">
-                  You will be notified once your payment has been verified.
-                </p>
-                <button
-                  onClick={handleModalClose}
-                  className="btn-primary w-full py-3"
-                >
-                  Continue
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Validation Error Modal */}
       {showValidationErrorModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-cream rounded-lg shadow-xl w-full max-w-md">
+        <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className={`${isDark ? 'bg-gray-800' : 'bg-cream'} rounded-lg shadow-xl w-full max-w-md animate-scale-in`}>
             <div className="p-6">
               <div className="text-center">
                 <svg className="w-16 h-16 text-red-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -825,4 +915,28 @@ const Checkout: React.FC = () => {
   );
 };
 
-export default Checkout;
+const StripeWrappedCheckout: React.FC = () => {
+  const [stripePromise, setStripePromise] = useState<Promise<StripeType | null> | null>(null);
+
+  useEffect(() => {
+    const initStripe = async () => {
+      try {
+        const config = await getStripeConfig();
+        if (config.publishableKey && config.publishableKey.startsWith('pk_')) {
+          setStripePromise(loadStripe(config.publishableKey));
+        }
+      } catch (err) {
+        console.error('Failed to load Stripe config:', err);
+      }
+    };
+    initStripe();
+  }, []);
+
+  return (
+    <Elements stripe={stripePromise}>
+      <Checkout />
+    </Elements>
+  );
+};
+
+export default StripeWrappedCheckout;

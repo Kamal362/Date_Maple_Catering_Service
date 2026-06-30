@@ -52,7 +52,7 @@ export const getEvents = async (): Promise<Event[]> => {
 export const getPublicEvents = async (): Promise<Event[]> => {
   try {
     const response = await apiClient.get('/events/public');
-    return response.data.data;
+    return Array.isArray(response.data.data) ? response.data.data : [];
   } catch (error: any) {
     console.error('Error fetching public events:', error);
     throw error;

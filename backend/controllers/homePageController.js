@@ -20,8 +20,7 @@ exports.getAllContent = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Server error',
-      error: error.message
+      message: 'Server error'
     });
   }
 };
@@ -53,8 +52,7 @@ exports.getContentBySection = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Server error',
-      error: error.message
+      message: 'Server error'
     });
   }
 };
@@ -66,6 +64,20 @@ exports.createOrUpdateContent = async (req, res) => {
   try {
     const { section } = req.body;
     
+    if (!section) {
+      return res.status(400).json({
+        success: false,
+        message: 'Section is required'
+      });
+    }
+    
+    // Strip read-only fields that should not be overwritten
+    const updateData = { ...req.body };
+    delete updateData._id;
+    delete updateData.__v;
+    delete updateData.createdAt;
+    delete updateData.updatedAt;
+    
     // Check if content exists for this section
     let content = await HomePageContent.findOne({ section });
     
@@ -73,12 +85,12 @@ exports.createOrUpdateContent = async (req, res) => {
       // Update existing content
       content = await HomePageContent.findOneAndUpdate(
         { section },
-        req.body,
+        updateData,
         { new: true, runValidators: true }
       );
     } else {
       // Create new content
-      content = await HomePageContent.create(req.body);
+      content = await HomePageContent.create(updateData);
     }
     
     res.status(200).json({
@@ -86,10 +98,11 @@ exports.createOrUpdateContent = async (req, res) => {
       data: content
     });
   } catch (error) {
+    console.error('Error saving homepage content:', error);
     res.status(500).json({
       success: false,
       message: 'Server error',
-      error: error.message
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 };
@@ -116,8 +129,7 @@ exports.deleteContent = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Server error',
-      error: error.message
+      message: 'Server error'
     });
   }
 };

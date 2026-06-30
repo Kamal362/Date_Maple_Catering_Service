@@ -1,5 +1,5 @@
 const express = require('express');
-const { getDashboardStats, getUsers, getUser, updateUser, deleteUser, getLowInventory, createUser } = require('../controllers/adminController');
+const { getDashboardStats, getUsers, getUser, updateUser, deleteUser, getLowInventory, createUser, getRevenueTrend, getPopularItems, getSalesByCategory, getPeakHours, getCustomerDemographics } = require('../controllers/adminController');
 const { protect, authorize } = require('../middleware/auth');
 
 const router = express.Router();
@@ -18,5 +18,21 @@ router.route('/users/:id')
 
 router.route('/inventory/low')
   .get(protect, authorize('admin'), getLowInventory);
+
+// Analytics routes
+router.route('/analytics/revenue-trend')
+  .get(protect, authorize('admin'), getRevenueTrend);
+
+router.route('/analytics/popular-items')
+  .get(protect, authorize('admin'), getPopularItems);
+
+router.route('/analytics/sales-by-category')
+  .get(protect, authorize('admin'), getSalesByCategory);
+
+router.route('/analytics/peak-hours')
+  .get(protect, authorize('admin'), getPeakHours);
+
+router.route('/analytics/demographics')
+  .get(protect, authorize('admin'), getCustomerDemographics);
 
 module.exports = router;

@@ -42,7 +42,7 @@ input, textarea, [contenteditable] {
 
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -63,17 +63,34 @@ code {
     monospace;
 }
 
+/* Heading font */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Cormorant Garamond', serif;
+}
+
+.font-heading {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 600;
+}
+
 /* Button Styles */
 .btn-primary {
-  @apply bg-primary-tea text-white px-4 py-2 rounded-md hover:bg-accent-tea transition-colors;
+  @apply bg-primary-tea text-white px-4 py-2 rounded-md hover:bg-accent-tea transition-all duration-300;
+  box-shadow: 0 2px 8px rgba(139, 69, 19, 0.2);
+}
+
+.btn-primary:hover {
+  box-shadow: 0 4px 12px rgba(139, 69, 19, 0.3);
+  transform: translateY(-1px);
 }
 
 .dark .btn-primary {
   @apply bg-primary-tea text-white hover:bg-accent-tea;
+  box-shadow: 0 2px 8px rgba(74, 222, 128, 0.2);
 }
 
 .btn-secondary {
-  @apply bg-gray-200 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-300 transition-colors;
+  @apply bg-gray-200 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-300 transition-all duration-300;
 }
 
 .dark .btn-secondary {
@@ -82,8 +99,12 @@ code {
 
 /* Card Styles */
 .card {
-  @apply rounded-lg shadow-md p-6;
+  @apply rounded-lg shadow-md p-6 transition-all duration-300;
   background-color: var(--cream);
+}
+
+.card:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
 }
 
 .dark .card {
@@ -91,10 +112,11 @@ code {
   background-color: #1f2937;
 }
 
-/* Typography */
-.font-heading {
-  font-weight: 600;
+.dark .card:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
 }
+
+/* Typography */
 
 /* Dark mode text colors */
 .dark .text-gray-900 {
@@ -173,4 +195,115 @@ code {
   .container {
     @apply px-4;
   }
+}
+
+/* ============================================
+   SCROLL REVEAL ANIMATIONS
+   ============================================ */
+.scroll-reveal {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+}
+
+.scroll-reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ============================================
+   ADMIN CARD ENHANCEMENTS
+   ============================================ */
+.admin-card {
+  @apply rounded-xl p-6 transition-all duration-300;
+  background-color: var(--cream);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.admin-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.1);
+}
+
+.dark .admin-card {
+  background-color: #1f2937;
+}
+
+.dark .admin-card:hover {
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.4);
+}
+
+/* ============================================
+   FORM INPUT ENHANCEMENTS
+   ============================================ */
+.form-input {
+  @apply w-full px-4 py-3 border rounded-lg transition-all duration-300;
+}
+
+.form-input:focus {
+  @apply ring-2 ring-primary-tea border-transparent outline-none;
+  box-shadow: 0 0 0 3px rgba(139, 69, 19, 0.1);
+}
+
+.dark .form-input {
+  @apply bg-gray-700 text-gray-100 border-gray-600;
+}
+
+.dark .form-input:focus {
+  box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.2);
+}
+
+/* ============================================
+   TABLE ENHANCEMENTS
+   ============================================ */
+.table-container {
+  @apply overflow-x-auto rounded-lg;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.data-table {
+  @apply w-full text-sm text-left;
+}
+
+.data-table thead {
+  @apply bg-gray-50 text-gray-700 uppercase text-xs font-semibold;
+}
+
+.data-table thead th {
+  @apply px-6 py-4;
+}
+
+.data-table tbody tr {
+  @apply border-b border-gray-200 hover:bg-gray-50 transition-colors;
+}
+
+.data-table tbody td {
+  @apply px-6 py-4;
+}
+
+.dark .data-table thead {
+  @apply bg-gray-700 text-gray-200;
+}
+
+.dark .data-table tbody tr {
+  @apply border-gray-700 hover:bg-gray-700;
+}
+
+/* ============================================
+   SHIMMER LOADING
+   ============================================ */
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.2) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 2s linear infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
 }
