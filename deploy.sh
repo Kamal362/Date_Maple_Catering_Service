@@ -52,6 +52,15 @@ PORT=5002
 MONGODB_URI=mongodb+srv://Kamal:vudhmODqO8ps9bKH@cluster0.lhtiwgs.mongodb.net/DateAndMapple?retryWrites=true&w=majority&appName=Cluster0
 JWT_SECRET=datemaple_jwt_secret_key_2024_secure_random_string
 JWT_EXPIRE=30d
+
+## Stripe API keys
+# Replace with your live keys from https://dashboard.stripe.com/apikeys
+STRIPE_SECRET_KEY=sk_live_your_stripe_secret_key_here
+STRIPE_PUBLISHABLE_KEY=pk_live_your_stripe_publishable_key_here
+
+# Webhook endpoint URL: https://3.85.132.30/api/stripe/webhook
+# Replace with the signing secret from your Stripe webhook endpoint (starts with whsec_)
+STRIPE_WEBHOOK_SECRET=whsec_your_stripe_webhook_signing_secret_here
 EOF
 
 # Start backend with PM2
@@ -79,7 +88,7 @@ echo "Configuring Nginx..."
 sudo tee /etc/nginx/sites-available/date-maple << 'EOF'
 server {
     listen 80;
-    server_name 44.202.252.118;
+    server_name 3.85.132.30;
 
     # Backend API
     location /api {
@@ -127,8 +136,8 @@ pm2 startup systemd
 echo "=== Deployment Complete ==="
 echo ""
 echo "Your application should be accessible at:"
-echo "  - Customer Site: http://44.202.252.118/"
-echo "  - Admin Site: http://44.202.252.118/admin/"
-echo "  - API: http://44.202.252.118/api/"
+echo "  - Customer Site: http://3.85.132.30/"
+echo "  - Admin Site: http://3.85.132.30/admin/"
+echo "  - API: http://3.85.132.30/api/"
 echo ""
 echo "IMPORTANT: Update the .env file in ~/Date_Maple_Catering_Service/backend/.env with your actual credentials"
