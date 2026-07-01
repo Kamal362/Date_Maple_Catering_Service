@@ -2,14 +2,15 @@ const mongoose = require('mongoose');
 
 const connectDB = async () => {
   try {
-    const mongoURI =
-      process.env.NODE_ENV === 'production'
-        ? process.env.MONGODB_URL_LIVE
-        : process.env.MONGODB_URL_LOCAL;
+    // Use Atlas live URL in all environments; local MongoDB is no longer used
+    const mongoURI = process.env.MONGODB_URL_LIVE;
 
-    const conn = await mongoose.connect(
-      mongoURI || 'mongodb://localhost:27017/date_maple'
-    );
+    if (!mongoURI) {
+      console.error('Error: MONGODB_URL_LIVE is not defined in .env');
+      process.exit(1);
+    }
+
+    const conn = await mongoose.connect(mongoURI);
 
     console.log(`MongoDB Connected: ${conn.connection.host}`);
   } catch (error) {

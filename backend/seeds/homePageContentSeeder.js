@@ -128,15 +128,15 @@ const defaultContent = [
 
 const seedHomePageContent = async () => {
   try {
-    // Connect to MongoDB
-    const mongoURI =
-      process.env.NODE_ENV === 'production'
-        ? process.env.MONGODB_URL_LIVE
-        : process.env.MONGODB_URL_LOCAL;
+    // Connect to MongoDB using Atlas live URL in all environments
+    const mongoURI = process.env.MONGODB_URL_LIVE;
 
-    await mongoose.connect(
-      mongoURI || 'mongodb://localhost:27017/dateandmaple'
-    );
+    if (!mongoURI) {
+      console.error('Error: MONGODB_URL_LIVE is not defined in .env');
+      process.exit(1);
+    }
+
+    await mongoose.connect(mongoURI);
     console.log('Connected to MongoDB');
 
     // Check existing content
