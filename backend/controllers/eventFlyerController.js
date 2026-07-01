@@ -1,6 +1,7 @@
 const EventFlyer = require('../models/EventFlyer');
 const multer = require('multer');
 const path = require('path');
+const { getUploadUrl } = require('../utils/uploadUrl');
 
 // Configure multer for file uploads
 const storage = multer.diskStorage({
@@ -55,8 +56,8 @@ exports.uploadEventFlyer = [
         });
       }
 
-      // Create event flyer - store URL path, not filesystem path
-      const flyerImageUrl = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
+      // Create event flyer - store relative URL path so it works in any environment
+      const flyerImageUrl = getUploadUrl(req.file.filename);
       const eventFlyer = await EventFlyer.create({
         title,
         description: description || '',
@@ -153,9 +154,9 @@ exports.updateEventFlyer = [
       if (priority) updateData.priority = parseInt(priority);
       if (isActive !== undefined) updateData.isActive = isActive === 'true' || isActive === true;
 
-      // If a new flyer image was uploaded, update with URL path
+      // If a new flyer image was uploaded, update with relative URL path
       if (req.file) {
-        updateData.flyerImage = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
+        updateData.flyerImage = getUploadUrl(req.file.filename);
       }
 
       const eventFlyer = await EventFlyer.findByIdAndUpdate(

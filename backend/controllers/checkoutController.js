@@ -4,6 +4,7 @@ const MenuItem = require('../models/MenuItem');
 const TaxSettings = require('../models/TaxSettings');
 const multer = require('multer');
 const path = require('path');
+const { getUploadUrl } = require('../utils/uploadUrl');
 
 // Configure multer for file uploads
 const storage = multer.diskStorage({
@@ -96,9 +97,8 @@ exports.processCheckout = async (req, res) => {
     // Handle payment receipt if uploaded
     let paymentReceiptUrl = null;
     if (req.file) {
-      // In production, you might want to use a cloud storage service
-      // For now, we'll store the relative path
-      paymentReceiptUrl = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
+      // Store relative path so it works in any environment
+      paymentReceiptUrl = getUploadUrl(req.file.filename);
     }
 
     // Create order
@@ -213,7 +213,7 @@ exports.processGuestCheckout = async (req, res) => {
     // Handle payment receipt if uploaded
     let paymentReceiptUrl = null;
     if (req.file) {
-      paymentReceiptUrl = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
+      paymentReceiptUrl = getUploadUrl(req.file.filename);
     }
 
     // Create order for guest

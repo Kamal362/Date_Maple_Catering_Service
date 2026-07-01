@@ -1,4 +1,5 @@
 const MenuItem = require('../models/MenuItem');
+const { getUploadUrl } = require('../utils/uploadUrl');
 
 // @desc    Get all menu items
 // @route   GET /api/menu
@@ -76,8 +77,8 @@ exports.createMenuItem = async (req, res) => {
     let imageData = req.body.image; // Default to URL if provided
     
     if (req.file) {
-      // If file was uploaded, use the uploaded file path
-      imageData = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
+      // If file was uploaded, store a relative path so it works in any environment
+      imageData = getUploadUrl(req.file.filename);
     }
     
     // Parse JSON strings for arrays
@@ -143,8 +144,8 @@ exports.updateMenuItem = async (req, res) => {
     let updateData = { ...req.body };
     
     if (req.file) {
-      // If file was uploaded, use the uploaded file path
-      updateData.image = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
+      // If file was uploaded, store a relative path so it works in any environment
+      updateData.image = getUploadUrl(req.file.filename);
     }
     
     const menuItem = await MenuItem.findByIdAndUpdate(req.params.id, updateData, {
