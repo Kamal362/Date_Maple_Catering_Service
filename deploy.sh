@@ -48,7 +48,7 @@ npm install
 # Create .env file
     cat > .env << EOF
 NODE_ENV=production
-PORT=5002
+PORT=5000
 MONGODB_URL_LOCAL=mongodb://localhost:27017/date_maple
 MONGODB_URL_LIVE=mongodb+srv://Kamal:vudhmODqO8ps9bKH@cluster0.lhtiwgs.mongodb.net/DateAndMapple?appName=Cluster0
 JWT_SECRET=datemaple_jwt_secret_key_2024_secure_random_string
@@ -93,7 +93,7 @@ server {
 
     # Backend API
     location /api {
-        proxy_pass http://localhost:5002;
+        proxy_pass http://localhost:5000;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection 'upgrade';
