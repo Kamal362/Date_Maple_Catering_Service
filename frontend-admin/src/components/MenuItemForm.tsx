@@ -157,7 +157,16 @@ const MenuItemForm: React.FC<MenuItemFormProps> = ({ menuItem, onSave, onCancel 
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSave(formData);
+
+    // Ensure the selected file is always submitted if one exists. The separate
+    // imageFile state is the source of truth for uploads.
+    const submissionData: FormData = {
+      ...formData,
+      image: imageFile || (typeof formData.image === 'string' ? formData.image : '')
+    };
+
+    console.log('[MenuItemForm] submitting image:', submissionData.image, 'type:', typeof submissionData.image, 'isFile:', submissionData.image instanceof File);
+    onSave(submissionData);
   };
 
   const triggerFileInput = () => {
