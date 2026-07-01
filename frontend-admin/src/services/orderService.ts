@@ -50,12 +50,10 @@ export interface Order {
 // Create a new order
 export const createOrder = async (formData: FormData): Promise<{success: boolean, data?: Order, message?: string}> => {
   try {
-    // Create a new axios instance for form data
+    // Create a new axios instance for form data. Do not set Content-Type;
+    // axios must add the multipart boundary automatically.
     const formApiClient = axios.create({
       baseURL: `${import.meta.env.VITE_API_URL || 'http://localhost:5002'}/api/checkout`,
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
     });
     
     // Add auth token to requests if available

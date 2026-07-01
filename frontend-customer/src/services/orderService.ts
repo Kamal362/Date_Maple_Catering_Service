@@ -36,11 +36,8 @@ export interface Order {
 // Create a new order
 export const createOrder = async (formData: FormData): Promise<{success: boolean, data?: Order, message?: string}> => {
   try {
-    const response = await axiosInstance.post('/checkout', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
+    // Let axios set the multipart boundary automatically.
+    const response = await axiosInstance.post('/checkout', formData);
     return response.data;
   } catch (error) {
     console.error('Error creating order:', error);
@@ -51,11 +48,8 @@ export const createOrder = async (formData: FormData): Promise<{success: boolean
 // Create a guest order
 export const createGuestOrder = async (formData: FormData): Promise<{success: boolean, data?: Order, message?: string}> => {
   try {
-    const response = await axiosInstance.post('/checkout/guest', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
+    // Let axios set the multipart boundary automatically.
+    const response = await axiosInstance.post('/checkout/guest', formData);
     return response.data;
   } catch (error) {
     console.error('Error creating guest order:', error);

@@ -59,11 +59,9 @@ export const createMenuItem = async (menuItemData: Partial<MenuItem>): Promise<M
     // Create a new axios instance for FormData
     const formDataAxios = axiosInstance;
     
-    const response = await formDataAxios.post('/menu', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
+    // Let axios set the multipart boundary automatically. Explicitly setting
+    // Content-Type here would strip the boundary and cause multer to fail.
+    const response = await formDataAxios.post('/menu', formData);
     
     return response.data.data;
   } else {
@@ -96,11 +94,9 @@ export const updateMenuItem = async (id: string, updates: Partial<MenuItem>): Pr
     // Create a new axios instance for FormData
     const formDataAxios = axiosInstance;
     
-    const response = await formDataAxios.put(`/menu/${id}`, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
+    // Let axios set the multipart boundary automatically. Explicitly setting
+    // Content-Type here would strip the boundary and cause multer to fail.
+    const response = await formDataAxios.put(`/menu/${id}`, formData);
     
     return response.data.data;
   } else {
