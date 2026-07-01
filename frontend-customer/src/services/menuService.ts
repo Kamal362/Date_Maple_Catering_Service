@@ -42,15 +42,20 @@ const reverseTransformMenuItem = (item: MenuItem): any => {
 
 // Create a new menu item with file upload support
 export const createMenuItem = async (menuItemData: Partial<MenuItem>): Promise<MenuItem> => {
+  // Sanitize image: only allow string or File
+  if (menuItemData.image && typeof menuItemData.image === 'object' && !(menuItemData.image instanceof File)) {
+    menuItemData.image = '';
+  }
+
   // If the data contains a file, we need to send it as FormData
   if (menuItemData.image instanceof File) {
     const formData = new FormData();
-    
+
     // Append all fields to FormData
     Object.entries(menuItemData).forEach(([key, value]) => {
-      if (key === 'dietary' || key === 'altMilkOptions') {
+      if (key === 'dietary' || key === 'altMilkOptions' || key === 'sizes' || key === 'extras') {
         // Stringify arrays
-        formData.append(key, JSON.stringify(value));
+        formData.append(key, JSON.stringify(value || []));
       } else if (key === 'image' && value instanceof File) {
         // Append file
         formData.append(key, value);
@@ -76,15 +81,20 @@ export const createMenuItem = async (menuItemData: Partial<MenuItem>): Promise<M
 
 // Update an existing menu item with file upload support
 export const updateMenuItem = async (id: string, updates: Partial<MenuItem>): Promise<MenuItem> => {
+  // Sanitize image: only allow string or File
+  if (updates.image && typeof updates.image === 'object' && !(updates.image instanceof File)) {
+    updates.image = '';
+  }
+
   // If the data contains a file, we need to send it as FormData
   if (updates.image instanceof File) {
     const formData = new FormData();
-    
+
     // Append all fields to FormData
     Object.entries(updates).forEach(([key, value]) => {
-      if (key === 'dietary' || key === 'altMilkOptions') {
+      if (key === 'dietary' || key === 'altMilkOptions' || key === 'sizes' || key === 'extras') {
         // Stringify arrays
-        formData.append(key, JSON.stringify(value));
+        formData.append(key, JSON.stringify(value || []));
       } else if (key === 'image' && value instanceof File) {
         // Append file
         formData.append(key, value);

@@ -75,12 +75,18 @@ exports.createMenuItem = async (req, res) => {
   try {
     // Handle image upload
     let imageData = req.body.image; // Default to URL if provided
-    
+
     if (req.file) {
       // If file was uploaded, store a relative path so it works in any environment
       imageData = getUploadUrl(req.file.filename);
     }
-    
+
+    // Defensive: image must be a string. If the frontend sent an object
+    // (e.g. empty object or stale state), fall back to an empty string.
+    if (imageData && typeof imageData !== 'string') {
+      imageData = '';
+    }
+
     // Parse JSON strings for arrays sent from FormData
     const parseJsonArray = (value) => {
       if (typeof value === 'string') {
@@ -143,6 +149,12 @@ exports.updateMenuItem = async (req, res) => {
 
     // Remove frontend id field so mongoose doesn't try to set it
     delete updateData.id;
+
+    // Defensive: image must be a string or undefined. If the frontend sent an
+    // object (e.g. empty object from stale state), clear it so the update works.
+    if (updateData.image && typeof updateData.image !== 'string') {
+      updateData.image = '';
+    }
 
     if (req.file) {
       // If file was uploaded, store a relative path so it works in any environment
