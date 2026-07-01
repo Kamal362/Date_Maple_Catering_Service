@@ -132,7 +132,7 @@ const AdminNavbar: React.FC = () => {
               </button>
 
               {paymentDropdownOpen && (
-                <div className="absolute left-0 mt-2 w-48 bg-cream/95 dark:bg-gray-800/95 backdrop-blur-sm rounded-xl shadow-xl py-1 z-50 border border-secondary-tea/50 dark:border-gray-700 animate-scale-in origin-top-left">
+                <div className="absolute left-0 mt-2 w-48 bg-cream dark:bg-gray-800 rounded-xl shadow-xl py-1 z-50 border border-secondary-tea/50 dark:border-gray-700 animate-scale-in origin-top-left">
                   {paymentLinks.map((link) => (
                     <Link
                       key={link.to}
@@ -171,7 +171,7 @@ const AdminNavbar: React.FC = () => {
               </button>
 
               {contentDropdownOpen && (
-                <div className="absolute left-0 mt-2 w-48 bg-cream/95 dark:bg-gray-800/95 backdrop-blur-sm rounded-xl shadow-xl py-1 z-50 border border-secondary-tea/50 dark:border-gray-700 animate-scale-in origin-top-left">
+                <div className="absolute left-0 mt-2 w-48 bg-cream dark:bg-gray-800 rounded-xl shadow-xl py-1 z-50 border border-secondary-tea/50 dark:border-gray-700 animate-scale-in origin-top-left">
                   {contentLinks.map((link) => (
                     <Link
                       key={link.to}
@@ -234,7 +234,7 @@ const AdminNavbar: React.FC = () => {
 
               {/* Profile Dropdown Menu */}
               {profileOpen && (
-                <div className="absolute right-0 mt-2 w-48 bg-cream/95 dark:bg-gray-800/95 backdrop-blur-sm rounded-xl shadow-xl py-1 z-50 border border-secondary-tea/50 dark:border-gray-700 animate-scale-in origin-top-right">
+                <div className="absolute right-0 mt-2 w-48 bg-cream dark:bg-gray-800 rounded-xl shadow-xl py-1 z-50 border border-secondary-tea/50 dark:border-gray-700 animate-scale-in origin-top-right">
                   <div className="px-4 py-2 border-b border-gray-100 dark:border-gray-700">
                     <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{user?.firstName} {user?.lastName}</p>
                     <p className="text-xs text-gray-500 dark:text-gray-400">{user?.email}</p>
