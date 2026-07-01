@@ -129,7 +129,14 @@ const defaultContent = [
 const seedHomePageContent = async () => {
   try {
     // Connect to MongoDB
-    await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/dateandmaple');
+    const mongoURI =
+      process.env.NODE_ENV === 'production'
+        ? process.env.MONGODB_URL_LIVE
+        : process.env.MONGODB_URL_LOCAL;
+
+    await mongoose.connect(
+      mongoURI || 'mongodb://localhost:27017/dateandmaple'
+    );
     console.log('Connected to MongoDB');
 
     // Check existing content

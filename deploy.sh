@@ -49,7 +49,8 @@ npm install
     cat > .env << EOF
 NODE_ENV=production
 PORT=5002
-MONGODB_URI=mongodb+srv://Kamal:vudhmODqO8ps9bKH@cluster0.lhtiwgs.mongodb.net/DateAndMapple?retryWrites=true&w=majority&appName=Cluster0
+MONGODB_URL_LOCAL=mongodb://localhost:27017/date_maple
+MONGODB_URL_LIVE=mongodb+srv://Kamal:vudhmODqO8ps9bKH@cluster0.lhtiwgs.mongodb.net/DateAndMapple?appName=Cluster0
 JWT_SECRET=datemaple_jwt_secret_key_2024_secure_random_string
 JWT_EXPIRE=30d
 
