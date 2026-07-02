@@ -144,10 +144,6 @@ exports.createMenuItem = async (req, res) => {
 // @access  Private (Admin only)
 exports.updateMenuItem = async (req, res) => {
   try {
-    // Debug logging for image upload troubleshooting
-    console.log('[updateMenuItem] file:', req.file ? req.file.filename : 'none');
-    console.log('[updateMenuItem] body.image:', req.body.image, 'type:', typeof req.body.image);
-
     // Handle image upload
     let updateData = { ...req.body };
 

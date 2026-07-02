@@ -59,7 +59,6 @@ export const createMenuItem = async (menuItemData: Partial<MenuItem>): Promise<M
   }
 
   const hasFile = isFile(menuItemData.image);
-  console.log('[menuService create] image type:', typeof menuItemData.image, 'isFile:', hasFile);
 
   // If the data contains a file, we need to send it as FormData
   if (hasFile) {
@@ -101,7 +100,6 @@ export const updateMenuItem = async (id: string, updates: Partial<MenuItem>): Pr
   }
 
   const hasFile = isFile(updates.image);
-  console.log('[menuService update] image type:', typeof updates.image, 'isFile:', hasFile);
 
   // If the data contains a file, we need to send it as FormData
   if (hasFile) {

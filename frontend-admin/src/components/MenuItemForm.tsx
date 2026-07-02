@@ -165,7 +165,6 @@ const MenuItemForm: React.FC<MenuItemFormProps> = ({ menuItem, onSave, onCancel 
       image: imageFile || (typeof formData.image === 'string' ? formData.image : '')
     };
 
-    console.log('[MenuItemForm] submitting image:', submissionData.image, 'type:', typeof submissionData.image, 'isFile:', submissionData.image instanceof File);
     onSave(submissionData);
   };
 
