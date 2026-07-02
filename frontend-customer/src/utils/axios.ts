@@ -15,6 +15,14 @@ api.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+
+    // If sending FormData, remove the default JSON Content-Type so the browser
+    // can set the multipart boundary correctly. Without this, axios keeps the
+    // default 'application/json' header and FormData gets serialized to {}.
+    if (config.data instanceof FormData) {
+      delete config.headers['Content-Type'];
+    }
+
     // Add cache-busting for GET requests to prevent stale data
     if (config.method === 'get') {
       config.params = {
