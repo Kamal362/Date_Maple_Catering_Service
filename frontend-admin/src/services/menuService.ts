@@ -36,15 +36,29 @@ const reverseTransformMenuItem = (item: MenuItem): any => {
   };
 };
 
+// Robust file detection. instanceof File can fail across realms or after
+// serialization, so also accept objects with File-like properties.
+const isFile = (value: any): value is File => {
+  if (value instanceof File) return true;
+  if (value && typeof value === 'object' && typeof value.name === 'string' &&
+      typeof value.size === 'number' && typeof value.type === 'string') {
+    return true;
+  }
+  return false;
+};
+
 // Create a new menu item with file upload support
 export const createMenuItem = async (menuItemData: Partial<MenuItem>): Promise<MenuItem> => {
-  // Sanitize image: only allow string or File
-  if (menuItemData.image && typeof menuItemData.image === 'object' && !(menuItemData.image instanceof File)) {
+  // Sanitize image: only allow string or File-like object
+  if (menuItemData.image && typeof menuItemData.image === 'object' && !isFile(menuItemData.image)) {
     menuItemData.image = '';
   }
 
+  const hasFile = isFile(menuItemData.image);
+  console.log('[menuService create] image type:', typeof menuItemData.image, 'isFile:', hasFile);
+
   // If the data contains a file, we need to send it as FormData
-  if (menuItemData.image instanceof File) {
+  if (hasFile) {
     const formData = new FormData();
 
     // Append all fields to FormData
@@ -52,7 +66,7 @@ export const createMenuItem = async (menuItemData: Partial<MenuItem>): Promise<M
       if (key === 'dietary' || key === 'altMilkOptions' || key === 'sizes' || key === 'extras') {
         // Stringify arrays
         formData.append(key, JSON.stringify(value || []));
-      } else if (key === 'image' && value instanceof File) {
+      } else if (key === 'image' && isFile(value)) {
         // Append file
         formData.append(key, value);
       } else if (typeof value !== 'object' || value === null) {
@@ -60,14 +74,14 @@ export const createMenuItem = async (menuItemData: Partial<MenuItem>): Promise<M
         formData.append(key, value as string | Blob);
       }
     });
-    
+
     // Create a new axios instance for FormData
     const formDataAxios = axiosInstance;
-    
+
     // Let axios set the multipart boundary automatically. Explicitly setting
     // Content-Type here would strip the boundary and cause multer to fail.
     const response = await formDataAxios.post('/menu', formData);
-    
+
     return response.data.data;
   } else {
     // Regular JSON request
@@ -78,13 +92,16 @@ export const createMenuItem = async (menuItemData: Partial<MenuItem>): Promise<M
 
 // Update an existing menu item with file upload support
 export const updateMenuItem = async (id: string, updates: Partial<MenuItem>): Promise<MenuItem> => {
-  // Sanitize image: only allow string or File
-  if (updates.image && typeof updates.image === 'object' && !(updates.image instanceof File)) {
+  // Sanitize image: only allow string or File-like object
+  if (updates.image && typeof updates.image === 'object' && !isFile(updates.image)) {
     updates.image = '';
   }
 
+  const hasFile = isFile(updates.image);
+  console.log('[menuService update] image type:', typeof updates.image, 'isFile:', hasFile);
+
   // If the data contains a file, we need to send it as FormData
-  if (updates.image instanceof File) {
+  if (hasFile) {
     const formData = new FormData();
 
     // Append all fields to FormData
@@ -92,7 +109,7 @@ export const updateMenuItem = async (id: string, updates: Partial<MenuItem>): Pr
       if (key === 'dietary' || key === 'altMilkOptions' || key === 'sizes' || key === 'extras') {
         // Stringify arrays
         formData.append(key, JSON.stringify(value || []));
-      } else if (key === 'image' && value instanceof File) {
+      } else if (key === 'image' && isFile(value)) {
         // Append file
         formData.append(key, value);
       } else if (typeof value !== 'object' || value === null) {
@@ -100,14 +117,14 @@ export const updateMenuItem = async (id: string, updates: Partial<MenuItem>): Pr
         formData.append(key, value as string | Blob);
       }
     });
-    
+
     // Create a new axios instance for FormData
     const formDataAxios = axiosInstance;
-    
+
     // Let axios set the multipart boundary automatically. Explicitly setting
     // Content-Type here would strip the boundary and cause multer to fail.
     const response = await formDataAxios.put(`/menu/${id}`, formData);
-    
+
     return response.data.data;
   } else {
     // Regular JSON request
